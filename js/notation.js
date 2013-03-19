@@ -9,6 +9,9 @@ var FUX = (function (fux) {
 		//the canvas "context"
 		context,
 
+		//Track the users mouse
+		mouse = { x: 0, y: 0 },
+
 		//The dimensions of the canvas element
 		cWidth,
 		cHeight,
@@ -16,6 +19,35 @@ var FUX = (function (fux) {
 		//objects for rendering staves and notes
 		staff,
 		note,
+
+		//The current note type for the tooltip
+		currentNoteValue = 'whole',
+
+		//Mappings of Y positions for notes on staff based on clef
+		pitchMappings = {
+			treble: {
+
+			},
+			alto: {
+
+			},
+			tenor: {
+
+			},
+			bass: {
+
+			}
+		},
+
+		//Event listeners to track mouse position and mouse clicks within the notation canvas
+		onMouseMove = function(e) {
+			mouse.x = e.clientX - theCanvas.offsetLeft;
+			mouse.y = e.clientY - theCanvas.offsetTop;
+		},
+
+		onMouseClick = function(staffObject){
+			
+		},
 
 		//Setup the Canvas
 		setup = function(){
@@ -26,7 +58,42 @@ var FUX = (function (fux) {
 			cHeight = theCanvas.height;
 		};
 
-		//an object to render a staff to the page
+		//an object to render a note to the canvas
+		note = {
+			pitches: {
+				a: 48
+			},
+			noteImages: {
+				whole: 'images/whole-note.png'
+			},
+			pitch: 'a',
+
+			//Dimensions of the note image, defaults to whole note image dimensions
+			width: 36,
+			height: 52,
+
+			create: function(pitch, duration, position){
+				this.pitch = pitch;
+				this.duration = duration;
+
+				this.render(position);
+			},
+			render: function(position){
+				var self = this,
+				noteImage = new Image();
+
+				//Set note background image path
+				noteImage.src = self.noteImages[self.duration];
+
+				//Render staff background image
+				noteImage.onload = function() {
+					context.drawImage(noteImage, position, self.pitches[self.pitch]);
+				};
+			}
+
+		};
+
+		//an object to render a staff to the canvas
 		staff = {
 			//Default X position, Y position, width, and height for a musical staff
 			x: 0,
@@ -35,18 +102,44 @@ var FUX = (function (fux) {
 			height: 90,
 
 			//Default number of measures 
-			measures: 4,
+			measureLength: 4,
+			measures: [],
+
+			//The current measure and beat position on the staff
+			currentPosition: {
+				measure: 0,
+				beat: 0
+			},
 
 			//Default images for staff background an measure bars
 			image: 'images/stave1.jpg',
 			measureBar: 'images/measure-delim.png',
 
 			//Initialize a staff with given, x, y, width, and measure numbers, then render
-			create: function(x, y, width, measures){
+			create: function(x, y, width, measureLength){
+				var i, startOfMeasure, measureOffset;
+
 				this.x = x;
 				this.y = y;
 				this.width = width;
-				this.measures = measures;
+				this.measureLength = measureLength;
+
+				measureOffset = this.x;
+
+				//Initialize all the measure objects
+				if(this.measureLength > 0){
+					for(i = 0; i < (this.measureLength); i++){
+						startOfMeasure = measureOffset;
+						measureOffset += this.width/this.measureLength;
+						this.measures[i] = {
+							start: startOfMeasure,
+							end: measureOffset,
+							width: this.width/this.measureLength,
+							//Time signature value = 4 quarter notes, as all exercises are in common time
+							value: 4
+						};
+					}
+				}
 
 				this.render();
 			},
@@ -68,40 +161,55 @@ var FUX = (function (fux) {
 
 				//Render bar lines
 				measureBarImage.onload = function() {
-					var i,
-					measureOffset = self.x;
+					var i;
 
 					//Render opening bar
 					context.drawImage(measureBarImage, self.x, self.y);
 
-					//If the staff contains measures, display the correct number of bar lines
-					if(self.measures > 0){
-						for(i = 0; i < (self.measures - 1); i++){
-							measureOffset += self.width/self.measures;
-							context.drawImage(measureBarImage, measureOffset, self.y + 1);
-						}
+					//If the staff contains measures, display the correct number of bar lines and create measure data objects
+					for(i = 0; i < self.measures.length; i++){
+						context.drawImage(measureBarImage, self.measures[i].end, self.y + 1);
 					}
 
-					//Render closing bar
-					context.drawImage(measureBarImage, self.x + self.width , self.y+2, 4, 88);
-				};
+				};	
+			},
 
-				
-				
+			addNote: function(n){
+				var thisNote = object(note),
+				thisMeasure = this.measures[this.currentPosition.measure];
+
+				//Place the note to center given the position in the current measure
+				notePosition = (thisMeasure.start + (thisMeasure.width/2)) - (thisNote.width/2);
+
+				thisNote.create(n.pitch,n.duration, notePosition);
+				this.currentPosition.measure++;
 			}
 		};
-
 		
 		//return the notation object with public methods	
 		return {
 
 			init: function(){
-				var s1,s2;
+				var s1;
 
 				setup();
 
 				s1 = object(staff);
-				s1.create(20, 20, 960, 5);
+				s1.create(20, 20, 960, 4);
+
+				theCanvas.addEventListener("mousemove", onMouseMove, false);
+				theCanvas.addEventListener("click", onMouseClick, false);
+
+				s1.addNote({
+					pitch: 'a',
+					duration: 'whole'
+				});
+
+				s1.addNote({
+					pitch: 'a',
+					duration: 'whole'
+				});
+				
 			}
 		}
 		
