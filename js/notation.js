@@ -26,7 +26,19 @@ var FUX = (function (fux) {
 		//Mappings of Y positions for notes on staff based on clef
 		pitchMappings = {
 			treble: {
-
+				'c4': 120,
+				'd4': 110,
+				'e4': 100,
+				'f4': 90,
+				'g4': 80,
+				'a4': 70,
+				'b4': 60,
+				'c5': 50,
+				'd5': 40,
+				'e5': 30,
+				'f5': 20,
+				'g5': 10,
+				'a5': 0
 			},
 			alto: {
 
@@ -39,14 +51,23 @@ var FUX = (function (fux) {
 			}
 		},
 
+		getPitchFromPosition = function(clef){
+			var thisPitch = false,
+			staffOffset = 23;
+
+			$.each(pitchMappings[clef], function(pitch, position){
+				if(mouse.y - staffOffset >= position - 3 && mouse.y - staffOffset <= position + 3){
+					thisPitch = pitch;
+				}
+			});
+
+			return thisPitch;
+		},
+
 		//Event listeners to track mouse position and mouse clicks within the notation canvas
 		onMouseMove = function(e) {
 			mouse.x = e.clientX - theCanvas.offsetLeft;
 			mouse.y = e.clientY - theCanvas.offsetTop;
-		},
-
-		onMouseClick = function(staffObject){
-			
 		},
 
 		//Setup the Canvas
@@ -60,25 +81,25 @@ var FUX = (function (fux) {
 
 		//an object to render a note to the canvas
 		note = {
-			pitches: {
-				a: 48
-			},
 			noteImages: {
 				whole: 'images/whole-note.png'
 			},
-			pitch: 'a',
+			pitch: 'a4',
 
 			//Dimensions of the note image, defaults to whole note image dimensions
-			width: 36,
-			height: 52,
+			width: 33,
+			height: 48,
 
-			create: function(pitch, duration, position){
+			//Initialize and render the note
+			create: function(pitch, duration, position, clef){
 				this.pitch = pitch;
 				this.duration = duration;
 
-				this.render(position);
+				this.render(position, clef);
 			},
-			render: function(position){
+
+			//Render the note in it's position in the appropriate measure
+			render: function(position, clef){
 				var self = this,
 				noteImage = new Image();
 
@@ -87,7 +108,7 @@ var FUX = (function (fux) {
 
 				//Render staff background image
 				noteImage.onload = function() {
-					context.drawImage(noteImage, position, self.pitches[self.pitch]);
+					context.drawImage(noteImage, position, pitchMappings[clef][self.pitch]);
 				};
 			}
 
@@ -100,6 +121,9 @@ var FUX = (function (fux) {
 			y: 0,
 			width: 500,
 			height: 90,
+
+			//Clef type of the staff, defaults as treble
+			clef: 'treble',
 
 			//Default number of measures 
 			measureLength: 4,
@@ -115,33 +139,50 @@ var FUX = (function (fux) {
 			image: 'images/stave1.jpg',
 			measureBar: 'images/measure-delim.png',
 
+			onMouseClick: function(self){
+				thisPitch = getPitchFromPosition(self.clef)
+				if(self.currentPosition.measure < self.measures.length && thisPitch){
+					self.addNote({
+						pitch: thisPitch,
+						duration: currentNoteValue
+					});	
+				}
+			},
+
 			//Initialize a staff with given, x, y, width, and measure numbers, then render
 			create: function(x, y, width, measureLength){
-				var i, startOfMeasure, measureOffset;
+				var self = this,
+				i, startOfMeasure, measureOffset;
 
-				this.x = x;
-				this.y = y;
-				this.width = width;
-				this.measureLength = measureLength;
+				self.x = x;
+				self.y = y;
+				self.width = width;
+				self.measureLength = measureLength;
 
-				measureOffset = this.x;
+				measureOffset = self.x;
+
+				theCanvas.addEventListener("click", 
+											function(){
+												self.onMouseClick(self);
+											}, 
+											false);
 
 				//Initialize all the measure objects
-				if(this.measureLength > 0){
-					for(i = 0; i < (this.measureLength); i++){
+				if(self.measureLength > 0){
+					for(i = 0; i < (self.measureLength); i++){
 						startOfMeasure = measureOffset;
-						measureOffset += this.width/this.measureLength;
-						this.measures[i] = {
+						measureOffset += self.width/self.measureLength;
+						self.measures[i] = {
 							start: startOfMeasure,
 							end: measureOffset,
-							width: this.width/this.measureLength,
+							width: self.width/self.measureLength,
 							//Time signature value = 4 quarter notes, as all exercises are in common time
 							value: 4
 						};
 					}
 				}
 
-				this.render();
+				self.render();
 			},
 
 			//Render the staff images to the canvas
@@ -175,14 +216,15 @@ var FUX = (function (fux) {
 			},
 
 			addNote: function(n){
-				var thisNote = object(note),
-				thisMeasure = this.measures[this.currentPosition.measure];
+				var self = this,
+				thisNote = object(note),
+				thisMeasure = this.measures[self.currentPosition.measure];
 
 				//Place the note to center given the position in the current measure
 				notePosition = (thisMeasure.start + (thisMeasure.width/2)) - (thisNote.width/2);
 
-				thisNote.create(n.pitch,n.duration, notePosition);
-				this.currentPosition.measure++;
+				thisNote.create(n.pitch, n.duration, notePosition, self.clef, self.y);
+				self.currentPosition.measure++;
 			}
 		};
 		
@@ -195,20 +237,9 @@ var FUX = (function (fux) {
 				setup();
 
 				s1 = object(staff);
-				s1.create(20, 20, 960, 4);
+				s1.create(20, 40, 960, 4);
 
 				theCanvas.addEventListener("mousemove", onMouseMove, false);
-				theCanvas.addEventListener("click", onMouseClick, false);
-
-				s1.addNote({
-					pitch: 'a',
-					duration: 'whole'
-				});
-
-				s1.addNote({
-					pitch: 'a',
-					duration: 'whole'
-				});
 				
 			}
 		}
