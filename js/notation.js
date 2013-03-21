@@ -56,7 +56,7 @@ var FUX = (function (fux) {
 			staffOffset = 23;
 
 			$.each(pitchMappings[clef], function(pitch, position){
-				if(mouse.y - staffOffset >= position - 3 && mouse.y - staffOffset <= position + 3){
+				if(mouse.y - staffOffset >= position - 5 && mouse.y - staffOffset <= position + 5){
 					thisPitch = pitch;
 				}
 			});
@@ -68,6 +68,7 @@ var FUX = (function (fux) {
 		onMouseMove = function(e) {
 			mouse.x = e.clientX - theCanvas.offsetLeft;
 			mouse.y = e.clientY - theCanvas.offsetTop;
+
 		},
 
 		//Setup the Canvas
@@ -110,6 +111,20 @@ var FUX = (function (fux) {
 				noteImage.onload = function() {
 					context.drawImage(noteImage, position, pitchMappings[clef][self.pitch]);
 				};
+			},
+
+			renderFree: function(duration, x, y){
+				var self = this,
+				noteImage = new Image();
+
+				//Set note background image path
+				noteImage.src = self.noteImages[duration];
+
+				//Render staff background image
+				noteImage.onload = function() {
+					context.drawImage(noteImage, x, y);
+				};
+
 			}
 
 		};
@@ -198,21 +213,22 @@ var FUX = (function (fux) {
 				//Render staff background image
 				staffImage.onload = function() {
 					context.drawImage(staffImage, self.x, self.y, self.width, self.height);
+
+					//Render bar lines
+					measureBarImage.onload = function() {
+						var i;
+
+						//Render opening bar
+						context.drawImage(measureBarImage, self.x, self.y);
+
+						//If the staff contains measures, display the correct number of bar lines and create measure data objects
+						for(i = 0; i < self.measures.length; i++){
+							context.drawImage(measureBarImage, self.measures[i].end, self.y + 1);
+						}
+
+					};
 				};
-
-				//Render bar lines
-				measureBarImage.onload = function() {
-					var i;
-
-					//Render opening bar
-					context.drawImage(measureBarImage, self.x, self.y);
-
-					//If the staff contains measures, display the correct number of bar lines and create measure data objects
-					for(i = 0; i < self.measures.length; i++){
-						context.drawImage(measureBarImage, self.measures[i].end, self.y + 1);
-					}
-
-				};	
+	
 			},
 
 			addNote: function(n){
