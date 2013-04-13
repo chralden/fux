@@ -37,6 +37,56 @@ var FUX = (function (fux) {
 			}
 		},
 
+		assets = [
+			'images/stave1.jpg',
+			'images/measure-delim.png',
+			'images/whole-note.png'
+		],
+
+		//Object to manage notation assets
+		assetManager = {
+			downloadQueue: [],
+			cache: {},
+			downloadCount: 0,
+			errorCount: 0,
+			isDone: function(){
+				return (this.downloadQueue.length === this.downloadCount + this.errorCount);
+			},
+			getAsset: function(path){
+				return this.cache[path];
+			},
+			queueDownload: function(path){
+				this.downloadQueue.push(path);
+			},
+			downloadAll: function(downloadCallback){
+				var self = this,
+				i, path, img;
+
+				if(self.downloadQueue.length === 0) downloadCallback();
+
+				for(i = 0; i < self.downloadQueue.length; i++){
+					path = self.downloadQueue[i];
+					img = new Image();
+					img.addEventListener("load", function(){
+						self.downloadCount++;
+						if(self.isDone()){
+							downloadCallback();
+						}
+					}, false);
+					img.addEventListener("error", function(){
+						self.errorCount++;
+						if(self.isDone()){
+							downloadCallback();
+						}
+					}, false);
+					img.src = path;
+					self.cache[path] = img;
+				}
+
+			}
+
+		},
+
 		//an object to render a note to the canvas
 		note = {
 			noteImages: {
@@ -67,7 +117,7 @@ var FUX = (function (fux) {
 			//Render the note in it's position in the appropriate measure
 			render: function(context, position, clef){
 				var self = this,
-				noteImage = new Image();
+				noteImage = assetManager.getAsset(self.noteImages[self.duration]);
 
 				//Set note background image path
 				noteImage.src = self.noteImages[self.duration];
@@ -78,7 +128,7 @@ var FUX = (function (fux) {
 				};
 			},
 
-			renderFree: function(duration, x, y){
+			/*renderFree: function(duration, x, y){
 				var self = this,
 				noteImage = new Image();
 
@@ -90,17 +140,17 @@ var FUX = (function (fux) {
 					context.drawImage(noteImage, x, y);
 				};
 
-			}
+			}*/
 
 		};
 
 		//an object to render a staff to the canvas
 		staff = {
 			
-			//The canvas element
+			//The canvas element for this staff
 			theCanvas: '',
 
-			//The canvas "context"
+			//The canvas "context" for this staff
 			context: '',
 
 			//The target element for the canvas and the staffs name
@@ -131,6 +181,7 @@ var FUX = (function (fux) {
 			image: 'images/stave1.jpg',
 			measureBar: 'images/measure-delim.png',
 
+			//Get pitch user is selecting based on mouse position and clef
 			getPitchFromPosition: function(clef){
 				var self = this,
 				thisPitch = false,
@@ -143,11 +194,11 @@ var FUX = (function (fux) {
 					}
 				});
 
-
 				return thisPitch;
 
 			},
 
+			//Event listener to add note when user clicks on staff
 			onMouseClick: function(self){
 				thisPitch = self.getPitchFromPosition(self.clef);
 				
@@ -159,7 +210,7 @@ var FUX = (function (fux) {
 				}
 			},
 
-			//Event listeners to track mouse position and mouse clicks within the notation canvas
+			//Event listeners to track mouse position within the staff
 			onMouseMove: function(self, e){
 				var rect = self.theCanvas.getBoundingClientRect();
 
@@ -187,24 +238,25 @@ var FUX = (function (fux) {
 			bindEvents: function(){
 				var self = this;
 
+				//Add mouse position tracking when user is over this staff
 				self.theCanvas.addEventListener("mouseover", function(){
 					$(self.theCanvas).bind("mousemove", function(e){
 						self.onMouseMove(self, e);
 					});
 				});
 
+				//Remove mouse position tracking when user has left this staff
 				self.theCanvas.addEventListener("mouseout", function(){
 					$(self.theCanvas).unbind("mousemove", function(e){
 						self.onMouseMove(self, e);
 					});
 				});
 
-				//theCanvas.addEventListener("mousemove", onMouseMove, false);
-				self.theCanvas.addEventListener("click", 
-											function(){
-												self.onMouseClick(self);
-											}, 
-											false);
+				//Add 'click' event listener on staff for adding notes
+				self.theCanvas.addEventListener("click", function(){
+					self.onMouseClick(self);
+				}, 
+				false);
 			},
 
 			//Initialize a staff with given, x, y, width, and measure numbers, then render
@@ -248,7 +300,6 @@ var FUX = (function (fux) {
 						}
 					}
 					self.measures = measures;
-					self.render();
 				}
 				
 			},
@@ -256,32 +307,23 @@ var FUX = (function (fux) {
 			//Render the staff images to the canvas
 			render: function(){
 				var self = this,
-				staffImage = new Image(),
-				measureBarImage = new Image();
-
-				//Set staff background and bar line image paths
-				staffImage.src = self.image;
-				measureBarImage.src = self.measureBar;
+				staffImage = assetManager.getAsset(self.image),
+				measureBarImage = assetManager.getAsset(self.measureBar),
+				i;
 
 				//Render staff background image
-				staffImage.onload = function() {
-					self.context.drawImage(staffImage, self.x, self.y, self.width, 90);
+				self.context.drawImage(staffImage, self.x, self.y, self.width, 90);
 
-					//Render bar lines
-					measureBarImage.onload = function() {
-						var i;
+				//Render opening bar
+				self.context.drawImage(measureBarImage, self.x, self.y);
 
-						//Render opening bar
-						self.context.drawImage(measureBarImage, self.x, self.y);
+				//If the staff contains measures, display the correct number of bar lines and create measure data objects
+				for(i = 0; i < self.measures.length - 1; i++){
+					self.context.drawImage(measureBarImage, self.measures[i].end, self.y + 1);
+				}
 
-						//If the staff contains measures, display the correct number of bar lines and create measure data objects
-						for(i = 0; i < self.measures.length - 1; i++){
-							self.context.drawImage(measureBarImage, self.measures[i].end, self.y + 1);
-						}
-
-						self.context.drawImage(measureBarImage, self.x + self.width - 4, self.y + 2);
-					};
-				};
+				//Render bar line at end of staff
+				self.context.drawImage(measureBarImage, self.x + self.width - 4, self.y + 2);
 	
 			},
 
@@ -303,14 +345,23 @@ var FUX = (function (fux) {
 		return {
 
 			init: function(){
-				var s1, s2, s3, s4;
+				var s1, s2, i;
 
 				s1 = object(staff);
 				s2 = object(staff);
-				s3 = object(staff);
 
 				s1.create({ name: 'treble1', target: $('#fux-notation'), width: 960, measureLength: 5 });
 				s2.create({ name: 'treble2', target: $('#fux-notation'), width: 960, measureLength: 5 });
+
+				for(i = 0; i < assets.length; i++){
+					assetManager.queueDownload(assets[i]);
+				}
+
+				assetManager.downloadAll(function(){
+					s1.render();
+					s2.render();
+				});
+				
 			}
 		}
 		
