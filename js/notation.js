@@ -43,7 +43,7 @@ var FUX = (function (fux) {
 			'images/whole-note.png'
 		],
 
-		//Object to manage notation assets
+		//Object to manage notation image assets
 		assetManager = {
 			downloadQueue: [],
 			cache: {},
@@ -104,14 +104,11 @@ var FUX = (function (fux) {
 
 				var self = this,
 				options = options || false,
-				context = (options && options.context) ? options.context : false,
 				position = (options && options.position) ? options.position : false,
 				clef = (options && options.clef) ? options.clef : false;
 
 				if(options && options.pitch !== undefined) self.pitch = options.pitch;
 				if(options && options.duration !== undefined) self.duration = options.duration;
-
-				if(context && position && clef) self.render(context, position, clef);
 			},
 
 			//Render the note in it's position in the appropriate measure
@@ -119,28 +116,8 @@ var FUX = (function (fux) {
 				var self = this,
 				noteImage = assetManager.getAsset(self.noteImages[self.duration]);
 
-				//Set note background image path
-				noteImage.src = self.noteImages[self.duration];
-
-				//Render staff background image
-				noteImage.onload = function() {
-					context.drawImage(noteImage, position, pitchMappings[clef][self.pitch]);
-				};
-			},
-
-			/*renderFree: function(duration, x, y){
-				var self = this,
-				noteImage = new Image();
-
-				//Set note background image path
-				noteImage.src = self.noteImages[duration];
-
-				//Render staff background image
-				noteImage.onload = function() {
-					context.drawImage(noteImage, x, y);
-				};
-
-			}*/
+				context.drawImage(noteImage, position, pitchMappings[clef][self.pitch]);
+			}
 
 		};
 
@@ -198,9 +175,27 @@ var FUX = (function (fux) {
 
 			},
 
+			getMeasureFromPosition: function(){
+				var self = this,
+				measurePosition = false;
+
+				$.each(self.measures, function(i){
+					if(self.mouse.x >= this.start && self.mouse.x <= this.end){
+						measurePosition = i;
+						return;
+					} 
+				});
+
+				return measurePosition;
+
+			},
+
 			//Event listener to add note when user clicks on staff
 			onMouseClick: function(self){
-				thisPitch = self.getPitchFromPosition(self.clef);
+				thisPitch = self.getPitchFromPosition(self.clef),
+				thisMeasure = self.getMeasureFromPosition();
+
+				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
 				
 				if(self.currentMeasure < self.measures.length && thisPitch){
 					self.addNote({
@@ -208,6 +203,8 @@ var FUX = (function (fux) {
 						duration: currentNoteValue
 					});	
 				}
+
+				self.render();
 			},
 
 			//Event listeners to track mouse position within the staff
@@ -215,7 +212,7 @@ var FUX = (function (fux) {
 				var rect = self.theCanvas.getBoundingClientRect();
 
 		        self.mouse.x = e.clientX - rect.left;
-		        self.mouse.y = e.clientY - rect.top;
+		        self.mouse.y = (e.clientY+24) - rect.top;
 			},
 
 			//Setup the Canvas
@@ -295,7 +292,8 @@ var FUX = (function (fux) {
 								end: measureOffset,
 								width: self.width/self.measureLength,
 								//Time signature value = 4 quarter notes, as all exercises are in common time
-								value: 4
+								value: 4,
+								pitches: []
 							};
 						}
 					}
@@ -309,7 +307,12 @@ var FUX = (function (fux) {
 				var self = this,
 				staffImage = assetManager.getAsset(self.image),
 				measureBarImage = assetManager.getAsset(self.measureBar),
-				i;
+				notePosition, thisMeasure, thisNote,
+				i,j;
+
+				//Render clearing background
+				self.context.fillStyle = "#FFF";
+				self.context.fillRect(0, 0, self.theCanvas.width, self.theCanvas.height);
 
 				//Render staff background image
 				self.context.drawImage(staffImage, self.x, self.y, self.width, 90);
@@ -318,24 +321,37 @@ var FUX = (function (fux) {
 				self.context.drawImage(measureBarImage, self.x, self.y);
 
 				//If the staff contains measures, display the correct number of bar lines and create measure data objects
-				for(i = 0; i < self.measures.length - 1; i++){
-					self.context.drawImage(measureBarImage, self.measures[i].end, self.y + 1);
+				for(i = 0; i < self.measures.length; i++){
+					thisMeasure = self.measures[i];
+
+					self.context.drawImage(measureBarImage, thisMeasure.end, self.y + 1);
+					
+					//Render any pitches for this measure
+					for(j = 0; j < thisMeasure.pitches.length; j++){
+						if(thisMeasure.pitches[j] !== 'undefined'){
+							thisNote = thisMeasure.pitches[j];
+
+							//Place the note to center given the position in the current measure
+							notePosition = (thisMeasure.start + (thisMeasure.width/2)) - (thisNote.width/2);
+							thisNote.render(self.context, notePosition, self.clef);
+						}
+					}
 				}
 
 				//Render bar line at end of staff
 				self.context.drawImage(measureBarImage, self.x + self.width - 4, self.y + 2);
+
 	
 			},
 
+			//Add a note to the current measure
 			addNote: function(n){
 				var self = this,
 				thisNote = object(note),
 				thisMeasure = self.measures[self.currentMeasure];
 
-				//Place the note to center given the position in the current measure
-				notePosition = (thisMeasure.start + (thisMeasure.width/2)) - (thisNote.width/2);
-
-				thisNote.create({ context: self.context, pitch: n.pitch, duration: n.duration, position: notePosition, clef: self.clef });
+				thisNote.create(n);
+				thisMeasure.pitches[self.currentBeat] = thisNote;
 				
 				self.currentMeasure++;
 			}
@@ -345,13 +361,16 @@ var FUX = (function (fux) {
 		return {
 
 			init: function(){
-				var s1, s2, i;
+				var s1, s2, i,
+				target = $('#fux-notation');
 
 				s1 = object(staff);
 				s2 = object(staff);
 
-				s1.create({ name: 'treble1', target: $('#fux-notation'), width: 960, measureLength: 5 });
-				s2.create({ name: 'treble2', target: $('#fux-notation'), width: 960, measureLength: 5 });
+				target.css('cursor', 'url(images/whole-note.png), auto');
+
+				s1.create({ name: 'treble1', target: target, width: 960, measureLength: 5 });
+				s2.create({ name: 'treble2', target: target, width: 960, measureLength: 5 });
 
 				for(i = 0; i < assets.length; i++){
 					assetManager.queueDownload(assets[i]);
