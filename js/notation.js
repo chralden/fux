@@ -37,36 +37,53 @@ var FUX = (function (fux) {
 			}
 		},
 
-		assets = [
-			'images/stave1.jpg',
-			'images/measure-delim.png',
-			'images/whole-note.png'
-		],
+		assets = {
+			staff: 'images/stave1.jpg',
+			measure: 'images/measure-delim.png',
+			whole: 'images/whole-note.png',
+			bass: 'images/bassclef.png'
+		},
 
 		//Object to manage notation image assets
 		assetManager = {
+			//The cue of assets to download
 			downloadQueue: [],
+
+			//The cache of downloaded assets
 			cache: {},
+
+			//Count of successful and unsuccesful downloads
 			downloadCount: 0,
 			errorCount: 0,
+
+			//Return whether all assets have been downloaded
 			isDone: function(){
 				return (this.downloadQueue.length === this.downloadCount + this.errorCount);
 			},
+
+			//Return an IMG object from downloaded assets
 			getAsset: function(path){
 				return this.cache[path];
 			},
+
+			//Add IMG path to downloadQueue
 			queueDownload: function(path){
 				this.downloadQueue.push(path);
 			},
+
+			//Go through all assets, add load eventlistener with callback, and create IMG object
 			downloadAll: function(downloadCallback){
 				var self = this,
 				i, path, img;
 
+				//If there are no assets to load execute callback immediately
 				if(self.downloadQueue.length === 0) downloadCallback();
 
 				for(i = 0; i < self.downloadQueue.length; i++){
 					path = self.downloadQueue[i];
 					img = new Image();
+					
+					//Add event listeners for load and error
 					img.addEventListener("load", function(){
 						self.downloadCount++;
 						if(self.isDone()){
@@ -79,6 +96,8 @@ var FUX = (function (fux) {
 							downloadCallback();
 						}
 					}, false);
+
+					//Create IMG object with path and add to cache
 					img.src = path;
 					self.cache[path] = img;
 				}
@@ -87,10 +106,21 @@ var FUX = (function (fux) {
 
 		},
 
+		clefs = {
+			treble: {
+				img: assets.bass,
+				width: 55
+			},
+			bass: {
+				img: assets.bass,
+				width: 55
+			}
+		},
+
 		//an object to render a note to the canvas
 		note = {
 			noteImages: {
-				whole: 'images/whole-note.png'
+				whole: assets.whole
 			},
 			pitch: 'a4',
 			duration: 'whole',
@@ -155,8 +185,8 @@ var FUX = (function (fux) {
 			currentBeat: 0,
 
 			//Default images for staff background an measure bars
-			image: 'images/stave1.jpg',
-			measureBar: 'images/measure-delim.png',
+			image: assets.staff,
+			measureBar: assets.measure,
 
 			//Get pitch user is selecting based on mouse position and clef
 			getPitchFromPosition: function(clef){
@@ -262,7 +292,7 @@ var FUX = (function (fux) {
 				var self = this,
 				options = options || false,
 				measures = [],
-				i, startOfMeasure, measureOffset;
+				clefWidth, i, startOfMeasure, measureOffset;
 
 				//If passed as options reset default object properties
 				if(options && options.x) self.x = options.x;
@@ -272,8 +302,10 @@ var FUX = (function (fux) {
 				if(options && options.measureLength) self.measureLength = options.measureLength;
 				if(options && options.target) self.target = options.target;
 				if(options && options.name) self.name = options.name;
+				if(options && options.clef) self.clef = options.clef;
 
-				measureOffset = self.x;
+				clefWidth = clefs[self.clef].width;
+				measureOffset = self.x + clefWidth;
 				
 				//If a target element has been set, setup canvas and create measures and render
 				if(self.target && self.name){
@@ -286,7 +318,7 @@ var FUX = (function (fux) {
 					if(self.measureLength > 0){
 						for(i = 0; i < (self.measureLength); i++){
 							startOfMeasure = measureOffset;
-							measureOffset += self.width/self.measureLength;
+							measureOffset += (self.width - clefWidth)/self.measureLength;
 							measures[i] = {
 								start: startOfMeasure,
 								end: measureOffset,
@@ -307,6 +339,7 @@ var FUX = (function (fux) {
 				var self = this,
 				staffImage = assetManager.getAsset(self.image),
 				measureBarImage = assetManager.getAsset(self.measureBar),
+				clefImage = assetManager.getAsset(clefs[self.clef].img),
 				notePosition, thisMeasure, thisNote,
 				i,j;
 
@@ -341,6 +374,7 @@ var FUX = (function (fux) {
 				//Render bar line at end of staff
 				self.context.drawImage(measureBarImage, self.x + self.width - 4, self.y + 2);
 
+				self.context.drawImage(clefImage, self.x + 10, self.y + 2);
 	
 			},
 
@@ -360,25 +394,30 @@ var FUX = (function (fux) {
 		//return the notation object with public methods	
 		return {
 
-			init: function(){
-				var s1, s2, i,
-				target = $('#fux-notation');
+			init: function(options){
+				var options = options || false,
+				currentNoteValue = (options && options.currentNoteValue) ? options.currentNoteValue : 'whole',
+				target = (options && options.target) ? options.target : $('#fux-notation'),
+				staves = ['treble', 'treble'], 
+				count = 0, 
+				i, thisStaff;
 
-				s1 = object(staff);
-				s2 = object(staff);
+				//Add style for note tooltip
+				target.css('cursor', 'url('+assets[currentNoteValue]+'), auto');
 
-				target.css('cursor', 'url(images/whole-note.png), auto');
+				//Add all assets to the asset cue
+				$.each(assets, function(asset, path){
+					assetManager.queueDownload(path);
+				});
 
-				s1.create({ name: 'treble1', target: target, width: 960, measureLength: 5 });
-				s2.create({ name: 'treble2', target: target, width: 960, measureLength: 5 });
-
-				for(i = 0; i < assets.length; i++){
-					assetManager.queueDownload(assets[i]);
-				}
-
+				//Create and render staves once all required assets have loaded
 				assetManager.downloadAll(function(){
-					s1.render();
-					s2.render();
+					for(i = 0; i < staves.length; i++){
+						thisStaff = object(staff);
+						thisStaff.create({ clef: staves[i], name: staves[i]+i, target: target, width: 960, measureLength: 5 });
+
+						thisStaff.render();
+					}
 				});
 				
 			}
