@@ -27,13 +27,49 @@ var FUX = (function (fux) {
 				'a5': 0
 			},
 			alto: {
-
+				'd3': 120,
+				'e3': 110,
+				'f3': 100,
+				'g3': 90,
+				'a3': 80,
+				'b3': 70,
+				'c4': 60,
+				'd4': 50,
+				'e4': 40,
+				'f4': 30,
+				'g4': 20,
+				'a4': 10,
+				'b4': 0
 			},
 			tenor: {
-
+				'b2': 120,
+				'c3': 110,
+				'd3': 100,
+				'e3': 90,
+				'f3': 80,
+				'g3': 70,
+				'a3': 60,
+				'b3': 50,
+				'c4': 40,
+				'd4': 30,
+				'e4': 20,
+				'f4': 10,
+				'g4': 0
 			},
 			bass: {
-
+				'e2': 120,
+				'f2': 110,
+				'g2': 100,
+				'a2': 90,
+				'b2': 80,
+				'c3': 70,
+				'd3': 60,
+				'e3': 50,
+				'f3': 40,
+				'g3': 30,
+				'a3': 20,
+				'b3': 10,
+				'c4': 0
 			}
 		},
 
@@ -41,6 +77,9 @@ var FUX = (function (fux) {
 			staff: 'images/stave1.jpg',
 			measure: 'images/measure-delim.png',
 			whole: 'images/whole-note.png',
+			treble: 'images/trebleclef.png',
+			alto: 'images/altoclef.png',
+			tenor: 'images/tenorclef.png',
 			bass: 'images/bassclef.png'
 		},
 
@@ -108,11 +147,23 @@ var FUX = (function (fux) {
 
 		clefs = {
 			treble: {
-				img: assets.bass,
+				img: assets.treble,
+				offset: { x: 10, y: 12 },
+				width: 55
+			},
+			alto: {
+				img: assets.alto,
+				offset: { x: 18, y: -6 },
+				width: 55
+			},
+			tenor: {
+				img: assets.tenor,
+				offset: { x: 18, y: -10 },
 				width: 55
 			},
 			bass: {
 				img: assets.bass,
+				offset: { x: 10, y: 2 },
 				width: 55
 			}
 		},
@@ -340,6 +391,7 @@ var FUX = (function (fux) {
 				staffImage = assetManager.getAsset(self.image),
 				measureBarImage = assetManager.getAsset(self.measureBar),
 				clefImage = assetManager.getAsset(clefs[self.clef].img),
+				clefOffset = clefs[self.clef].offset,
 				notePosition, thisMeasure, thisNote,
 				i,j;
 
@@ -374,7 +426,8 @@ var FUX = (function (fux) {
 				//Render bar line at end of staff
 				self.context.drawImage(measureBarImage, self.x + self.width - 4, self.y + 2);
 
-				self.context.drawImage(clefImage, self.x + 10, self.y + 2);
+				//Draw the clef symbol
+				self.context.drawImage(clefImage, self.x + clefOffset.x, self.y + clefOffset.y);
 	
 			},
 
@@ -398,7 +451,7 @@ var FUX = (function (fux) {
 				var options = options || false,
 				currentNoteValue = (options && options.currentNoteValue) ? options.currentNoteValue : 'whole',
 				target = (options && options.target) ? options.target : $('#fux-notation'),
-				staves = ['treble', 'treble'], 
+				staves = ['treble', 'alto', 'tenor', 'bass'], 
 				count = 0, 
 				i, thisStaff;
 
