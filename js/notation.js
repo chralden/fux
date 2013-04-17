@@ -77,6 +77,12 @@ var FUX = (function (fux) {
 			staff: 'images/stave1.jpg',
 			measure: 'images/measure-delim.png',
 			whole: 'images/whole-note.png',
+			halfUp: 'images/half-note-up.png',
+			halfDown: 'images/half-note-down.png',
+			quarterUp: 'images/quarter-note-up.png',
+			quarterDown: 'images/quarter-note-down.png',
+			eighthUp: 'images/eighth-note-up.png',
+			eighthDown: 'images/eighth-note-down.png',
 			treble: 'images/trebleclef.png',
 			alto: 'images/altoclef.png',
 			tenor: 'images/tenorclef.png',
@@ -171,33 +177,64 @@ var FUX = (function (fux) {
 		//an object to render a note to the canvas
 		note = {
 			noteImages: {
-				whole: assets.whole
+				whole: { src: assets.whole, offset: '0' },
+				halfUp: { src: assets.halfUp, offset: '58' }, 
+				halfDown: { src: assets.halfDown, offset: '-6' }, 
+				quarterUp: { src: assets.quarterUp, offset: '59' }, 
+				quarterDown: { src: assets.quarterDown, offset: '-2' },
+				eighthUp: { src: assets.eighthUp, offset: '55' },
+				eighthDown: { src: assets.eighthDown, offset: '-9' } 
 			},
 			pitch: 'a4',
 			duration: 'whole',
+			values: { whole: 4, half: 2, quarter: 1, eighth: 0.5 },
 
 			//Dimensions of the note image, defaults to whole note image dimensions
 			width: 33,
 			height: 48,
 
+			//Get the direction for the note stem based on pitch and clef
+			getStemDirection: function(clef){
+				var self = this,
+				direction = '';
+
+				switch(clef){
+					case 'treble':
+
+						if(pitchMappings[clef][self.pitch] < pitchMappings[clef]['b4']){
+							direction = 'Down';
+						}else{
+							direction = 'Up';
+						}
+						break;
+				}
+
+				return direction;
+
+			},
+
 			//Initialize and render the note
 			create: function(options){
 
 				var self = this,
-				options = options || false,
-				position = (options && options.position) ? options.position : false,
-				clef = (options && options.clef) ? options.clef : false;
+				options = options || false;
 
 				if(options && options.pitch !== undefined) self.pitch = options.pitch;
 				if(options && options.duration !== undefined) self.duration = options.duration;
+
+				self.value = self.values[self.duration];
+
 			},
 
 			//Render the note in it's position in the appropriate measure
 			render: function(context, position, clef){
 				var self = this,
-				noteImage = assetManager.getAsset(self.noteImages[self.duration]);
+				stemDirection = (self.duration !== 'whole') ? self.getStemDirection(clef) : '',
+				noteImage;
 
-				context.drawImage(noteImage, position, pitchMappings[clef][self.pitch]);
+				noteImage = self.noteImages[self.duration+stemDirection];
+				
+				context.drawImage(assetManager.getAsset(noteImage.src), position, pitchMappings[clef][self.pitch]-noteImage.offset);
 			}
 
 		};
@@ -439,8 +476,9 @@ var FUX = (function (fux) {
 
 				thisNote.create(n);
 				thisMeasure.pitches[self.currentBeat] = thisNote;
+				//self.currentBeat += thisNote.value;
 				
-				self.currentMeasure++;
+				//self.currentMeasure++;
 			}
 		};
 		
@@ -449,16 +487,17 @@ var FUX = (function (fux) {
 
 			init: function(options){
 				var options = options || false,
-				currentNoteValue = (options && options.currentNoteValue) ? options.currentNoteValue : 'whole',
 				target = (options && options.target) ? options.target : $('#fux-notation'),
-				staves = ['treble', 'alto', 'tenor', 'bass'], 
+				staves = ['treble'], 
 				count = 0, 
 				i, thisStaff;
 
-				//Add style for note tooltip
-				target.css('cursor', 'url('+assets[currentNoteValue]+'), auto');
+				if(options && options.currentNoteValue) currentNoteValue = options.currentNoteValue;
 
-				//Add all assets to the asset cue
+				//Add style for note tooltip
+				target.css('cursor', 'url('+assets['whole']+'), auto');
+
+				//Add all assets to the asset cue CHANGE THIS TO ONLY ADD REQUIRED ASSETS TO QUEUE!!!
 				$.each(assets, function(asset, path){
 					assetManager.queueDownload(path);
 				});
@@ -485,5 +524,5 @@ var FUX = (function (fux) {
 }(FUX));
 
 $(function(){
-	FUX.notation.init();
+	FUX.notation.init({ currentNoteValue: 'half' });
 });
