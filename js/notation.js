@@ -187,6 +187,7 @@ var FUX = (function (fux) {
 			},
 			pitch: 'a4',
 			duration: 'whole',
+			beat: 1,
 			values: { whole: 4, half: 2, quarter: 1, eighth: 0.5 },
 
 			//Dimensions of the note image, defaults to whole note image dimensions
@@ -221,7 +222,7 @@ var FUX = (function (fux) {
 
 				if(options && options.pitch !== undefined) self.pitch = options.pitch;
 				if(options && options.duration !== undefined) self.duration = options.duration;
-
+				if(options && options.beat !== undefined) self.beat = options.beat;
 				self.value = self.values[self.duration];
 
 			},
@@ -270,7 +271,6 @@ var FUX = (function (fux) {
 
 			//The current measure and beat position on the staff
 			currentMeasure: 0,
-			currentBeat: 0,
 
 			//Default images for staff background an measure bars
 			image: assets.staff,
@@ -293,32 +293,41 @@ var FUX = (function (fux) {
 
 			},
 
-			getMeasureFromPosition: function(){
+			getMeasureAndBeatFromPosition: function(){
 				var self = this,
-				measurePosition = false;
+				measurePosition = false,
+				beatPosition = false;
 
-				$.each(self.measures, function(i){
+				$.each(self.measures, function(measureNum){
 					if(self.mouse.x >= this.start && self.mouse.x <= this.end){
-						measurePosition = i;
+						measurePosition = measureNum;
+						$.each(this.pitches, function(beat){
+							if(self.mouse.x >= this.start && self.mouse.x <= this.end){
+								beatPosition = beat;
+							}
+						})
 						return;
 					} 
 				});
 
-				return measurePosition;
+				return { measure: measurePosition, beat: beatPosition };
 
 			},
 
 			//Event listener to add note when user clicks on staff
 			onMouseClick: function(self){
 				thisPitch = self.getPitchFromPosition(self.clef),
-				thisMeasure = self.getMeasureFromPosition();
+				currentPosition = self.getMeasureAndBeatFromPosition(),
+				thisMeasure = currentPosition.measure,
+				thisBeat = (currentPosition.beat) ? currentPosition.beat : self.measures[thisMeasure].currentBeat;
 
 				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
 				
 				if(self.currentMeasure < self.measures.length && thisPitch){
 					self.addNote({
 						pitch: thisPitch,
-						duration: currentNoteValue
+						duration: currentNoteValue,
+						beat: thisBeat
 					});	
 				}
 
@@ -413,7 +422,8 @@ var FUX = (function (fux) {
 								width: self.width/self.measureLength,
 								//Time signature value = 4 quarter notes, as all exercises are in common time
 								value: 4,
-								pitches: []
+								currentBeat: 1,
+								pitches: {}
 							};
 						}
 					}
@@ -430,7 +440,7 @@ var FUX = (function (fux) {
 				clefImage = assetManager.getAsset(clefs[self.clef].img),
 				clefOffset = clefs[self.clef].offset,
 				notePosition, thisMeasure, thisNote,
-				i,j;
+				i;
 
 				//Render clearing background
 				self.context.fillStyle = "#FFF";
@@ -449,15 +459,18 @@ var FUX = (function (fux) {
 					self.context.drawImage(measureBarImage, thisMeasure.end, self.y + 1);
 					
 					//Render any pitches for this measure
-					for(j = 0; j < thisMeasure.pitches.length; j++){
-						if(thisMeasure.pitches[j] !== 'undefined'){
-							thisNote = thisMeasure.pitches[j];
+					//for(j = 0; j < thisMeasure.pitches.length; j++){
+					$.each(thisMeasure.pitches, function(beat, note){
+						if(note !== 'undefined'){
+							thisNote = note;
 
 							//Place the note to center given the position in the current measure
-							notePosition = (thisMeasure.start + (thisMeasure.width/2)) - (thisNote.width/2);
+							notePosition = thisNote.start - (thisNote.width/2);
 							thisNote.render(self.context, notePosition, self.clef);
 						}
-					}
+					});
+						
+					
 				}
 
 				//Render bar line at end of staff
@@ -472,13 +485,28 @@ var FUX = (function (fux) {
 			addNote: function(n){
 				var self = this,
 				thisNote = object(note),
-				thisMeasure = self.measures[self.currentMeasure];
+				thisMeasure = self.measures[self.currentMeasure],
+				measureCounter, measuresDivisor;
 
 				thisNote.create(n);
-				thisMeasure.pitches[self.currentBeat] = thisNote;
-				//self.currentBeat += thisNote.value;
-				
-				//self.currentMeasure++;
+
+				measureCounter = (thisMeasure.value/thisNote.value)%thisNote.beat;
+				measuresDivisor = thisMeasure.width/(thisMeasure.value/thisNote.value);
+
+				thisNote.start =  thisMeasure.start + ((thisMeasure.width / (2 * (thisMeasure.value/thisNote.value)))* thisNote.beat);
+				thisNote.end = thisMeasure.start + ((thisMeasure.width / (2 * (thisMeasure.value/thisNote.value)))* (thisNote.beat + 1));
+
+				//thisNote.start = thisMeasure.start + (measuresDivisor * measureCounter);
+				//thisNote.end = thisMeasure.start + (measuresDivisor * (measureCounter+1));
+
+				if(thisMeasure.currentBeat <= thisMeasure.value){
+
+					thisMeasure.pitches[thisNote.beat] = thisNote;
+					thisMeasure.currentBeat += thisNote.value;
+				}else{
+					thisMeasure.currentBeat = 1;
+				}
+		
 			}
 		};
 		
