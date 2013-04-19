@@ -422,7 +422,7 @@ var FUX = (function (fux) {
 								width: self.width/self.measureLength,
 								//Time signature value = 4 quarter notes, as all exercises are in common time
 								value: 4,
-								currentBeat: 1,
+								currentBeat: 0,
 								pitches: {}
 							};
 						}
@@ -465,7 +465,7 @@ var FUX = (function (fux) {
 							thisNote = note;
 
 							//Place the note to center given the position in the current measure
-							notePosition = thisNote.start - (thisNote.width/2);
+							notePosition = thisNote.start + (((thisNote.end - thisNote.start)/2) - (thisNote.width/2));
 							thisNote.render(self.context, notePosition, self.clef);
 						}
 					});
@@ -490,21 +490,22 @@ var FUX = (function (fux) {
 
 				thisNote.create(n);
 
-				measureCounter = (thisMeasure.value/thisNote.value)%thisNote.beat;
-				measuresDivisor = thisMeasure.width/(thisMeasure.value/thisNote.value);
+				measuresDivisor = thisMeasure.value/thisNote.value;
 
-				thisNote.start =  thisMeasure.start + ((thisMeasure.width / (2 * (thisMeasure.value/thisNote.value)))* thisNote.beat);
-				thisNote.end = thisMeasure.start + ((thisMeasure.width / (2 * (thisMeasure.value/thisNote.value)))* (thisNote.beat + 1));
 
-				//thisNote.start = thisMeasure.start + (measuresDivisor * measureCounter);
-				//thisNote.end = thisMeasure.start + (measuresDivisor * (measureCounter+1));
+				//Calculate note start and end points based on note value and beat
+				thisNote.start = thisMeasure.start + (  (thisMeasure.width/measuresDivisor) * (thisNote.beat/thisNote.value) );
+				thisNote.end = thisNote.start +  (thisMeasure.width/measuresDivisor);
+
+				console.log(thisNote.start);
+				console.log(thisNote.end);
 
 				if(thisMeasure.currentBeat <= thisMeasure.value){
 
 					thisMeasure.pitches[thisNote.beat] = thisNote;
 					thisMeasure.currentBeat += thisNote.value;
 				}else{
-					thisMeasure.currentBeat = 1;
+					thisMeasure.currentBeat = 0;
 				}
 		
 			}
@@ -534,7 +535,7 @@ var FUX = (function (fux) {
 				assetManager.downloadAll(function(){
 					for(i = 0; i < staves.length; i++){
 						thisStaff = object(staff);
-						thisStaff.create({ clef: staves[i], name: staves[i]+i, target: target, width: 960, measureLength: 5 });
+						thisStaff.create({ clef: staves[i], name: staves[i]+i, target: target, width: 1000, measureLength: 4 });
 
 						thisStaff.render();
 					}
@@ -552,5 +553,5 @@ var FUX = (function (fux) {
 }(FUX));
 
 $(function(){
-	FUX.notation.init({ currentNoteValue: 'half' });
+	FUX.notation.init({ currentNoteValue: 'quarter' });
 });
