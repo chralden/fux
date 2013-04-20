@@ -89,6 +89,9 @@ var FUX = (function (fux) {
 			bass: 'images/bassclef.png'
 		},
 
+		//Pixel position for middle of staff, for stem positioning
+		staffMiddle = 60,
+
 		//Object to manage notation image assets
 		assetManager = {
 			//The cue of assets to download
@@ -174,16 +177,29 @@ var FUX = (function (fux) {
 			}
 		},
 
+		//Get the direction for the note stem based on pitch and clef
+		getStemDirection = function(pitch, clef){
+			var direction = '';
+
+			if(pitchMappings[clef][pitch] <= staffMiddle){
+				direction = 'Down';
+			}else{
+				direction = 'Up';
+			}
+			return direction;
+
+		},
+
 		//an object to render a note to the canvas
 		note = {
 			noteImages: {
 				whole: { src: assets.whole, offset: '0' },
 				halfUp: { src: assets.halfUp, offset: '58' }, 
-				halfDown: { src: assets.halfDown, offset: '-6' }, 
+				halfDown: { src: assets.halfDown, offset: '9' }, 
 				quarterUp: { src: assets.quarterUp, offset: '59' }, 
 				quarterDown: { src: assets.quarterDown, offset: '-2' },
 				eighthUp: { src: assets.eighthUp, offset: '55' },
-				eighthDown: { src: assets.eighthDown, offset: '-9' } 
+				eighthDown: { src: assets.eighthDown, offset: '5' } 
 			},
 			pitch: 'a4',
 			duration: 'whole',
@@ -193,26 +209,6 @@ var FUX = (function (fux) {
 			//Dimensions of the note image, defaults to whole note image dimensions
 			width: 33,
 			height: 48,
-
-			//Get the direction for the note stem based on pitch and clef
-			getStemDirection: function(clef){
-				var self = this,
-				direction = '';
-
-				switch(clef){
-					case 'treble':
-
-						if(pitchMappings[clef][self.pitch] < pitchMappings[clef]['b4']){
-							direction = 'Down';
-						}else{
-							direction = 'Up';
-						}
-						break;
-				}
-
-				return direction;
-
-			},
 
 			//Initialize and render the note
 			create: function(options){
@@ -230,7 +226,7 @@ var FUX = (function (fux) {
 			//Render the note in it's position in the appropriate measure
 			render: function(context, position, clef){
 				var self = this,
-				stemDirection = (self.duration !== 'whole') ? self.getStemDirection(clef) : '',
+				stemDirection = (self.duration !== 'whole') ? getStemDirection(self.pitch, clef) : '',
 				noteImage;
 
 				noteImage = self.noteImages[self.duration+stemDirection];
@@ -276,6 +272,25 @@ var FUX = (function (fux) {
 			image: assets.staff,
 			measureBar: assets.measure,
 
+			//Default asset type for tooltip image
+			tooltipImage: 'whole',
+
+			//Set the tooltip image for the mouse based on note type and mouse position
+			setTooltipImage: function(){
+				var self = this,
+				cursorOffsets = {
+					'whole': 0,
+					'halfUp': 60,
+					'halfDown': 10,
+					'quarterUp': 60,
+					'quarterDown': 0,
+					'eighthUp': 60,
+					'eighthDown': 1
+				};
+
+				self.target.css('cursor', 'url('+assets[self.tooltipImage]+') 0 '+cursorOffsets[self.tooltipImage]+', default');
+			},
+
 			//Get pitch user is selecting based on mouse position and clef
 			getPitchFromPosition: function(clef){
 				var self = this,
@@ -293,6 +308,7 @@ var FUX = (function (fux) {
 
 			},
 
+			//Method to return measure and beat user has clicked on
 			getMeasureAndBeatFromPosition: function(){
 				var self = this,
 				measurePosition = false,
@@ -340,6 +356,18 @@ var FUX = (function (fux) {
 
 		        self.mouse.x = e.clientX - rect.left;
 		        self.mouse.y = (e.clientY+24) - rect.top;
+
+		        //Update the stem position of the tooltip based on current mouse position
+		        if(currentNoteValue !== 'whole'){
+		        	if(self.mouse.y-26 >= staffMiddle && self.tooltipImage.search('Up') === -1){
+		        		self.tooltipImage = currentNoteValue+'Up';
+		        		self.setTooltipImage();
+		        	}else if(self.mouse.y-26 < staffMiddle && self.tooltipImage.search('Down') === -1){
+		        		self.tooltipImage = currentNoteValue+'Down';
+		        		self.setTooltipImage();
+		        	}
+
+		        }
 			},
 
 			//Setup the Canvas
@@ -428,6 +456,12 @@ var FUX = (function (fux) {
 						}
 					}
 					self.measures = measures;
+
+					if(currentNoteValue !== 'whole'){
+						self.tooltipImage = currentNoteValue+'Down';
+					}else{
+						self.tooltipImage = currentNoteValue;
+					}
 				}
 				
 			},
@@ -452,6 +486,9 @@ var FUX = (function (fux) {
 				//Render opening bar
 				self.context.drawImage(measureBarImage, self.x, self.y);
 
+				//Set initial tooltip style
+				self.setTooltipImage();
+
 				//If the staff contains measures, display the correct number of bar lines and create measure data objects
 				for(i = 0; i < self.measures.length; i++){
 					thisMeasure = self.measures[i];
@@ -468,8 +505,7 @@ var FUX = (function (fux) {
 							notePosition = thisNote.start + (((thisNote.end - thisNote.start)/2) - (thisNote.width/2));
 							thisNote.render(self.context, notePosition, self.clef);
 						}
-					});
-						
+					});	
 					
 				}
 
@@ -492,18 +528,14 @@ var FUX = (function (fux) {
 
 				measuresDivisor = thisMeasure.value/thisNote.value;
 
-
 				//Calculate note start and end points based on note value and beat
 				thisNote.start = thisMeasure.start + (  (thisMeasure.width/measuresDivisor) * (thisNote.beat/thisNote.value) );
 				thisNote.end = thisNote.start +  (thisMeasure.width/measuresDivisor);
 
-				console.log(thisNote.start);
-				console.log(thisNote.end);
-
 				if(thisMeasure.currentBeat <= thisMeasure.value){
 
 					thisMeasure.pitches[thisNote.beat] = thisNote;
-					thisMeasure.currentBeat += thisNote.value;
+					if(thisNote.beat === thisMeasure.currentBeat) thisMeasure.currentBeat += thisNote.value;
 				}else{
 					thisMeasure.currentBeat = 0;
 				}
@@ -522,9 +554,6 @@ var FUX = (function (fux) {
 				i, thisStaff;
 
 				if(options && options.currentNoteValue) currentNoteValue = options.currentNoteValue;
-
-				//Add style for note tooltip
-				target.css('cursor', 'url('+assets['whole']+'), auto');
 
 				//Add all assets to the asset cue CHANGE THIS TO ONLY ADD REQUIRED ASSETS TO QUEUE!!!
 				$.each(assets, function(asset, path){
@@ -553,5 +582,5 @@ var FUX = (function (fux) {
 }(FUX));
 
 $(function(){
-	FUX.notation.init({ currentNoteValue: 'quarter' });
+	FUX.notation.init({ currentNoteValue: 'half' });
 });
