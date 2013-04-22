@@ -349,6 +349,8 @@ var FUX = (function (fux) {
 			measureLength: 4,
 			measures: [],
 
+			score: false,
+
 			//The current measure and beat position on the staff
 			currentMeasure: 0,
 
@@ -430,10 +432,8 @@ var FUX = (function (fux) {
 			onMouseClick: function(self){
 				thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
-				thisMeasure = currentPosition.measure,
+				thisMeasure = (currentPosition.measure) ? currentPosition.measure : self.currentMeasure,
 				thisBeat = (currentPosition.beat) ? currentPosition.beat : self.measures[thisMeasure].currentBeat;
-
-				console.log(currentPosition);
 
 				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
 				
@@ -529,6 +529,7 @@ var FUX = (function (fux) {
 				if(options && options.target) self.target = options.target;
 				if(options && options.name) self.name = options.name;
 				if(options && options.clef) self.clef = options.clef;
+				if(options && options.score) self.score = options.score;
 
 				//Get the width for the clef symbol and initialize the first measure to render after the clef
 				clefWidth = clefs[self.clef].width;
@@ -553,17 +554,30 @@ var FUX = (function (fux) {
 								start: startOfMeasure,
 								end: measureOffset,
 								width: self.width/self.measureLength,
+								
 								//Time signature value = 4 quarter notes, as all exercises are in common time
 								value: 4,
 								currentBeat: 0,
 								beats: {}
 							};
 
-							//Add whole note rest to each bar when initialized
+							//Default fill with whole rests
 							self.addRest(measures[i], 0, 4);
 						}
 					}
 					self.measures = measures;
+
+					//If there is a score, loop through score and enter notes
+					for(i = 0; i < self.score.length; i++){
+						self.currentMeasure = i;
+						$.each(self.score[i], function(beat, note){
+							self.addNote({
+								beat: beat,
+								pitch: note.pitch,
+								duration: note.duration
+							});
+						});
+					}
 
 					//Set the initial value for the tooltip, default to a down stem for non-whole notes
 					if(currentNoteValue !== 'whole'){
@@ -608,8 +622,12 @@ var FUX = (function (fux) {
 					//Render any objects for this measure
 					$.each(thisMeasure.beats, function(beat, object){
 
+						//Place the object (note or rest) to center given the position in the current measure
+						notePosition = object.start + (((object.end - object.start)/2) - (object.width/2));
+						object.render(self.context, notePosition, self.clef);
+
 						//If object is present and has a pitch property, object is a note, so render accordingly
-						if(object !== 'undefined' && object.pitch){
+						/*if(object !== 'undefined' && object.pitch){
 							thisNote = object;
 
 							//Place the note to center given the position in the current measure
@@ -623,7 +641,7 @@ var FUX = (function (fux) {
 							//restPosition = thisRest.start + (thisMeasure.width/2) - (thisRest.width/2);
 							restPosition = thisRest.start + (((thisRest.end - thisRest.start)/2) - (thisRest.width/2));
 							thisRest.render(self.context, restPosition);
-						}
+						}*/
 					});	
 					
 				}
@@ -670,7 +688,7 @@ var FUX = (function (fux) {
 
 			//Function to add a rest object to a measure
 			addRest: function(measure, beat, value){
-				var rests = { 2: 'half', 1: 'quarter', 0.5 : 'eight' },
+				var rests = { 4: 'whole', 2: 'half', 1: 'quarter', 0.5 : 'eighth' },
 				thisRest = object(rest),
 				measuresDivisor;
 
@@ -689,7 +707,7 @@ var FUX = (function (fux) {
 			//Fill out the remaining beats in a measure with rests of appropriate size
 			restFillOut: function(measure, beat, value){
 				var self = this,
-				noteFootprint = beat + value,
+				noteFootprint = parseFloat(beat) + parseFloat(value),
 				i = measure.value,
 				remainingSpace;
 
@@ -699,17 +717,17 @@ var FUX = (function (fux) {
 
 					//If space is large enough to hold half rest, add half rest
 					if(remainingSpace/2 >= 1){
-						self.addRest(measure, i-2, 2);
+						if(!measure.beats[i-2]) self.addRest(measure, i-2, 2);
 						i -= 2;
 
 					//If space is large enough to hold quarter rest, add quarter rest
 					}else if(remainingSpace/1 >= 1){
-						self.addRest(measure, i-1, 1);
+						if(!measure.beats[i-1]) self.addRest(measure, i-1, 1);
 						i -= 1;
 
 					//If space is large enough to hold eighth rest, add eighth rest
 					}else if(remainingSpace/0.5 >= 1){
-						self.addRest(measure, i-0.5, 0.5);
+						if(!measure.beats[i-0.5]) self.addRest(measure, i-0.5, 0.5);
 						i -= 0.5;
 					}
 
@@ -726,7 +744,7 @@ var FUX = (function (fux) {
 				target = (options && options.target) ? options.target : $('#fux-notation'),
 				staves = ['treble'], 
 				count = 0, 
-				i, thisStaff;
+				i, thisStaff, testScore;
 
 				if(options && options.currentNoteValue) currentNoteValue = options.currentNoteValue;
 
@@ -735,16 +753,30 @@ var FUX = (function (fux) {
 					assetManager.queueDownload(path);
 				});
 
+				testScore = [
+					{ 
+						0: { duration: 'half', pitch: 'a4' },
+						2: { duration: 'half', pitch: 'c5' }
+					},
+					{ 
+						0: { duration: 'half', pitch: 'b4' },
+						2: { duration: 'half', pitch: 'a4' }
+					}
+				];
+
 				//Create and render staves once all required assets have loaded
 				assetManager.downloadAll(function(){
 					for(i = 0; i < staves.length; i++){
 						thisStaff = object(staff);
-						thisStaff.create({ clef: staves[i], name: staves[i]+i, target: target, width: 1000, measureLength: 4 });
+						thisStaff.create({ clef: staves[i], name: staves[i]+i, target: target, width: 1000, measureLength: 4, score: testScore });
 
 						thisStaff.render();
 					}
 				});
 				
+			},
+			setNoteValue: function(noteValue){
+				currentNoteValue = noteValue;
 			}
 		}
 		
@@ -755,7 +787,3 @@ var FUX = (function (fux) {
 
 	return fux;
 }(FUX));
-
-$(function(){
-	FUX.notation.init({ currentNoteValue: 'quarter' });
-});

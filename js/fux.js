@@ -1,4 +1,3 @@
-//THIS FILE OUTLINES ALL OF THE SUBMODULES FOR THE FUX SYSTEM
 var FUX = {
 
 	init: function(){
