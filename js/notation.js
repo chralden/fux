@@ -407,7 +407,7 @@ var FUX = (function (fux) {
 
 				//Loop through measures to find measure currently selected by user
 				$.each(self.measures, function(measureNum){
-					
+
 					//If the mouse position is between measure start and end, set this measure to current measure
 					if(self.mouse.x >= this.start && self.mouse.x <= this.end){
 						measurePosition = measureNum;
@@ -432,8 +432,8 @@ var FUX = (function (fux) {
 			onMouseClick: function(self){
 				thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
-				thisMeasure = (currentPosition.measure) ? currentPosition.measure : self.currentMeasure,
-				thisBeat = (currentPosition.beat) ? currentPosition.beat : self.measures[thisMeasure].currentBeat;
+				thisMeasure = (currentPosition.measure !== false) ? currentPosition.measure : self.currentMeasure,
+				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[thisMeasure].currentBeat;
 
 				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
 				
@@ -664,13 +664,18 @@ var FUX = (function (fux) {
 				//Create the note object
 				thisNote.create(n);
 
+				//A note or rest can only be overwritten by a note or rest of equal or lesser value
+				if(thisMeasure.beats[thisNote.beat] && thisNote.value > thisMeasure.beats[thisNote.beat].value){
+					return;
+				}
+
 				//Percentage of the current measure a the current note will occupy based on note value
 				measuresDivisor = thisMeasure.value/thisNote.value;
 
 				//Calculate note start and end points based on note value and beat
 				thisNote.start = thisMeasure.start + (  (thisMeasure.width/measuresDivisor) * (thisNote.beat/thisNote.value) );
 				thisNote.end = thisNote.start +  (thisMeasure.width/measuresDivisor);
-				
+
 				//Add note to currently selected measure at currently selected beat
 				if(thisMeasure.currentBeat <= thisMeasure.value){
 					
@@ -680,8 +685,6 @@ var FUX = (function (fux) {
 					//Fill out measure with rests if no notes are present
 					self.restFillOut(thisMeasure, thisNote.beat, thisNote.value);
 
-				}else{
-					//thisMeasure.currentBeat = 0;
 				}
 		
 			},
@@ -756,11 +759,12 @@ var FUX = (function (fux) {
 				testScore = [
 					{ 
 						0: { duration: 'half', pitch: 'a4' },
-						2: { duration: 'half', pitch: 'c5' }
+						2: { duration: 'quarter', pitch: 'c5' },
+						3: { duration: 'quarter', pitch: 'b4' }
 					},
 					{ 
-						0: { duration: 'half', pitch: 'b4' },
-						2: { duration: 'half', pitch: 'a4' }
+						0: { duration: 'quarter', pitch: 'a4' },
+						2: { duration: 'quarter', pitch: 'g4' }
 					}
 				];
 
