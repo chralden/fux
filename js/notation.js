@@ -88,6 +88,9 @@ var FUX = (function (fux) {
 			eighthUp: 'images/eighth-note-up.png',
 			eighthDown: 'images/eighth-note-down.png',
 
+			//Eraser Tooltip
+			eraser: 'images/eraser-x.png',
+
 			//Clef assets
 			treble: 'images/trebleclef.png',
 			alto: 'images/altoclef.png',
@@ -98,6 +101,7 @@ var FUX = (function (fux) {
 			wholeRest: 'images/whole-rest.png',
 			quarterRest: 'images/quarter-rest.png',
 			eighthRest: 'images/eighth-rest.png'
+
 		},
 
 		//Pixel position for middle of staff, for stem positioning
@@ -373,8 +377,10 @@ var FUX = (function (fux) {
 					'quarterUp': 60,
 					'quarterDown': 0,
 					'eighthUp': 60,
-					'eighthDown': 1
+					'eighthDown': 1,
+					'eraser': 0
 				};
+
 
 				//Set cursor background based on current tooltip
 				self.target.css('cursor', 'url('+assets[self.tooltipImage]+') 0 '+cursorOffsets[self.tooltipImage]+', default');
@@ -430,15 +436,21 @@ var FUX = (function (fux) {
 
 			//Event listener to add note when user clicks on staff
 			onMouseClick: function(self){
-				thisPitch = self.getPitchFromPosition(self.clef),
+				var thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
 				thisMeasure = (currentPosition.measure !== false) ? currentPosition.measure : self.currentMeasure,
-				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[thisMeasure].currentBeat;
+				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[thisMeasure].currentBeat,
+				thisBeatValue;
 
 				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
 				
+				if(currentNoteValue === 'eraser'){
+					
+					thisBeatValue = self.measures[self.currentMeasure].beats[thisBeat].value;	
+					self.addRest(self.measures[self.currentMeasure], thisBeat, thisBeatValue);
+				
 				//If note falls within the staff length, add note to staff
-				if(self.currentMeasure < self.measures.length && thisPitch){
+				}else if(self.currentMeasure < self.measures.length && thisPitch){
 					self.addNote({
 						pitch: thisPitch,
 						duration: currentNoteValue,
@@ -459,7 +471,7 @@ var FUX = (function (fux) {
 		        self.mouse.y = (e.clientY+24) - rect.top;
 
 		        //Update the stem position of the tooltip based on current mouse position
-		        if(currentNoteValue !== 'whole'){
+		        if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
 		        	if(self.mouse.y-26 >= staffMiddle && self.tooltipImage.search('Up') === -1){
 		        		self.tooltipImage = currentNoteValue+'Up';
 		        		self.setTooltipImage();
@@ -580,7 +592,7 @@ var FUX = (function (fux) {
 					}
 
 					//Set the initial value for the tooltip, default to a down stem for non-whole notes
-					if(currentNoteValue !== 'whole'){
+					if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
 						self.tooltipImage = currentNoteValue+'Down';
 					}else{
 						self.tooltipImage = currentNoteValue;
@@ -621,27 +633,15 @@ var FUX = (function (fux) {
 					
 					//Render any objects for this measure
 					$.each(thisMeasure.beats, function(beat, object){
+						//If object is defined
+						if(object){
+							
+							//Place the object (note or rest) to center given the position in the current measure
+							notePosition = object.start + (((object.end - object.start)/2) - (object.width/2));
+							object.render(self.context, notePosition, self.clef);
 
-						//Place the object (note or rest) to center given the position in the current measure
-						notePosition = object.start + (((object.end - object.start)/2) - (object.width/2));
-						object.render(self.context, notePosition, self.clef);
-
-						//If object is present and has a pitch property, object is a note, so render accordingly
-						/*if(object !== 'undefined' && object.pitch){
-							thisNote = object;
-
-							//Place the note to center given the position in the current measure
-							notePosition = thisNote.start + (((thisNote.end - thisNote.start)/2) - (thisNote.width/2));
-							thisNote.render(self.context, notePosition, self.clef);
+						}
 						
-						//If object doesn't have a pitch property but has a duration, object is a rest, so render accordingly
-						}else if(object !== 'undefined' && object.duration){
-							thisRest = object;
-
-							//restPosition = thisRest.start + (thisMeasure.width/2) - (thisRest.width/2);
-							restPosition = thisRest.start + (((thisRest.end - thisRest.start)/2) - (thisRest.width/2));
-							thisRest.render(self.context, restPosition);
-						}*/
 					});	
 					
 				}
@@ -691,7 +691,8 @@ var FUX = (function (fux) {
 
 			//Function to add a rest object to a measure
 			addRest: function(measure, beat, value){
-				var rests = { 4: 'whole', 2: 'half', 1: 'quarter', 0.5 : 'eighth' },
+				var self = this,
+				rests = { 4: 'whole', 2: 'half', 1: 'quarter', 0.5 : 'eighth' },
 				thisRest = object(rest),
 				measuresDivisor;
 
@@ -705,6 +706,7 @@ var FUX = (function (fux) {
 				thisRest.end = thisRest.start +  (measure.width/measuresDivisor);
 
 				measure.beats[beat] = thisRest;
+
 			},
 
 			//Fill out the remaining beats in a measure with rests of appropriate size
