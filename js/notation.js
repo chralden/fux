@@ -689,24 +689,104 @@ var FUX = (function (fux) {
 		
 			},
 
+			//Take a measures list of beat objects and return an array of sorted beats
+			sortBeats: function(measure){
+				var sortedBeats = [];
+
+				//For if beat corresponds to an object (note or rest), add it to the array to be sorted
+				$.each(measure.beats, function(beat, object){
+					if(object) sortedBeats.push(beat);
+				});
+
+				//Sort numerically ascending
+				sortedBeats.sort(function(a,b){return a-b});
+
+				return sortedBeats;
+			},
+
 			//Function to add a rest object to a measure
 			addRest: function(measure, beat, value){
 				var self = this,
-				rests = { 4: 'whole', 2: 'half', 1: 'quarter', 0.5 : 'eighth' },
-				thisRest = object(rest),
-				measuresDivisor;
+				newRest;
 
-				thisRest.create({ duration: rests[value] });
+				//Function to create a rest object given the measure position, beat position, and rest value
+				function createRest(measure, beat, value){
+					var rests = { 4: 'whole', 2: 'half', 1: 'quarter', 0.5 : 'eighth' },
+					thisRest = object(rest),
+					measuresDivisor;
 
-				//Percentage of the current measure a the current note will occupy based on note value
-				measuresDivisor = measure.value/value;
+					thisRest.create({ duration: rests[value], beat: beat });
 
-				//Calculate note start and end points based on note value and beat
-				thisRest.start = measure.start + ( (measure.width/measuresDivisor) * (beat/value) );
-				thisRest.end = thisRest.start +  (measure.width/measuresDivisor);
+					//Percentage of the current measure a the current note will occupy based on note value
+					measuresDivisor = measure.value/value;
 
-				measure.beats[beat] = thisRest;
+					//Calculate note start and end points based on note value and beat
+					thisRest.start = measure.start + ( (measure.width/measuresDivisor) * (beat/value) );
+					thisRest.end = thisRest.start +  (measure.width/measuresDivisor);
 
+					return thisRest;
+				}
+
+				//Take the initial rest to be added, and check if it can be consolidated with any neighboring rests
+				function consolidateRests(rest){
+					//Variable to hold the consolidated rest, first set to rest that was added
+					var consolidatedRest = rest;
+
+					//Take in a rest and check if it's nearest neighbors are rests
+					function checkRests(checkRest){
+						var measureObjects = self.sortBeats(measure),
+						thisBeat = checkRest.beat,
+						thisValue = checkRest.value,
+						thisIndex = measureObjects.indexOf(thisBeat.toString()),
+						
+						//If not the first object in the measure, get the previous object
+						prevBeat = (thisIndex > 0) ? measure.beats[measureObjects[thisIndex-1]] : false,
+						
+						//If not the last object in the measure, get the next object
+						nextBeat = (thisIndex < measureObjects.length-1) ? measure.beats[measureObjects[thisIndex+1]] : false,
+						consolidatedValue;
+
+						//If next beat is a rest, add the rest values together
+						if(nextBeat && nextBeat.duration && !nextBeat.pitch){
+							consolidatedValue = parseFloat(thisValue) + parseFloat(nextBeat.value);
+							
+							//If the sum of the rests is equal to a possible rest duration, consolidate them
+							if(consolidatedValue % 2 === 0){
+								//Create consolidated rest and delete rest it is replacing
+								consolidatedRest = createRest(measure, thisBeat, consolidatedValue);
+								measure.beats[nextBeat.beat] = false;
+								
+								//Check if newly consolidated rest can also be consolidated with any neighbors
+								checkRests(consolidatedRest);
+							}
+
+						//If the previous beat is a rest, add the rest values together
+						}else if(prevBeat && prevBeat.duration && !prevBeat.pitch){
+							consolidatedValue = parseFloat(thisValue) + parseFloat(prevBeat.value);
+							
+							//If the sum of the rests is equal to a possible rest duration, consolidate them
+							if(consolidatedValue % 2 === 0){
+								//Create consolidated rest and delete rest it is replacing
+								consolidatedRest = createRest(measure, prevBeat.beat, consolidatedValue);
+								measure.beats[thisBeat] = false;
+								
+								//Check if newly consolidated rest can also be consolidated with any neighbors
+								checkRests(consolidatedRest);
+							}
+						//If no neighboring rests return
+						}else{
+							return;
+						}
+
+					}
+
+					checkRests(rest);
+					measure.beats[consolidatedRest.beat] = consolidatedRest;
+				}
+
+				//Create the new rest, than run to see if new rest can be consolidated with neighboring rests
+				newRest = createRest(measure, beat, value);
+				consolidateRests(newRest);
 			},
 
 			//Fill out the remaining beats in a measure with rests of appropriate size
