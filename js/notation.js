@@ -9,6 +9,29 @@ var FUX = (function (fux) {
 		//The current note type for the tooltip
 		currentNoteValue = 'whole',
 
+		//Default asset type for tooltip image
+		tooltipImage = 'whole',
+
+		//Set the tooltip image for the mouse based on note type and mouse position
+		setTooltipImage = function(){
+			
+			//Background image positioning offsets based on note image
+			var cursorOffsets = {
+				'whole': 0,
+				'halfUp': 60,
+				'halfDown': 10,
+				'quarterUp': 60,
+				'quarterDown': 0,
+				'eighthUp': 60,
+				'eighthDown': 1,
+				'eraser': 0
+			};
+
+
+			//Set cursor background based on current tooltip
+			$('body').css('cursor', 'url('+assets[tooltipImage]+') 0 '+cursorOffsets[tooltipImage]+', default');
+		},
+
 		//Mappings of Y positions for notes on staff based on clef
 		pitchMappings = {
 			treble: {
@@ -362,30 +385,6 @@ var FUX = (function (fux) {
 			image: assets.staff,
 			measureBar: assets.measure,
 
-			//Default asset type for tooltip image
-			tooltipImage: 'whole',
-
-			//Set the tooltip image for the mouse based on note type and mouse position
-			setTooltipImage: function(){
-				var self = this,
-
-				//Background image positioning offsets based on note image
-				cursorOffsets = {
-					'whole': 0,
-					'halfUp': 60,
-					'halfDown': 10,
-					'quarterUp': 60,
-					'quarterDown': 0,
-					'eighthUp': 60,
-					'eighthDown': 1,
-					'eraser': 0
-				};
-
-
-				//Set cursor background based on current tooltip
-				self.target.css('cursor', 'url('+assets[self.tooltipImage]+') 0 '+cursorOffsets[self.tooltipImage]+', default');
-			},
-
 			//Get pitch user is selecting based on mouse position and clef
 			getPitchFromPosition: function(clef){
 				var self = this,
@@ -472,12 +471,12 @@ var FUX = (function (fux) {
 
 		        //Update the stem position of the tooltip based on current mouse position
 		        if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
-		        	if(self.mouse.y-26 >= staffMiddle && self.tooltipImage.search('Up') === -1){
-		        		self.tooltipImage = currentNoteValue+'Up';
-		        		self.setTooltipImage();
-		        	}else if(self.mouse.y-26 < staffMiddle && self.tooltipImage.search('Down') === -1){
-		        		self.tooltipImage = currentNoteValue+'Down';
-		        		self.setTooltipImage();
+		        	if(self.mouse.y-26 >= staffMiddle && tooltipImage.search('Up') === -1){
+		        		tooltipImage = currentNoteValue+'Up';
+		        		setTooltipImage();
+		        	}else if(self.mouse.y-26 < staffMiddle && tooltipImage.search('Down') === -1){
+		        		tooltipImage = currentNoteValue+'Down';
+		        		setTooltipImage();
 		        	}
 
 		        }
@@ -593,9 +592,9 @@ var FUX = (function (fux) {
 
 					//Set the initial value for the tooltip, default to a down stem for non-whole notes
 					if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
-						self.tooltipImage = currentNoteValue+'Down';
+						tooltipImage = currentNoteValue+'Down';
 					}else{
-						self.tooltipImage = currentNoteValue;
+						tooltipImage = currentNoteValue;
 					}
 				}
 				
@@ -623,7 +622,7 @@ var FUX = (function (fux) {
 				self.context.drawImage(measureBarImage, self.x, self.y);
 
 				//Set initial tooltip style
-				self.setTooltipImage();
+				setTooltipImage();
 
 				//If the staff contains measures, display the correct number of bar lines and create measure data objects
 				for(i = 0; i < self.measures.length; i++){
@@ -869,7 +868,17 @@ var FUX = (function (fux) {
 				
 			},
 			setNoteValue: function(noteValue){
+
 				currentNoteValue = noteValue;
+
+				//Reset the tooltip image based on new note value
+				if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
+					tooltipImage = currentNoteValue+'Down';
+				}else{
+					tooltipImage = currentNoteValue;
+				}
+
+				setTooltipImage();
 			}
 		}
 		
