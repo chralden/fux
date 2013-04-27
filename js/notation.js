@@ -659,6 +659,7 @@ var FUX = (function (fux) {
 				var self = this,
 				thisNote = object(note),
 				thisMeasure = self.measures[self.currentMeasure],
+				paddedWidth = thisMeasure.width-20,
 				measuresDivisor;
 
 				//Create the note object
@@ -673,8 +674,8 @@ var FUX = (function (fux) {
 				measuresDivisor = thisMeasure.value/thisNote.value;
 
 				//Calculate note start and end points based on note value and beat
-				thisNote.start = thisMeasure.start + (  (thisMeasure.width/measuresDivisor) * (thisNote.beat/thisNote.value) );
-				thisNote.end = thisNote.start +  (thisMeasure.width/measuresDivisor);
+				thisNote.start = (thisMeasure.start + 15) + (  (paddedWidth/measuresDivisor) * (thisNote.beat/thisNote.value) );
+				thisNote.end = thisNote.start +  (paddedWidth/measuresDivisor);
 
 				//Add note to currently selected measure at currently selected beat
 				if(thisMeasure.currentBeat <= thisMeasure.value){
@@ -707,6 +708,7 @@ var FUX = (function (fux) {
 			//Function to add a rest object to a measure
 			addRest: function(measure, beat, value){
 				var self = this,
+				paddedWidth = measure.width -20,
 				newRest;
 
 				//Function to create a rest object given the measure position, beat position, and rest value
@@ -721,8 +723,8 @@ var FUX = (function (fux) {
 					measuresDivisor = measure.value/value;
 
 					//Calculate note start and end points based on note value and beat
-					thisRest.start = measure.start + ( (measure.width/measuresDivisor) * (beat/value) );
-					thisRest.end = thisRest.start +  (measure.width/measuresDivisor);
+					thisRest.start = (measure.start + 10) + ( (paddedWidth/measuresDivisor) * (beat/value) );
+					thisRest.end = thisRest.start +  (paddedWidth/measuresDivisor);
 
 					return thisRest;
 				}
@@ -749,34 +751,38 @@ var FUX = (function (fux) {
 						//If next beat is a rest, add the rest values together
 						if(nextBeat && nextBeat.duration && !nextBeat.pitch){
 							consolidatedValue = parseFloat(thisValue) + parseFloat(nextBeat.value);
-							
+
 							//If the sum of the rests is equal to a possible rest duration, consolidate them
-							if(consolidatedValue % 2 === 0){
+							if((thisValue === 0.5 && consolidatedValue % 1 === 0) || consolidatedValue % 2 === 0){
 								//Create consolidated rest and delete rest it is replacing
 								consolidatedRest = createRest(measure, thisBeat, consolidatedValue);
 								measure.beats[nextBeat.beat] = false;
 								
 								//Check if newly consolidated rest can also be consolidated with any neighbors
 								checkRests(consolidatedRest);
+								return;
 							}
 
 						//If the previous beat is a rest, add the rest values together
-						}else if(prevBeat && prevBeat.duration && !prevBeat.pitch){
+						}
+
+						if(prevBeat && prevBeat.duration && !prevBeat.pitch){
 							consolidatedValue = parseFloat(thisValue) + parseFloat(prevBeat.value);
 							
 							//If the sum of the rests is equal to a possible rest duration, consolidate them
-							if(consolidatedValue % 2 === 0){
+							if((thisValue === 0.5 && consolidatedValue % 1 === 0) || consolidatedValue % 2 === 0){
 								//Create consolidated rest and delete rest it is replacing
 								consolidatedRest = createRest(measure, prevBeat.beat, consolidatedValue);
 								measure.beats[thisBeat] = false;
 								
 								//Check if newly consolidated rest can also be consolidated with any neighbors
 								checkRests(consolidatedRest);
+								return;
 							}
 						//If no neighboring rests return
-						}else{
-							return;
 						}
+							
+						return;
 
 					}
 
@@ -845,7 +851,8 @@ var FUX = (function (fux) {
 						3: { duration: 'quarter', pitch: 'b4' }
 					},
 					{ 
-						0: { duration: 'quarter', pitch: 'a4' },
+						0: { duration: 'eighth', pitch: 'a4' },
+						0.5: { duration: 'eighth', pitch: 'g4' },
 						2: { duration: 'quarter', pitch: 'g4' }
 					}
 				];
