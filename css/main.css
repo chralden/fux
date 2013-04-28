@@ -1,0 +1,13 @@
+body { background: transparent url("../images/paper_fibers.png") repeat; }
+
+.center-column { overflow-x: scroll; width: 70%; height: 100%; position: absolute; }
+.center-column p  { margin: 20px 0; font-family: 'Bitter', serif; font-size: 1.4em; }
+
+.exercise { padding: 20px;}
+
+.tools { text-align: center; background: transparent url("../images/satinweave.png") repeat; width: 30%; position: absolute; right: 0; top: 0; height: 100%; border-left: 1px solid #DDD; }
+.tools a { margin: 5px; display: inline-block; }
+
+::-webkit-scrollbar-track {
+    background: none;
+}

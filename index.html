@@ -5,6 +5,10 @@
 	
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" type="text/css" href="libraries/bootstrap/css/bootstrap.min.css" media="all" />
+	<link href='http://fonts.googleapis.com/css?family=Bitter:400,700' rel='stylesheet' type='text/css'>
+
+	<link rel="stylesheet" type="text/css" href="css/main.css" media="all" />
+
 
 	<!-- Libraries and 3rd Party JS-->
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -17,24 +21,29 @@
 
 <body>
 
-	<p>Hello World! Here goes the music notation prototype:</p>
+	<div class="clearfix">
+		<div class="center-column">
 
-	<div id="fux-notation"></div>
-	
-	<!--<canvas id="fux-notation" width="1000" height="180">
-		Your browser does not support HTML5 Canvas.
-	</canvas>-->
+			<div class="exercise">
+				<p>Hello World! Here goes the music notation prototype:</p>
 
-	<div class="tools">
-		<div class="notation-tools">
-			<a class="btn notation-note-select" data-notetype="whole">Whole Note</a>
-			<a class="btn notation-note-select" data-notetype="half">Half Note</a>
-			<a class="btn notation-note-select" data-notetype="quarter">Quarter Note</a>
-			<a class="btn notation-note-select" data-notetype="eighth">Eighth Note</a>
+				<div id="fux-notation"></div>
+			</div>
+			
+		</div>
 
-			<a class="btn notation-note-select" data-notetype="eraser">Eraser</a>
+		<div class="tools">
+			<div class="notation-tools">
+				<a class="btn notation-note-select" data-notetype="whole">Whole Note</a>
+				<a class="btn notation-note-select" data-notetype="half">Half Note</a>
+				<a class="btn notation-note-select" data-notetype="quarter">Quarter Note</a>
+				<a class="btn notation-note-select" data-notetype="eighth">Eighth Note</a>
+
+				<a class="btn notation-note-select" data-notetype="eraser">Eraser</a>
+			</div>
 		</div>
 	</div>
+	
 	
 </body> 
 

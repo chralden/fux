@@ -29,7 +29,7 @@ var FUX = (function (fux) {
 
 
 			//Set cursor background based on current tooltip
-			$('body').css('cursor', 'url('+assets[tooltipImage]+') 0 '+cursorOffsets[tooltipImage]+', default');
+			$('#fux-notation').css('cursor', 'url('+assets[tooltipImage]+') 0 '+cursorOffsets[tooltipImage]+', default');
 		},
 
 		//Mappings of Y positions for notes on staff based on clef
@@ -99,7 +99,7 @@ var FUX = (function (fux) {
 		//All assets utilized by notation system
 		assets = {
 			//Staff and Measure assets
-			staff: 'images/stave1.jpg',
+			staff: 'images/staff.png',
 			measure: 'images/measure-delim.png',
 
 			//Note assets
@@ -612,8 +612,7 @@ var FUX = (function (fux) {
 				i;
 
 				//Render clearing background
-				self.context.fillStyle = "#FFF";
-				self.context.fillRect(0, 0, self.theCanvas.width, self.theCanvas.height);
+				self.context.clearRect(0, 0, self.theCanvas.width, self.theCanvas.height);
 
 				//Render staff background image
 				self.context.drawImage(staffImage, self.x, self.y, self.width, 90);
@@ -832,7 +831,7 @@ var FUX = (function (fux) {
 			init: function(options){
 				var options = options || false,
 				target = (options && options.target) ? options.target : $('#fux-notation'),
-				staves = ['treble'], 
+				staves = ['treble', 'bass'], 
 				count = 0, 
 				i, thisStaff, testScore;
 
@@ -843,7 +842,7 @@ var FUX = (function (fux) {
 					assetManager.queueDownload(path);
 				});
 
-				testScore = [
+				/*testScore = [
 					{ 
 						0: { duration: 'half', pitch: 'a4' },
 						2: { duration: 'quarter', pitch: 'c5' },
@@ -854,7 +853,7 @@ var FUX = (function (fux) {
 						0.5: { duration: 'eighth', pitch: 'g4' },
 						2: { duration: 'quarter', pitch: 'g4' }
 					}
-				];
+				];*/
 
 				//Create and render staves once all required assets have loaded
 				assetManager.downloadAll(function(){
