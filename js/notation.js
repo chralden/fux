@@ -101,6 +101,7 @@ var FUX = (function (fux) {
 			//Staff and Measure assets
 			staff: 'images/staff.png',
 			measure: 'images/measure-delim.png',
+			staffLine: 'images/staff-line.png',
 
 			//Note assets
 			whole: 'images/whole-note.png',
@@ -301,6 +302,12 @@ var FUX = (function (fux) {
 				eighthUp: { src: assets.eighthUp, offset: '55' },
 				eighthDown: { src: assets.eighthDown, offset: '5' } 
 			},
+
+			staffLineImage: {
+				src: assets.staffLine,
+				x: 13,
+				y: 23
+			},
 			
 			//Default pitch and duration
 			pitch: 'a4',
@@ -340,9 +347,25 @@ var FUX = (function (fux) {
 
 				//set note image
 				noteImage = self.noteImages[self.duration+stemDirection];
+
+				//If note requires a staff line, render it
+				if(self.hasStaffline(clef)) context.drawImage(assetManager.getAsset(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
 				
 				//render note image
 				context.drawImage(assetManager.getAsset(noteImage.src), position, pitchMappings[clef][self.pitch]-noteImage.offset);
+			},
+
+			//Determine wether note, given position on clef, requires a staff line
+			hasStaffline: function(clef){
+				var self = this;
+
+				if(pitchMappings[clef][self.pitch] === 120 || pitchMappings[clef][self.pitch] === 0){
+					return true;
+				}else{
+					return false;
+				}
+
+				
 			}
 
 		};

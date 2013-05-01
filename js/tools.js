@@ -4,7 +4,20 @@ var FUX = (function (fux) {
 	var notation = fux.notation,
 	tools = function(){
 
-		var notationTools = {
+		var setup = function(){
+			var toolsLink = $('.tool-link'),
+			toolsEl = $('.tools'),
+			contentEl = $('.center-column');
+
+			toolsLink.on('click', function(){
+				toolsEl.animate({
+					width: 'toggle',
+					}, 800, function() {
+				});
+				contentEl.toggleClass('twoCol', 800);
+			});
+		},
+		notationTools = {
 
 			setup: function(){
 				var self = this,
@@ -33,6 +46,7 @@ var FUX = (function (fux) {
 		return {
 
 			init: function(options){
+				setup();
 				notationTools.setup();
 				
 			}
