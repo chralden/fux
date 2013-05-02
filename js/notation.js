@@ -24,7 +24,9 @@ var FUX = (function (fux) {
 				'quarterDown': 0,
 				'eighthUp': 60,
 				'eighthDown': 1,
-				'eraser': 0
+				'eraser': 0,
+				'tieDown': 0,
+				'tieUp': 0
 			};
 
 
@@ -111,6 +113,13 @@ var FUX = (function (fux) {
 			quarterDown: 'images/quarter-note-down.png',
 			eighthUp: 'images/eighth-note-up.png',
 			eighthDown: 'images/eighth-note-down.png',
+
+			//Note extras - ties and accidentals
+			tieUp: 'images/tie-up.png',
+			tieDown: 'images/tie-down.png',
+			sharp: 'images/sharp.png',
+			flat: 'images/flat.png',
+			natural: 'images/natural.png',
 
 			//Eraser Tooltip
 			eraser: 'images/eraser-x.png',
@@ -308,6 +317,17 @@ var FUX = (function (fux) {
 				x: 13,
 				y: 23
 			},
+
+			accidentalImages: {
+				sharp: { src: assets.sharp },
+				flat: { src: assets.flat },
+				natural: { src: assets.natural }
+			},
+
+			tieImages: {
+				tieUp: { src: assets.tieUp, x: 35, y: 30 },
+				tieDown: { src: assets.tieDown, x: 35, y: -5 }
+			},
 			
 			//Default pitch and duration
 			pitch: 'a4',
@@ -315,6 +335,9 @@ var FUX = (function (fux) {
 			
 			//Default beat for note 
 			beat: 0,
+
+			//Is note tied
+			tied: false,
 			
 			//Duration text to numeric value mapping
 			values: { whole: 4, half: 2, quarter: 1, eighth: 0.5 },
@@ -343,16 +366,23 @@ var FUX = (function (fux) {
 				
 				//If not a whole note, get stem direction based on position on staff
 				stemDirection = (self.duration !== 'whole') ? getStemDirection(self.pitch, clef) : '',
-				noteImage;
+				noteImage, tieImage;
 
 				//set note image
 				noteImage = self.noteImages[self.duration+stemDirection];
 
 				//If note requires a staff line, render it
 				if(self.hasStaffline(clef)) context.drawImage(assetManager.getAsset(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
-				
+
 				//render note image
 				context.drawImage(assetManager.getAsset(noteImage.src), position, pitchMappings[clef][self.pitch]-noteImage.offset);
+
+				//If note is tied, render tie
+				if(self.tied){
+					tieImage = self.tieImages['tie'+stemDirection];
+					context.drawImage(assetManager.getAsset(tieImage.src), position+tieImage.x, pitchMappings[clef][self.pitch]+tieImage.y);
+				}
+				
 			},
 
 			//Determine wether note, given position on clef, requires a staff line
@@ -462,7 +492,7 @@ var FUX = (function (fux) {
 				currentPosition = self.getMeasureAndBeatFromPosition(),
 				thisMeasure = (currentPosition.measure !== false) ? currentPosition.measure : self.currentMeasure,
 				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[thisMeasure].currentBeat,
-				thisBeatValue;
+				thisBeatValue, currentNote;
 
 				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
 				
@@ -472,6 +502,11 @@ var FUX = (function (fux) {
 					self.addRest(self.measures[self.currentMeasure], thisBeat, thisBeatValue);
 				
 				//If note falls within the staff length, add note to staff
+				}else if(currentNoteValue === 'tie'){
+					currentNote = self.measures[thisMeasure].beats[thisBeat];
+					
+					if(currentNote) currentNote.tied = !currentNote.tied;
+
 				}else if(self.currentMeasure < self.measures.length && thisPitch){
 					self.addNote({
 						pitch: thisPitch,

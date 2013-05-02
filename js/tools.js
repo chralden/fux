@@ -26,12 +26,11 @@ var FUX = (function (fux) {
 				toolButtons.on('click', self.routeClicks);
 			},
 
+			//Rout the click events to the appropriate notation changes
 			routeClicks: function(){
 				var button = $(this);
 
-				if(button.hasClass('notation-note-select')){
-					notation.setNoteValue(button.attr('data-notetype'));
-				}
+				if(button.hasClass('notation-note-select')) notation.setNoteValue(button.attr('data-notetype'));
 			}
 
 
