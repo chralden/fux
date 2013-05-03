@@ -26,7 +26,10 @@ var FUX = (function (fux) {
 				'eighthDown': 1,
 				'eraser': 0,
 				'tieDown': 0,
-				'tieUp': 0
+				'tieUp': 0,
+				'sharp': 0,
+				'flat': 0,
+				'natural': 0
 			};
 
 
@@ -319,9 +322,9 @@ var FUX = (function (fux) {
 			},
 
 			accidentalImages: {
-				sharp: { src: assets.sharp },
-				flat: { src: assets.flat },
-				natural: { src: assets.natural }
+				sharp: { src: assets.sharp, x: -35, y: 6 },
+				flat: { src: assets.flat, x: -30, y: -36 },
+				natural: { src: assets.natural, x: -25, y: -10 }
 			},
 
 			tieImages: {
@@ -332,6 +335,9 @@ var FUX = (function (fux) {
 			//Default pitch and duration
 			pitch: 'a4',
 			duration: 'whole',
+
+			//Is note sharp or flat
+			accidental: false,
 			
 			//Default beat for note 
 			beat: 0,
@@ -366,7 +372,7 @@ var FUX = (function (fux) {
 				
 				//If not a whole note, get stem direction based on position on staff
 				stemDirection = (self.duration !== 'whole') ? getStemDirection(self.pitch, clef) : '',
-				noteImage, tieImage;
+				noteImage, tieImage, accidentalImage;
 
 				//set note image
 				noteImage = self.noteImages[self.duration+stemDirection];
@@ -382,6 +388,11 @@ var FUX = (function (fux) {
 					tieImage = self.tieImages['tie'+stemDirection];
 					context.drawImage(assetManager.getAsset(tieImage.src), position+tieImage.x, pitchMappings[clef][self.pitch]+tieImage.y);
 				}
+
+				if(self.accidental){
+					accidentalImage = self.accidentalImages[self.accidental];
+					context.drawImage(assetManager.getAsset(accidentalImage.src), position+accidentalImage.x, pitchMappings[clef][self.pitch]+accidentalImage.y);
+				} 
 				
 			},
 
@@ -495,17 +506,26 @@ var FUX = (function (fux) {
 				thisBeatValue, currentNote;
 
 				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
+				currentNote = self.measures[thisMeasure].beats[thisBeat];
 				
+				
+				//Check current tooltip type and respond to click accordingly
+
+				//If an eraser, swap out current note for rest of same value
 				if(currentNoteValue === 'eraser'){
 					
 					thisBeatValue = self.measures[self.currentMeasure].beats[thisBeat].value;	
 					self.addRest(self.measures[self.currentMeasure], thisBeat, thisBeatValue);
 				
-				//If note falls within the staff length, add note to staff
+				//If a 'tie', add tie to current note 
 				}else if(currentNoteValue === 'tie'){
-					currentNote = self.measures[thisMeasure].beats[thisBeat];
 					
-					if(currentNote) currentNote.tied = !currentNote.tied;
+					if(currentNote && currentNote.duration === 'half') currentNote.tied = !currentNote.tied;
+
+				//If an accidental update the current note to have selected accidental
+				}else if(currentNoteValue === 'sharp' || currentNoteValue === 'flat' || currentNoteValue === 'natural'){
+					
+					if(currentNote) currentNote.accidental = currentNoteValue;
 
 				}else if(self.currentMeasure < self.measures.length && thisPitch){
 					self.addNote({
@@ -528,7 +548,7 @@ var FUX = (function (fux) {
 		        self.mouse.y = (e.clientY+24) - rect.top;
 
 		        //Update the stem position of the tooltip based on current mouse position
-		        if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
+		        if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser' && currentNoteValue !== 'sharp' && currentNoteValue !== 'flat' && currentNoteValue !== 'natural'){
 		        	if(self.mouse.y-26 >= staffMiddle && tooltipImage.search('Up') === -1){
 		        		tooltipImage = currentNoteValue+'Up';
 		        		setTooltipImage();
@@ -649,7 +669,7 @@ var FUX = (function (fux) {
 					}
 
 					//Set the initial value for the tooltip, default to a down stem for non-whole notes
-					if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
+					if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser' && currentNoteValue !== 'sharp' && currentNoteValue !== 'flat' && currentNoteValue !== 'natural'){
 						tooltipImage = currentNoteValue+'Down';
 					}else{
 						tooltipImage = currentNoteValue;
@@ -929,7 +949,7 @@ var FUX = (function (fux) {
 				currentNoteValue = noteValue;
 
 				//Reset the tooltip image based on new note value
-				if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'){
+				if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser'  && currentNoteValue !== 'sharp'  && currentNoteValue !== 'flat'  && currentNoteValue !== 'natural'){
 					tooltipImage = currentNoteValue+'Down';
 				}else{
 					tooltipImage = currentNoteValue;

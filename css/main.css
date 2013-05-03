@@ -13,6 +13,6 @@ body { background: transparent url("../images/bgs/paper_fibers.png") repeat; }
 .tools a { margin: 5px; display: inline-block; }
 
 .notation-tools { min-width: 370px; }
-.notation-tools .notes { border-bottom: 1px solid #DDD; padding: 0 0 15px 0; margin: 0 15px 15px; }
+.notation-tools .notes { border-bottom: 1px solid #CCC; padding: 0 0 20px 0; margin: 0 20px 20px; }
 
 .tools .notation-tools p { text-align: center; font-family: 'Bitter', serif; font-size: 1.4em; margin-top: 20px; }
