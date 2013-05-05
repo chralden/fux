@@ -440,7 +440,11 @@ var FUX = (function (fux) {
 			measureLength: 4,
 			measures: [],
 
+			//Property to hold a score for the staff to render
 			score: false,
+
+			//If disabled, score is displayed, but notes can neither be added or removed (for the cantus firmus)
+			disabled: false,
 
 			//The current measure and beat position on the staff
 			currentMeasure: 0,
@@ -571,7 +575,7 @@ var FUX = (function (fux) {
 				self.theCanvas = document.getElementById(self.name);
 				self.context = self.theCanvas.getContext("2d");
 
-				self.theCanvas.width = self.width;
+				self.theCanvas.width = self.width+30;
 				self.theCanvas.height = self.height;
 
 			},
@@ -619,6 +623,7 @@ var FUX = (function (fux) {
 				if(options && options.name) self.name = options.name;
 				if(options && options.clef) self.clef = options.clef;
 				if(options && options.score) self.score = options.score;
+				if(options && options.disabled) self.disabled = options.disabled;
 
 				//Get the width for the clef symbol and initialize the first measure to render after the clef
 				clefWidth = clefs[self.clef].width;
@@ -630,8 +635,8 @@ var FUX = (function (fux) {
 					//Setup the canvas element for this staff
 					self.setup();
 
-					//Add all necessary event listeners to staff object
-					self.bindEvents();
+					//Add all necessary event listeners to staff object as long as staff is not disabled
+					if(!self.disabled) self.bindEvents();
 
 					//Initialize all the measure objects
 					if(self.measureLength > 0){
@@ -909,9 +914,25 @@ var FUX = (function (fux) {
 			init: function(options){
 				var options = options || false,
 				target = (options && options.target) ? options.target : $('#fux-notation'),
-				staves = ['treble', 'bass'], 
+				cantusfirmus = [
+					{ 0: { duration: 'whole', pitch: 'd3' } },
+					{ 0: { duration: 'whole', pitch: 'f3' } },
+					{ 0: { duration: 'whole', pitch: 'e3' } },
+					{ 0: { duration: 'whole', pitch: 'd3' } },
+					{ 0: { duration: 'whole', pitch: 'g3' } },
+					{ 0: { duration: 'whole', pitch: 'f3' } },
+					{ 0: { duration: 'whole', pitch: 'a3' } },
+					{ 0: { duration: 'whole', pitch: 'g3' } },
+					{ 0: { duration: 'whole', pitch: 'f3' } },
+					{ 0: { duration: 'whole', pitch: 'e3' } },
+					{ 0: { duration: 'whole', pitch: 'd3' } }
+				],
+				staves = [
+					{ type: 'treble', length: 11 },
+					{ type: 'bass', score: cantusfirmus, disabled: true, length: 11 }
+				], 
 				count = 0, 
-				i, thisStaff, testScore;
+				i, thisStaff, staffOptions;
 
 				if(options && options.currentNoteValue) currentNoteValue = options.currentNoteValue;
 
@@ -920,24 +941,17 @@ var FUX = (function (fux) {
 					assetManager.queueDownload(path);
 				});
 
-				/*testScore = [
-					{ 
-						0: { duration: 'half', pitch: 'a4' },
-						2: { duration: 'quarter', pitch: 'c5' },
-						3: { duration: 'quarter', pitch: 'b4' }
-					},
-					{ 
-						0: { duration: 'eighth', pitch: 'a4' },
-						0.5: { duration: 'eighth', pitch: 'g4' },
-						2: { duration: 'quarter', pitch: 'g4' }
-					}
-				];*/
 
 				//Create and render staves once all required assets have loaded
 				assetManager.downloadAll(function(){
 					for(i = 0; i < staves.length; i++){
 						thisStaff = object(staff);
-						thisStaff.create({ clef: staves[i], name: staves[i]+i, target: target, width: 1000, measureLength: 4, score: testScore });
+						staffOptions = { clef: staves[i].type, name: staves[i].type+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length }
+						
+						if(staves[i].score) staffOptions.score = staves[i].score;
+						if(staves[i].disabled) staffOptions.disabled = staves[i].disabled;
+
+						thisStaff.create(staffOptions);
 
 						thisStaff.render();
 					}
