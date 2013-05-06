@@ -1,7 +1,8 @@
 //Musical notation module
 var FUX = (function (fux) {
 	
-	var notation = function(){
+	var soundmanager = fux.soundmanager,
+	notation = function(){
 
 		//objects for rendering staves and notes
 		var staff,
@@ -537,6 +538,8 @@ var FUX = (function (fux) {
 						duration: currentNoteValue,
 						beat: thisBeat
 					});	
+
+					soundmanager.play(thisPitch);
 				}
 
 				//Re-render staff with new note
@@ -929,6 +932,7 @@ var FUX = (function (fux) {
 				],
 				staves = [
 					{ type: 'treble', length: 11 },
+					{ type: 'bass', length: 11 },
 					{ type: 'bass', score: cantusfirmus, disabled: true, length: 11 }
 				], 
 				count = 0, 
@@ -941,6 +945,7 @@ var FUX = (function (fux) {
 					assetManager.queueDownload(path);
 				});
 
+				soundmanager.init();
 
 				//Create and render staves once all required assets have loaded
 				assetManager.downloadAll(function(){
