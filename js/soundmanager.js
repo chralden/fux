@@ -54,25 +54,36 @@ var FUX = (function (fux) {
 			intervalTime: 100,
 
 			//Beats per minute for timer
-			bpm: 90, 
+			bpm: 120, 
 
 			updateTimer: function(seconds){
 				var self = this,
 				beatsPerSecondInterval = Math.round(1000/(self.bpm/60)/100)*100;
 
-				if(self.time % beatsPerSecondInterval === 0){
-					
-					if(self.beat === 4){
-						self.beat = 1;
-						self.measure++;
+				if(self.measure < player.scoreLength){
 
-					}else{
-						self.beat++;
+					if(self.time % beatsPerSecondInterval === 0){
+
+						$.each(player.score, function(name, score){
+							if(score && score[self.measure][self.beat] && score[self.measure][self.beat].pitch) player.play(score[self.measure][self.beat].pitch);
+						});
+
+						if(self.beat === 3){
+							self.beat = 0;
+							self.measure++;
+
+						}else{
+							self.beat++;
+						}
+
 					}
 
-				}
+					self.time += self.intervalTime;
 
-				self.time += self.intervalTime;
+				}else{
+					self.stopTimer();
+				}
+				
 			},
 
 			//Start the timer and set the interval
@@ -86,12 +97,18 @@ var FUX = (function (fux) {
 
 			//Stop the timer and reset time
 			stopTimer: function(){
+				var self = this;
 
+				clearInterval(self.interval);
+				self.measure = 0;
+				self.beat = 0;
 			},
 
 			//Stop the timer interval but maintain current time value
 			pauseTimer: function(){
+				var self = this;
 
+				clearInterval(self.interval);
 			}
 
 		},
@@ -104,6 +121,10 @@ var FUX = (function (fux) {
 
 			//Object that contains current sounds
 			sounds: {},
+
+			//Object to contain the score of notes for timed playback
+			score: {},
+			scoreLength: 0,
 
 			//Setup the player with current and currently required sounds
 			setup: function(){
@@ -134,14 +155,35 @@ var FUX = (function (fux) {
 		
 		//return the notation object with public methods	
 		return {
-
+			
+			//Initialize the sound manager
 			init: function(options){
 				player.setup();
-				timer.startTimer();
-
 			},
+
+			//Add a staff score to the players score object
+			addScore: function(name, score){
+				player.score[name] = score;
+
+				//Set player score length to length of longest score
+				if(score.length > player.scoreLength) player.scoreLength = score.length;
+			},
+			
+			//trigger playback of a single pitch
 			play: function(pitch){
 				player.play(pitch);
+			},
+
+			//Route transport control of score playback
+			controlPlayback: function(command){
+				if(command === 'play'){
+					timer.startTimer();
+				}else if(command === 'stop'){
+					timer.stopTimer();
+				}else if(command === 'pause'){
+					timer.pauseTimer();
+				}
+				
 			}
 		}
 		

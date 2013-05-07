@@ -2,6 +2,7 @@
 var FUX = (function (fux) {
 	
 	var notation = fux.notation,
+	soundmanager = fux.soundmanager,
 	tools = function(){
 
 		var setup = function(){
@@ -17,6 +18,7 @@ var FUX = (function (fux) {
 				contentEl.toggleClass('twoCol', 800);
 			});
 		},
+
 		notationTools = {
 
 			setup: function(){
@@ -38,6 +40,19 @@ var FUX = (function (fux) {
 
 		playbackTools = {
 
+			setup: function(){
+				var self = this,
+				playbackButtons = $('.playback-tools a');
+
+				playbackButtons.on('click', self.routeClicks) ;
+
+			},
+
+			routeClicks: function(){
+				var button = $(this);
+
+				if(button.hasClass('transport')) soundmanager.controlPlayback(button.attr('data-transport'));
+			}
 
 		};
 		
@@ -47,7 +62,7 @@ var FUX = (function (fux) {
 			init: function(options){
 				setup();
 				notationTools.setup();
-				
+				playbackTools.setup();
 			}
 		}
 		

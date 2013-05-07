@@ -521,6 +521,8 @@ var FUX = (function (fux) {
 					
 					thisBeatValue = self.measures[self.currentMeasure].beats[thisBeat].value;	
 					self.addRest(self.measures[self.currentMeasure], thisBeat, thisBeatValue);
+
+					self.score[thisMeasure][thisBeat] = { duration: currentNoteValue, pitch: false };
 				
 				//If a 'tie', add tie to current note 
 				}else if(currentNoteValue === 'tie'){
@@ -540,7 +542,12 @@ var FUX = (function (fux) {
 					});	
 
 					soundmanager.play(thisPitch);
+
+					self.score[thisMeasure][thisBeat] = { duration: currentNoteValue, pitch: thisPitch };
+
 				}
+
+				soundmanager.addScore(self.name, self.score);
 
 				//Re-render staff with new note
 				self.render();
@@ -664,16 +671,27 @@ var FUX = (function (fux) {
 					}
 					self.measures = measures;
 
-					//If there is a score, loop through score and enter notes
-					for(i = 0; i < self.score.length; i++){
-						self.currentMeasure = i;
-						$.each(self.score[i], function(beat, note){
-							self.addNote({
-								beat: beat,
-								pitch: note.pitch,
-								duration: note.duration
+					//If there is a score, loop through score and enter notes, and send score to the sound manager
+					if(self.score){
+						for(i = 0; i < self.score.length; i++){
+							self.currentMeasure = i;
+							$.each(self.score[i], function(beat, note){
+								self.addNote({
+									beat: beat,
+									pitch: note.pitch,
+									duration: note.duration
+								});
 							});
-						});
+						}
+
+						soundmanager.addScore(self.name, self.score);
+					
+					//Initialize an empty score
+					}else{
+						self.score = [];
+						for(i = 0; i < self.measureLength; i++){
+							self.score[i] = {};
+						}
 					}
 
 					//Set the initial value for the tooltip, default to a down stem for non-whole notes
@@ -918,22 +936,35 @@ var FUX = (function (fux) {
 				var options = options || false,
 				target = (options && options.target) ? options.target : $('#fux-notation'),
 				cantusfirmus = [
-					{ 0: { duration: 'whole', pitch: 'd3' } },
-					{ 0: { duration: 'whole', pitch: 'f3' } },
-					{ 0: { duration: 'whole', pitch: 'e3' } },
-					{ 0: { duration: 'whole', pitch: 'd3' } },
-					{ 0: { duration: 'whole', pitch: 'g3' } },
-					{ 0: { duration: 'whole', pitch: 'f3' } },
-					{ 0: { duration: 'whole', pitch: 'a3' } },
-					{ 0: { duration: 'whole', pitch: 'g3' } },
-					{ 0: { duration: 'whole', pitch: 'f3' } },
-					{ 0: { duration: 'whole', pitch: 'e3' } },
-					{ 0: { duration: 'whole', pitch: 'd3' } }
+					{ 0: { duration: 'whole', pitch: 'd4' } },
+					{ 0: { duration: 'whole', pitch: 'f4' } },
+					{ 0: { duration: 'whole', pitch: 'e4' } },
+					{ 0: { duration: 'whole', pitch: 'd4' } },
+					{ 0: { duration: 'whole', pitch: 'g4' } },
+					{ 0: { duration: 'whole', pitch: 'f4' } },
+					{ 0: { duration: 'whole', pitch: 'a4' } },
+					{ 0: { duration: 'whole', pitch: 'g4' } },
+					{ 0: { duration: 'whole', pitch: 'f4' } },
+					{ 0: { duration: 'whole', pitch: 'e4' } },
+					{ 0: { duration: 'whole', pitch: 'd4' } }
+				],
+				otherfirmus = [
+					{ 0: { duration: 'whole', pitch: 'a4' } },
+					{ 0: { duration: 'whole', pitch: 'a4' } },
+					{ 0: { duration: 'whole', pitch: 'g4' } },
+					{ 0: { duration: 'whole', pitch: 'a4' } },
+					{ 0: { duration: 'whole', pitch: 'b4' } },
+					{ 0: { duration: 'whole', pitch: 'c5' } },
+					{ 0: { duration: 'whole', pitch: 'c5' } },
+					{ 0: { duration: 'whole', pitch: 'b4' } },
+					{ 0: { duration: 'whole', pitch: 'd5' } },
+					{ 0: { duration: 'whole', pitch: 'c5' } },
+					{ 0: { duration: 'whole', pitch: 'd5' } }
 				],
 				staves = [
 					{ type: 'treble', length: 11 },
-					{ type: 'bass', length: 11 },
-					{ type: 'bass', score: cantusfirmus, disabled: true, length: 11 }
+					{ type: 'treble', score: otherfirmus, length: 11 },
+					{ type: 'treble', score: cantusfirmus, disabled: true, length: 11 }
 				], 
 				count = 0, 
 				i, thisStaff, staffOptions;
