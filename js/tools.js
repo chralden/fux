@@ -42,9 +42,22 @@ var FUX = (function (fux) {
 
 			setup: function(){
 				var self = this,
-				playbackButtons = $('.playback-tools a');
+				playbackButtons = $('.playback-tools a'),
+				volumeSlider = $('#volume-slider');
 
-				playbackButtons.on('click', self.routeClicks) ;
+				playbackButtons.on('click', self.routeClicks);
+
+				volumeSlider.slider({
+			      orientation: "vertical",
+			      range: "min",
+			      min: 0,
+			      max: 100,
+			      value: 60,
+			      slide: function( event, ui ) {
+			        soundmanager.setVolume(ui.value);
+			      }
+			    });
+
 
 			},
 

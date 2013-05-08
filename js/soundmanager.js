@@ -56,16 +56,20 @@ var FUX = (function (fux) {
 			//Beats per minute for timer
 			bpm: 120, 
 
+			//Update the timer and play any scored notes that are present for current time
 			updateTimer: function(seconds){
 				var self = this,
 				beatsPerSecondInterval = Math.round(1000/(self.bpm/60)/100)*100;
 
+				//If there are still measures to play through, read through the score
 				if(self.measure < player.scoreLength){
 
+					//Match current time to BPM interval
 					if(self.time % beatsPerSecondInterval === 0){
 
+						//Go through each score and check for the note at the current beat, sound the note if it has a pitch and is not flagged silent
 						$.each(player.score, function(name, score){
-							if(score && score[self.measure][self.beat] && score[self.measure][self.beat].pitch) player.play(score[self.measure][self.beat].pitch);
+							if(score && score[self.measure][self.beat] && score[self.measure][self.beat].pitch && !score[self.measure][self.beat].silent) player.play(score[self.measure][self.beat].pitch);
 						});
 
 						if(self.beat === 3){
@@ -149,6 +153,14 @@ var FUX = (function (fux) {
 
 				//Play sound
 				self.sounds[pitch].play();
+			},
+
+			setVolume: function(volume){
+				var self = this;
+
+				$.each(self.sounds, function(pitch, sound){
+					sound.setVolume(volume);
+				});
 			}
 
 		};
@@ -183,7 +195,11 @@ var FUX = (function (fux) {
 				}else if(command === 'pause'){
 					timer.pauseTimer();
 				}
-				
+			},
+
+			//Set the players volume
+			setVolume: function(volume){
+				player.setVolume(volume);
 			}
 		}
 		

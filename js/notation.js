@@ -346,6 +346,9 @@ var FUX = (function (fux) {
 			//Is note tied
 			tied: false,
 			
+			//If note should not sound in playback, for second note in tie, for example
+			silent: false,
+			
 			//Duration text to numeric value mapping
 			values: { whole: 4, half: 2, quarter: 1, eighth: 0.5 },
 
@@ -506,13 +509,11 @@ var FUX = (function (fux) {
 			onMouseClick: function(self){
 				var thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
-				thisMeasure = (currentPosition.measure !== false) ? currentPosition.measure : self.currentMeasure,
 				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[thisMeasure].currentBeat,
-				thisBeatValue, currentNote;
-
-				if(thisMeasure !== false) self.currentMeasure = thisMeasure;
-				currentNote = self.measures[thisMeasure].beats[thisBeat];
+				thisBeatValue, currentNote, nextNote;
 				
+				if(currentPosition.measure !== false) self.currentMeasure = currentPosition.measure;
+				currentNote = self.measures[self.currentMeasure].beats[thisBeat];
 				
 				//Check current tooltip type and respond to click accordingly
 
@@ -521,19 +522,35 @@ var FUX = (function (fux) {
 					
 					thisBeatValue = self.measures[self.currentMeasure].beats[thisBeat].value;	
 					self.addRest(self.measures[self.currentMeasure], thisBeat, thisBeatValue);
-
-					self.score[thisMeasure][thisBeat] = { duration: currentNoteValue, pitch: false };
+					
+					thisPitch = false;
 				
 				//If a 'tie', add tie to current note 
 				}else if(currentNoteValue === 'tie'){
 					
-					if(currentNote && currentNote.duration === 'half') currentNote.tied = !currentNote.tied;
+					if(currentNote){
+						
+						//Determine whether start of the next note would fall in same measure or next measure, then get note in that position
+						if(parseInt(currentNote.beat) + parseInt(currentNote.value) < self.measures[self.currentMeasure].value){
+							nextNote = self.measures[self.currentMeasure].beats[parseInt(currentNote.beat)+parseInt(currentNote.value)];
+						}else{
+							nextNote = self.measures[self.currentMeasure+1].beats[(parseInt(currentNote.beat)+parseInt(currentNote.value))-self.measures[self.currentMeasure].value];
+						}	
+						
+						//If there is a next note, and two notes to be tied have the same pitch creat the tie and silence the second note
+						if(nextNote && currentNote.pitch === nextNote.pitch){
+							currentNote.tied = !currentNote.tied;
+							nextNote.silent = !nextNote.silent;
+						} 
+					}
+					
 
 				//If an accidental update the current note to have selected accidental
 				}else if(currentNoteValue === 'sharp' || currentNoteValue === 'flat' || currentNoteValue === 'natural'){
 					
 					if(currentNote) currentNote.accidental = currentNoteValue;
 
+				//If a note add note to measure, play sound, and add to score
 				}else if(self.currentMeasure < self.measures.length && thisPitch){
 					self.addNote({
 						pitch: thisPitch,
@@ -541,12 +558,13 @@ var FUX = (function (fux) {
 						beat: thisBeat
 					});	
 
+					//Update current note to newly added note
+					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
 					soundmanager.play(thisPitch);
-
-					self.score[thisMeasure][thisBeat] = { duration: currentNoteValue, pitch: thisPitch };
 
 				}
 
+				self.score[self.currentMeasure][thisBeat] = currentNote;
 				soundmanager.addScore(self.name, self.score);
 
 				//Re-render staff with new note
@@ -948,22 +966,8 @@ var FUX = (function (fux) {
 					{ 0: { duration: 'whole', pitch: 'e4' } },
 					{ 0: { duration: 'whole', pitch: 'd4' } }
 				],
-				otherfirmus = [
-					{ 0: { duration: 'whole', pitch: 'a4' } },
-					{ 0: { duration: 'whole', pitch: 'a4' } },
-					{ 0: { duration: 'whole', pitch: 'g4' } },
-					{ 0: { duration: 'whole', pitch: 'a4' } },
-					{ 0: { duration: 'whole', pitch: 'b4' } },
-					{ 0: { duration: 'whole', pitch: 'c5' } },
-					{ 0: { duration: 'whole', pitch: 'c5' } },
-					{ 0: { duration: 'whole', pitch: 'b4' } },
-					{ 0: { duration: 'whole', pitch: 'd5' } },
-					{ 0: { duration: 'whole', pitch: 'c5' } },
-					{ 0: { duration: 'whole', pitch: 'd5' } }
-				],
 				staves = [
 					{ type: 'treble', length: 11 },
-					{ type: 'treble', score: otherfirmus, length: 11 },
 					{ type: 'treble', score: cantusfirmus, disabled: true, length: 11 }
 				], 
 				count = 0, 
