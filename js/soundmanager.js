@@ -45,6 +45,7 @@ var FUX = (function (fux) {
 
 			//Current measure of timer
 			measure: 0,
+			startmeasure: 0,
 
 			//Raw time
 			time: 0,
@@ -94,6 +95,8 @@ var FUX = (function (fux) {
 			startTimer: function(){
 				var self = this;
 
+				self.measure = self.startmeasure;
+
 				self.interval = setInterval(function(){
 					self.updateTimer(1);
 				}, self.intervalTime);
@@ -104,7 +107,7 @@ var FUX = (function (fux) {
 				var self = this;
 
 				clearInterval(self.interval);
-				self.measure = 0;
+				self.measure = self.startmeasure;
 				self.beat = 0;
 			},
 
@@ -200,6 +203,16 @@ var FUX = (function (fux) {
 			//Set the players volume
 			setVolume: function(volume){
 				player.setVolume(volume);
+			},
+
+			//Set the measure that playback should begin from
+			playFromMeasure: function(measure){
+				if(measure < player.scoreLength && measure > 0) timer.startmeasure = measure-1;
+			},
+
+			//Return current measure length
+			getMeasures: function(){
+				return player.scoreLength;
 			}
 		}
 		

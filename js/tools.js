@@ -43,10 +43,13 @@ var FUX = (function (fux) {
 			setup: function(){
 				var self = this,
 				playbackButtons = $('.playback-tools a'),
-				volumeSlider = $('#volume-slider');
+				volumeSlider = $('#volume-slider'),
+				measureSelector = $('input#measure');
 
+				//Bind click events to transport buttons
 				playbackButtons.on('click', self.routeClicks);
 
+				//Create the volume slider and connect to sound manager
 				volumeSlider.slider({
 			      orientation: "vertical",
 			      range: "min",
@@ -58,6 +61,11 @@ var FUX = (function (fux) {
 			      }
 			    });
 
+				//Add change event listener to measure selector and connect to sound manager
+			    measureSelector.on('change', function(){
+			    	self.setMeasure(this, this.value);
+			    });
+
 
 			},
 
@@ -65,6 +73,31 @@ var FUX = (function (fux) {
 				var button = $(this);
 
 				if(button.hasClass('transport')) soundmanager.controlPlayback(button.attr('data-transport'));
+			},
+
+			setMeasure: function(element, measure){
+				var measureForm = $(element).parent(),
+				input = $(element);
+
+
+				measureForm.validate({
+					rules: { 
+						measure: {
+							required: true,
+      						number: true,
+      						min: 1,
+      						max: soundmanager.getMeasures()
+      					}
+					}
+				});
+
+
+				if(measureForm.valid()){
+					soundmanager.playFromMeasure(measure);
+				}else{
+					input.effect("shake", { times: 2 }, 50);
+				}
+				
 			}
 
 		};
