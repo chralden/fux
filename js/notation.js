@@ -444,8 +444,11 @@ var FUX = (function (fux) {
 			measureLength: 4,
 			measures: [],
 
-			//Property to hold a score for the staff to render
+			//The score for this staff, stored as an array of measure objects
 			score: false,
+
+			//Does staff have a cantus firmus to turn into a score
+			cantusfirmus: false,
 
 			//If disabled, score is displayed, but notes can neither be added or removed (for the cantus firmus)
 			disabled: false,
@@ -523,6 +526,7 @@ var FUX = (function (fux) {
 					thisBeatValue = self.measures[self.currentMeasure].beats[thisBeat].value;	
 					self.addRest(self.measures[self.currentMeasure], thisBeat, thisBeatValue);
 					
+					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
 					thisPitch = false;
 				
 				//If a 'tie', add tie to current note 
@@ -548,8 +552,16 @@ var FUX = (function (fux) {
 				//If an accidental update the current note to have selected accidental
 				}else if(currentNoteValue === 'sharp' || currentNoteValue === 'flat' || currentNoteValue === 'natural'){
 					
-					if(currentNote) currentNote.accidental = currentNoteValue;
+					if((currentNoteValue === 'sharp' && currentNote.pitch.indexOf('e') === -1 && currentNote.pitch.indexOf('b')) || (currentNoteValue === 'flat' && currentNote.pitch.indexOf('c') === -1 && currentNote.pitch.indexOf('f')) || currentNoteValue === 'natural'){
+						if(currentNote) currentNote.accidental = currentNoteValue;
 
+						if(currentNoteValue !== 'natural'){
+							soundmanager.play(currentNote.pitch+currentNote.accidental);
+						}else{
+							soundmanager.play(currentNote.pitch);
+						}
+					}	
+					
 				//If a note add note to measure, play sound, and add to score
 				}else if(self.currentMeasure < self.measures.length && thisPitch){
 					self.addNote({
@@ -560,6 +572,7 @@ var FUX = (function (fux) {
 
 					//Update current note to newly added note
 					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
+				
 					soundmanager.play(thisPitch);
 
 				}
@@ -639,6 +652,7 @@ var FUX = (function (fux) {
 				var self = this,
 				options = options || false,
 				measures = [],
+				score = [],
 				clefWidth, i, startOfMeasure, measureOffset;
 
 				//If passed as options reset default object properties
@@ -650,7 +664,7 @@ var FUX = (function (fux) {
 				if(options && options.target) self.target = options.target;
 				if(options && options.name) self.name = options.name;
 				if(options && options.clef) self.clef = options.clef;
-				if(options && options.score) self.score = options.score;
+				if(options && options.cantusfirmus) self.cantusfirmus = options.cantusfirmus;
 				if(options && options.disabled) self.disabled = options.disabled;
 
 				//Get the width for the clef symbol and initialize the first measure to render after the clef
@@ -689,28 +703,33 @@ var FUX = (function (fux) {
 					}
 					self.measures = measures;
 
-					//If there is a score, loop through score and enter notes, and send score to the sound manager
-					if(self.score){
-						for(i = 0; i < self.score.length; i++){
+					//If there is a cantus firmus, loop through it and enter notes and add to score, send score to sound manager
+					if(self.cantusfirmus){
+
+						for(i = 0; i < self.cantusfirmus.length; i++){
 							self.currentMeasure = i;
-							$.each(self.score[i], function(beat, note){
+							
+							//Add the notes
+							$.each(self.cantusfirmus[i], function(beat, note){
 								self.addNote({
 									beat: beat,
 									pitch: note.pitch,
 									duration: note.duration
 								});
 							});
-						}
 
-						soundmanager.addScore(self.name, self.score);
-					
-					//Initialize an empty score
+							score[i] = self.measures[i].beats;
+						}
+	
+					//If no cantus firmus initialize an empty score
 					}else{
-						self.score = [];
 						for(i = 0; i < self.measureLength; i++){
-							self.score[i] = {};
+							score[i] = {};
 						}
 					}
+
+					self.score = score;
+					soundmanager.addScore(self.name, self.score);
 
 					//Set the initial value for the tooltip, default to a down stem for non-whole notes
 					if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser' && currentNoteValue !== 'sharp' && currentNoteValue !== 'flat' && currentNoteValue !== 'natural'){
@@ -953,7 +972,7 @@ var FUX = (function (fux) {
 			init: function(options){
 				var options = options || false,
 				target = (options && options.target) ? options.target : $('#fux-notation'),
-				cantusfirmus = [
+				thisfirmus = [
 					{ 0: { duration: 'whole', pitch: 'd4' } },
 					{ 0: { duration: 'whole', pitch: 'f4' } },
 					{ 0: { duration: 'whole', pitch: 'e4' } },
@@ -968,7 +987,7 @@ var FUX = (function (fux) {
 				],
 				staves = [
 					{ type: 'treble', length: 11 },
-					{ type: 'treble', score: cantusfirmus, disabled: true, length: 11 }
+					{ type: 'treble', cantusfirmus: thisfirmus, disabled: true, length: 11 }
 				], 
 				count = 0, 
 				i, thisStaff, staffOptions;
@@ -988,7 +1007,7 @@ var FUX = (function (fux) {
 						thisStaff = object(staff);
 						staffOptions = { clef: staves[i].type, name: staves[i].type+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length }
 						
-						if(staves[i].score) staffOptions.score = staves[i].score;
+						if(staves[i].cantusfirmus) staffOptions.cantusfirmus = staves[i].cantusfirmus;
 						if(staves[i].disabled) staffOptions.disabled = staves[i].disabled;
 
 						thisStaff.create(staffOptions);

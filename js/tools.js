@@ -44,7 +44,8 @@ var FUX = (function (fux) {
 				var self = this,
 				playbackButtons = $('.playback-tools a'),
 				volumeSlider = $('#volume-slider'),
-				measureSelector = $('input#measure');
+				measureSelector = $('input#measure'),
+				instrumentSelector = $('.instrument-select');
 
 				//Bind click events to transport buttons
 				playbackButtons.on('click', self.routeClicks);
@@ -64,6 +65,11 @@ var FUX = (function (fux) {
 				//Add change event listener to measure selector and connect to sound manager
 			    measureSelector.on('change', function(){
 			    	self.setMeasure(this, this.value);
+			    });
+
+			    //Add change event listener to instrument selection dropdown, and send new instrument to soundmanager when called
+			    instrumentSelector.on('change', function(){
+			    	soundmanager.setInstrument(this.value);
 			    });
 
 
