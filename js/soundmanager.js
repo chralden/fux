@@ -141,18 +141,23 @@ var FUX = (function (fux) {
 
 						//Go through each score and check for the note at the current beat, sound the note if it has a pitch and is not flagged silent
 						$.each(player.score, function(name, score){
-							thisNote = score[self.measure][self.beat];
 							
-							if(thisNote && thisNote.pitch && !thisNote.silent){
+							if(!score.mute){
+								score = score.score;
+								thisNote = score[self.measure][self.beat];
 								
-								//If note has an accidental play back with accidental
-								if(thisNote.accidental && thisNote.accidental !== 'natural'){
-									player.play(thisNote.pitch+thisNote.accidental, beatsPerSecondInterval*thisNote.value);
-								}else{
-									player.play(thisNote.pitch, beatsPerSecondInterval*thisNote.value);
-								}
-								
-							} 
+								if(thisNote && thisNote.pitch && !thisNote.silent){
+									
+									//If note has an accidental play back with accidental
+									if(thisNote.accidental && thisNote.accidental !== 'natural'){
+										player.play(thisNote.pitch+thisNote.accidental, beatsPerSecondInterval*thisNote.value);
+									}else{
+										player.play(thisNote.pitch, beatsPerSecondInterval*thisNote.value);
+									}
+									
+								} 
+							}
+							
 						});
 
 						if(self.beat === 3){
@@ -275,6 +280,12 @@ var FUX = (function (fux) {
 				if(!self.sounds[self.instrument]) self.setup();
 			},
 
+			toggleMute: function(staff){
+				var self = this;
+
+				self.score[staff].mute = !self.score[staff].mute;
+			},
+
 			//Get enharmonics for flat pitches to share soundfiles
 			getEnharmonic: function(pitch){
 				var self = this,
@@ -307,7 +318,7 @@ var FUX = (function (fux) {
 
 			//Add a staff score to the players score object
 			addScore: function(name, score){
-				player.score[name] = score;
+				player.score[name] = { score: score, mute: false };
 
 				//Set player score length to length of longest score
 				if(score.length > player.scoreLength) player.scoreLength = score.length;
@@ -346,6 +357,10 @@ var FUX = (function (fux) {
 			//Return current measure length
 			getMeasures: function(){
 				return player.scoreLength;
+			},
+
+			toggleMute: function(staff){
+				player.toggleMute(staff);
 			}
 		}
 		

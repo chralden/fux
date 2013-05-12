@@ -32,7 +32,11 @@ var FUX = (function (fux) {
 			routeClicks: function(){
 				var button = $(this);
 
-				if(button.hasClass('notation-note-select')) notation.setNoteValue(button.attr('data-notetype'));
+				if(button.hasClass('notation-note-select')){
+					button.toggleClass('active');
+					button.siblings().removeClass('active');
+					notation.setNoteValue(button.attr('data-notetype'));
+				} 
 			}
 
 
@@ -79,6 +83,11 @@ var FUX = (function (fux) {
 				var button = $(this);
 
 				if(button.hasClass('transport')) soundmanager.controlPlayback(button.attr('data-transport'));
+
+				if(button.hasClass('staff')){
+					button.toggleClass('active');
+					soundmanager.toggleMute(button.attr('data-staff'));
+				}
 			},
 
 			setMeasure: function(element, measure){
