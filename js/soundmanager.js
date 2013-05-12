@@ -1,114 +1,12 @@
 //Musical notation module
 var FUX = (function (fux) {
 	
+	var assetmanager = fux.assetmanager,
+	assets = assetmanager.getSoundFiles(),
 	soundmanager = function(){
 
-		var assets = {
-			harp: {
-				c2: "audio/harp/harpC2",
-				c2sharp: "audio/harp/harpC2sharp",
-				d2: "audio/harp/harpD2",
-				d2sharp: "audio/harp/harpD2sharp",
-				e2: "audio/harp/harpE2",
-				f2: "audio/harp/harpF2",
-				f2sharp: "audio/harp/harpF2sharp",
-				g2: "audio/harp/harpG2",
-				g2sharp: "audio/harp/harpG2sharp",
-				a2: "audio/harp/harpA2",
-				a2sharp: "audio/harp/harpA2sharp",
-				b2: "audio/harp/harpB2",
-				c3: "audio/harp/harpC3",
-				c3sharp: "audio/harp/harpC3sharp",
-				d3: "audio/harp/harpD3",
-				d3sharp: "audio/harp/harpD3sharp",
-				e3: "audio/harp/harpE3",
-				f3: "audio/harp/harpF3",
-				f3sharp: "audio/harp/harpF3sharp",
-				g3: "audio/harp/harpG3",
-				g3sharp: "audio/harp/harpG3sharp",
-				a3: "audio/harp/harpA3",
-				a3sharp: "audio/harp/harpA3sharp",
-				b3: "audio/harp/harpB3",
-				c4: "audio/harp/harpC4",
-				c4sharp: "audio/harp/harpC4sharp",
-				d4: "audio/harp/harpD4",
-				d4sharp: "audio/harp/harpD4sharp",
-				e4: "audio/harp/harpE4",
-				f4: "audio/harp/harpF4",
-				f4sharp: "audio/harp/harpF4sharp",
-				g4: "audio/harp/harpG4",
-				g4sharp: "audio/harp/harpG4sharp",
-				a4: "audio/harp/harpA4",
-				a4sharp: "audio/harp/harpA4sharp",
-				b4: "audio/harp/harpB4",
-				c5: "audio/harp/harpC5",
-				c5sharp: "audio/harp/harpC5sharp",
-				d5: "audio/harp/harpD5",
-				d5sharp: "audio/harp/harpD5sharp",
-				e5: "audio/harp/harpE5",
-				f5: "audio/harp/harpF5",
-				f5sharp: "audio/harp/harpF5sharp",
-				g5: "audio/harp/harpG5",
-				g5sharp: "audio/harp/harpG5sharp",
-				a5: "audio/harp/harpA5",
-				a5sharp: "audio/harp/harpA5sharp",
-				b5: "audio/harp/harpB5"
-			},
-			organ: {
-				c2: "audio/organ/organC2",
-				c2sharp: "audio/organ/organC2sharp",
-				d2: "audio/organ/organD2",
-				d2sharp: "audio/organ/organD2sharp",
-				e2: "audio/organ/organE2",
-				f2: "audio/organ/organF2",
-				f2sharp: "audio/organ/organF2sharp",
-				g2: "audio/organ/organG2",
-				g2sharp: "audio/organ/organG2sharp",
-				a2: "audio/organ/organA2",
-				a2sharp: "audio/organ/organA2sharp",
-				b2: "audio/organ/organB2",
-				c3: "audio/organ/organC3",
-				c3sharp: "audio/organ/organC3sharp",
-				d3: "audio/organ/organD3",
-				d3sharp: "audio/organ/organD3sharp",
-				e3: "audio/organ/organE3",
-				f3: "audio/organ/organF3",
-				f3sharp: "audio/organ/organF3sharp",
-				g3: "audio/organ/organG3",
-				g3sharp: "audio/organ/organG3sharp",
-				a3: "audio/organ/organA3",
-				a3sharp: "audio/organ/organA3sharp",
-				b3: "audio/organ/organB3",
-				c4: "audio/organ/organC4",
-				c4sharp: "audio/organ/organC4sharp",
-				d4: "audio/organ/organD4",
-				d4sharp: "audio/organ/organD4sharp",
-				e4: "audio/organ/organE4",
-				f4: "audio/organ/organF4",
-				f4sharp: "audio/organ/organF4sharp",
-				g4: "audio/organ/organG4",
-				g4sharp: "audio/organ/organG4sharp",
-				a4: "audio/organ/organA4",
-				a4sharp: "audio/organ/organA4sharp",
-				b4: "audio/organ/organB4",
-				c5: "audio/organ/organC5",
-				c5sharp: "audio/organ/organC5sharp",
-				d5: "audio/organ/organD5",
-				d5sharp: "audio/organ/organD5sharp",
-				e5: "audio/organ/organE5",
-				f5: "audio/organ/organF5",
-				f5sharp: "audio/organ/organF5sharp",
-				g5: "audio/organ/organG5",
-				g5sharp: "audio/organ/organG5sharp",
-				a5: "audio/organ/organA5",
-				a5sharp: "audio/organ/organA5sharp",
-				b5: "audio/organ/organB5"
-			}
-
-		},
-
 		//Timer object to manage timed playback of scored elements
-		timer = {
+		var timer = {
 
 			//Current beat of timer
 			beat: 0,
@@ -228,11 +126,7 @@ var FUX = (function (fux) {
 
 				//Go through current instruments pitches and create sound objects with that file
 				$.each(currentAssets, function(pitch, file){
-					currentInstrument[pitch] = new buzz.sound(file, {
-						formats: [ "wav" ],
-						preload: true,
-						loop: false
-					});
+					currentInstrument[pitch] = assetmanager.getSound(file);
 				});
 			},
 
@@ -308,7 +202,7 @@ var FUX = (function (fux) {
 
 		};
 		
-		//return the notation object with public methods	
+		//return the soundmanager object with public methods	
 		return {
 			
 			//Initialize the sound manager

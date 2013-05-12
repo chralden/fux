@@ -2,6 +2,8 @@
 var FUX = (function (fux) {
 	
 	var soundmanager = fux.soundmanager,
+	assetmanager = fux.assetmanager,
+	assets = assetmanager.getImageFiles(),
 	notation = function(){
 
 		//objects for rendering staves and notes
@@ -41,170 +43,69 @@ var FUX = (function (fux) {
 		//Mappings of Y positions for notes on staff based on clef
 		pitchMappings = {
 			treble: {
-				'c4': 120,
-				'd4': 110,
-				'e4': 100,
-				'f4': 90,
-				'g4': 80,
-				'a4': 70,
-				'b4': 60,
-				'c5': 50,
-				'd5': 40,
-				'e5': 30,
-				'f5': 20,
-				'g5': 10,
-				'a5': 0
+				'C4': 120,
+				'D4': 110,
+				'E4': 100,
+				'F4': 90,
+				'G4': 80,
+				'A4': 70,
+				'B4': 60,
+				'C5': 50,
+				'D5': 40,
+				'E5': 30,
+				'F5': 20,
+				'G5': 10,
+				'A5': 0
 			},
 			alto: {
-				'd3': 120,
-				'e3': 110,
-				'f3': 100,
-				'g3': 90,
-				'a3': 80,
-				'b3': 70,
-				'c4': 60,
-				'd4': 50,
-				'e4': 40,
-				'f4': 30,
-				'g4': 20,
-				'a4': 10,
-				'b4': 0
+				'D3': 120,
+				'E3': 110,
+				'F3': 100,
+				'G3': 90,
+				'A3': 80,
+				'B3': 70,
+				'C4': 60,
+				'D4': 50,
+				'E4': 40,
+				'F4': 30,
+				'G4': 20,
+				'A4': 10,
+				'B4': 0
 			},
 			tenor: {
-				'b2': 120,
-				'c3': 110,
-				'd3': 100,
-				'e3': 90,
-				'f3': 80,
-				'g3': 70,
-				'a3': 60,
-				'b3': 50,
-				'c4': 40,
-				'd4': 30,
-				'e4': 20,
-				'f4': 10,
-				'g4': 0
+				'B2': 120,
+				'C3': 110,
+				'D3': 100,
+				'E3': 90,
+				'F3': 80,
+				'G3': 70,
+				'A3': 60,
+				'B3': 50,
+				'C4': 40,
+				'D4': 30,
+				'E4': 20,
+				'F4': 10,
+				'G4': 0
 			},
 			bass: {
-				'e2': 120,
-				'f2': 110,
-				'g2': 100,
-				'a2': 90,
-				'b2': 80,
-				'c3': 70,
-				'd3': 60,
-				'e3': 50,
-				'f3': 40,
-				'g3': 30,
-				'a3': 20,
-				'b3': 10,
-				'c4': 0
+				'E2': 120,
+				'F2': 110,
+				'G2': 100,
+				'A2': 90,
+				'B2': 80,
+				'C3': 70,
+				'D3': 60,
+				'E3': 50,
+				'F3': 40,
+				'G3': 30,
+				'A3': 20,
+				'B3': 10,
+				'C4': 0
 			}
-		},
-
-		//All assets utilized by notation system
-		assets = {
-			//Staff and Measure assets
-			staff: 'images/staff.png',
-			measure: 'images/measure-delim.png',
-			staffLine: 'images/staff-line.png',
-
-			//Note assets
-			whole: 'images/whole-note.png',
-			halfUp: 'images/half-note-up.png',
-			halfDown: 'images/half-note-down.png',
-			quarterUp: 'images/quarter-note-up.png',
-			quarterDown: 'images/quarter-note-down.png',
-			eighthUp: 'images/eighth-note-up.png',
-			eighthDown: 'images/eighth-note-down.png',
-
-			//Note extras - ties and accidentals
-			tieUp: 'images/tie-up.png',
-			tieDown: 'images/tie-down.png',
-			sharp: 'images/sharp.png',
-			flat: 'images/flat.png',
-			natural: 'images/natural.png',
-
-			//Eraser Tooltip
-			eraser: 'images/eraser-x.png',
-
-			//Clef assets
-			treble: 'images/trebleclef.png',
-			alto: 'images/altoclef.png',
-			tenor: 'images/tenorclef.png',
-			bass: 'images/bassclef.png',
-
-			//Rest assets
-			wholeRest: 'images/whole-rest.png',
-			quarterRest: 'images/quarter-rest.png',
-			eighthRest: 'images/eighth-rest.png'
-
 		},
 
 		//Pixel position for middle of staff, for stem positioning
 		staffMiddle = 60,
-
-		//Object to manage notation image assets
-		assetManager = {
-			//The cue of assets to download
-			downloadQueue: [],
-
-			//The cache of downloaded assets
-			cache: {},
-
-			//Count of successful and unsuccesful downloads
-			downloadCount: 0,
-			errorCount: 0,
-
-			//Return whether all assets have been downloaded
-			isDone: function(){
-				return (this.downloadQueue.length === this.downloadCount + this.errorCount);
-			},
-
-			//Return an IMG object from downloaded assets
-			getAsset: function(path){
-				return this.cache[path];
-			},
-
-			//Add IMG path to downloadQueue
-			queueDownload: function(path){
-				this.downloadQueue.push(path);
-			},
-
-			//Go through all assets, add load eventlistener with callback, and create IMG object
-			downloadAll: function(downloadCallback){
-				var self = this,
-				i, path, img;
-
-				//If there are no assets to load execute callback immediately
-				if(self.downloadQueue.length === 0) downloadCallback();
-
-				for(i = 0; i < self.downloadQueue.length; i++){
-					path = self.downloadQueue[i];
-					img = new Image();
-					
-					//Add event listeners for load and error
-					img.addEventListener("load", function(){
-						self.downloadCount++;
-						if(self.isDone()){
-							downloadCallback();
-						}
-					}, false);
-					img.addEventListener("error", function(){
-						self.errorCount++;
-						if(self.isDone()){
-							downloadCallback();
-						}
-					}, false);
-
-					//Create IMG object with path and add to cache
-					img.src = path;
-					self.cache[path] = img;
-				}
-
-			}
-
-		},
 
 		//Mapping of different clef type assets, as well as asset attributes - positioning offsets and width
 		clefs = {
@@ -298,7 +199,7 @@ var FUX = (function (fux) {
 				restImage = thisRest.img;
 				
 				//render rest image
-				context.drawImage(assetManager.getAsset(restImage), position, thisRest.offset.y);
+				context.drawImage(assetmanager.getImage(restImage), position, thisRest.offset.y);
 			}
 		},
 
@@ -334,7 +235,7 @@ var FUX = (function (fux) {
 			},
 			
 			//Default pitch and duration
-			pitch: 'a4',
+			pitch: 'A4',
 			duration: 'whole',
 
 			//Is note sharp or flat
@@ -382,20 +283,20 @@ var FUX = (function (fux) {
 				noteImage = self.noteImages[self.duration+stemDirection];
 
 				//If note requires a staff line, render it
-				if(self.hasStaffline(clef)) context.drawImage(assetManager.getAsset(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
+				if(self.hasStaffline(clef)) context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
 
 				//render note image
-				context.drawImage(assetManager.getAsset(noteImage.src), position, pitchMappings[clef][self.pitch]-noteImage.offset);
+				context.drawImage(assetmanager.getImage(noteImage.src), position, pitchMappings[clef][self.pitch]-noteImage.offset);
 
 				//If note is tied, render tie
 				if(self.tied){
 					tieImage = self.tieImages['tie'+stemDirection];
-					context.drawImage(assetManager.getAsset(tieImage.src), position+tieImage.x, pitchMappings[clef][self.pitch]+tieImage.y);
+					context.drawImage(assetmanager.getImage(tieImage.src), position+tieImage.x, pitchMappings[clef][self.pitch]+tieImage.y);
 				}
 
 				if(self.accidental){
 					accidentalImage = self.accidentalImages[self.accidental];
-					context.drawImage(assetManager.getAsset(accidentalImage.src), position+accidentalImage.x, pitchMappings[clef][self.pitch]+accidentalImage.y);
+					context.drawImage(assetmanager.getImage(accidentalImage.src), position+accidentalImage.x, pitchMappings[clef][self.pitch]+accidentalImage.y);
 				} 
 				
 			},
@@ -744,9 +645,9 @@ var FUX = (function (fux) {
 			//Render the staff images to the canvas
 			render: function(){
 				var self = this,
-				staffImage = assetManager.getAsset(self.image),
-				measureBarImage = assetManager.getAsset(self.measureBar),
-				clefImage = assetManager.getAsset(clefs[self.clef].img),
+				staffImage = assetmanager.getImage(self.image),
+				measureBarImage = assetmanager.getImage(self.measureBar),
+				clefImage = assetmanager.getImage(clefs[self.clef].img),
 				clefOffset = clefs[self.clef].offset,
 				thisMeasure, thisNote, thisRest,
 				notePosition, restPosition,
@@ -973,17 +874,17 @@ var FUX = (function (fux) {
 				var options = options || false,
 				target = (options && options.target) ? options.target : $('#fux-notation'),
 				thisfirmus = [
-					{ 0: { duration: 'whole', pitch: 'd4' } },
-					{ 0: { duration: 'whole', pitch: 'f4' } },
-					{ 0: { duration: 'whole', pitch: 'e4' } },
-					{ 0: { duration: 'whole', pitch: 'd4' } },
-					{ 0: { duration: 'whole', pitch: 'g4' } },
-					{ 0: { duration: 'whole', pitch: 'f4' } },
-					{ 0: { duration: 'whole', pitch: 'a4' } },
-					{ 0: { duration: 'whole', pitch: 'g4' } },
-					{ 0: { duration: 'whole', pitch: 'f4' } },
-					{ 0: { duration: 'whole', pitch: 'e4' } },
-					{ 0: { duration: 'whole', pitch: 'd4' } }
+					{ 0: { duration: 'whole', pitch: 'D4' } },
+					{ 0: { duration: 'whole', pitch: 'F4' } },
+					{ 0: { duration: 'whole', pitch: 'E4' } },
+					{ 0: { duration: 'whole', pitch: 'D4' } },
+					{ 0: { duration: 'whole', pitch: 'G4' } },
+					{ 0: { duration: 'whole', pitch: 'F4' } },
+					{ 0: { duration: 'whole', pitch: 'A4' } },
+					{ 0: { duration: 'whole', pitch: 'G4' } },
+					{ 0: { duration: 'whole', pitch: 'F4' } },
+					{ 0: { duration: 'whole', pitch: 'E4' } },
+					{ 0: { duration: 'whole', pitch: 'D4' } }
 				],
 				staves = [
 					{ type: 'treble', length: 11 },
@@ -994,27 +895,21 @@ var FUX = (function (fux) {
 
 				if(options && options.currentNoteValue) currentNoteValue = options.currentNoteValue;
 
-				//Add all assets to the asset cue CHANGE THIS TO ONLY ADD REQUIRED ASSETS TO QUEUE!!!
-				$.each(assets, function(asset, path){
-					assetManager.queueDownload(path);
-				});
-
 				soundmanager.init();
 
-				//Create and render staves once all required assets have loaded
-				assetManager.downloadAll(function(){
-					for(i = 0; i < staves.length; i++){
-						thisStaff = object(staff);
-						staffOptions = { clef: staves[i].type, name: staves[i].type+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length }
-						
-						if(staves[i].cantusfirmus) staffOptions.cantusfirmus = staves[i].cantusfirmus;
-						if(staves[i].disabled) staffOptions.disabled = staves[i].disabled;
+				//Create and render staves 
+				for(i = 0; i < staves.length; i++){
+					thisStaff = object(staff);
+					staffOptions = { clef: staves[i].type, name: staves[i].type+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length }
+					
+					if(staves[i].cantusfirmus) staffOptions.cantusfirmus = staves[i].cantusfirmus;
+					if(staves[i].disabled) staffOptions.disabled = staves[i].disabled;
 
-						thisStaff.create(staffOptions);
+					thisStaff.create(staffOptions);
 
-						thisStaff.render();
-					}
-				});
+					thisStaff.render();
+				}
+				
 				
 			},
 			setNoteValue: function(noteValue){

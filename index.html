@@ -78,13 +78,21 @@
 
 <script src="js/utilities.js"></script>
 <script src="js/fux.js"></script>
+<script src="js/assetmanager.js"></script>
 <script src="js/soundmanager.js"></script>
 <script src="js/notation.js"></script>
 <script src="js/tools.js"></script>
 <script type="text/javascript">
 $(function(){
-	FUX.notation.init({ currentNoteValue: 'half' });
-	FUX.tools.init();
+	var assetOptions = {
+		images: ['treble','whole','half','quarter','eighth'],
+		sounds: ['harp','organ']
+	};
+
+	FUX.assetmanager.init(assetOptions, function(){
+		FUX.notation.init({ currentNoteValue: 'half' });
+		FUX.tools.init();
+	});
 });
 </script>
 
