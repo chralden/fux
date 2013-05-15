@@ -1,7 +1,10 @@
 //Musical notation module
 var FUX = (function (fux) {
 	
-	assetmanager = function(){
+	//Put this module in ECMAScript 5 strict mode
+	"use strict";
+
+	var assetmanager = function(){
 
 		var requiredImages = ['staff','measure','staffLine','tieUp','tieDown','sharp','flat','natural','eraser','wholeRest','quarterRest','eighthRest'],
 		assets = {
@@ -84,13 +87,13 @@ var FUX = (function (fux) {
 				pitches = ['A','B','C','D','E','F','G'],
 				lowpitch = 2,
 				highpitch = 5,
-				i,j,thisPitch
+				i,j,thisPitch;
 
 				for(i = lowpitch; i <= highpitch; i++){
 					for(j = 0; j < pitches.length; j++){
 						thisPitch = pitches[j];
 						files[thisPitch+i] = "audio/"+sound+"/"+sound+thisPitch+i;
-						if(thisPitch !== 'B' && thisPitch !== 'E') files[thisPitch+i+'sharp'] = "audio/"+sound+"/"+sound+thisPitch+i+'sharp';
+						if(thisPitch !== 'B' && thisPitch !== 'E'){ files[thisPitch+i+'sharp'] = "audio/"+sound+"/"+sound+thisPitch+i+'sharp'; } 
 					}
 				}
 
@@ -103,7 +106,7 @@ var FUX = (function (fux) {
 				i, path, img, sound;
 
 				//If there are no assets to load execute callback immediately
-				if(self.downloadQueue.length === 0) downloadCallback();
+				if(self.downloadQueue.length === 0){ downloadCallback(); } 
 
 				for(i = 0; i < self.downloadQueue.length; i++){
 					path = self.downloadQueue[i];
@@ -185,8 +188,8 @@ var FUX = (function (fux) {
 		return {
 			
 			//Initialize the asset manager and execute the callback whenever all assets are downloaded
-			init: function(options, callback){
-				var options = options || false,
+			init: function(initoptions, callback){
+				var options = initoptions || false,
 				images = options.images || [],
 				sounds = options.sounds || [],
 				thisImage, requiredSounds, backgroundSounds, i;
@@ -253,8 +256,7 @@ var FUX = (function (fux) {
 				return manager.getAsset(src);
 			} 
 			
-		}
-		
+		};
 		
 	};
 

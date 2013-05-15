@@ -1,12 +1,111 @@
 //Musical notation module
 var FUX = (function (fux) {
+
+	//Put this module in ECMAScript 5 strict mode
+	"use strict";
 	
 	var assetmanager = fux.assetmanager,
 	assets = assetmanager.getSoundFiles(),
 	soundmanager = function(){
 
+		//Player object to create and manage sound objects
+		var player = {
+
+			//The players current instrument, default to harp
+			instrument: 'harp',
+
+			//Object that contains current sounds
+			sounds: {},
+
+			//Object to contain the score of notes for timed playback
+			score: {},
+			scoreLength: 0,
+
+			//Setup the player with current and currently required sounds
+			setup: function(){
+				var self = this,
+				currentAssets = assets[self.instrument],
+				currentInstrument = self.sounds[self.instrument] = {};
+
+				//Go through current instruments pitches and create sound objects with that file
+				$.each(currentAssets, function(pitch, file){
+					currentInstrument[pitch] = assetmanager.getSound(file);
+				});
+			},
+
+			//Play a sounds
+			play: function(pitch, playduration){
+				var self = this,
+				duration = playduration || 500,
+				currentInstrument = self.sounds[self.instrument];
+
+				if(pitch.indexOf('flat') !== -1){ pitch = self.getEnharmonic(pitch); } 
+
+				//Stop sound in case this pitch has not finished playing yet
+				currentInstrument[pitch].stop();
+
+				//Play sound
+				if(self.instrument === 'organ'){
+					currentInstrument[pitch].fadeIn((duration/4), function(){
+						currentInstrument[pitch].fadeOut((3*duration)/4);
+					});
+					
+				}else{
+					currentInstrument[pitch].play();
+				}
+				
+			},
+
+			//Set the global volume by looping through all sounds
+			setVolume: function(volume){
+				var self = this;
+
+				$.each(self.sounds, function(instrument, instrumentSounds){
+					$.each(instrumentSounds, function(pitch, sound){
+						sound.setVolume(volume);
+					});
+				});
+			},
+
+			//Set the players instrument
+			setInstrument: function(instrument){
+				var self = this;
+
+				self.instrument = instrument;
+
+				//If the players sound library doesn't already contain sounds for this instrument, call the setup to create them
+				if(!self.sounds[self.instrument]){ self.setup(); } 
+			},
+
+			toggleMute: function(staff){
+				var self = this;
+
+				self.score[staff].mute = !self.score[staff].mute;
+			},
+
+			//Get enharmonics for flat pitches to share soundfiles
+			getEnharmonic: function(pitch){
+				var enharmonics = {
+					dflat: 'c',
+					eflat: 'd',
+					gflat: 'f',
+					aflat: 'g',
+					bflat: 'a'
+				},
+				thispitch = pitch.substr(0,1),
+				thisnumber = pitch.substr(1,1),
+				enharmonic = false;
+
+				enharmonic = enharmonics[thispitch+'flat']+thisnumber+'sharp';
+
+				return enharmonic;
+
+			}
+
+		},
+
 		//Timer object to manage timed playback of scored elements
-		var timer = {
+		timer = {
 
 			//Current beat of timer
 			beat: 0,
@@ -26,7 +125,7 @@ var FUX = (function (fux) {
 			bpm: 120, 
 
 			//Update the timer and play any scored notes that are present for current time
-			updateTimer: function(seconds){
+			updateTimer: function(){
 				var self = this,
 				beatsPerSecondInterval = Math.round(1000/(self.bpm/60)/100)*100,
 				thisNote;
@@ -103,110 +202,13 @@ var FUX = (function (fux) {
 				clearInterval(self.interval);
 			}
 
-		},
-
-		//Player object to create and manage sound objects
-		player = {
-
-			//The players current instrument, default to harp
-			instrument: 'harp',
-
-			//Object that contains current sounds
-			sounds: {},
-
-			//Object to contain the score of notes for timed playback
-			score: {},
-			scoreLength: 0,
-
-			//Setup the player with current and currently required sounds
-			setup: function(){
-				var self = this,
-				currentAssets = assets[self.instrument],
-				currentInstrument = self.sounds[self.instrument] = {};
-
-				//Go through current instruments pitches and create sound objects with that file
-				$.each(currentAssets, function(pitch, file){
-					currentInstrument[pitch] = assetmanager.getSound(file);
-				});
-			},
-
-			//Play a sounds
-			play: function(pitch, duration){
-				var self = this,
-				duration = duration || 500,
-				currentInstrument = self.sounds[self.instrument];
-
-				if(pitch.indexOf('flat') !== -1) pitch = self.getEnharmonic(pitch);
-
-				//Stop sound in case this pitch has not finished playing yet
-				currentInstrument[pitch].stop();
-
-				//Play sound
-				if(self.instrument === 'organ'){
-					currentInstrument[pitch].fadeIn((duration/4), function(){
-						currentInstrument[pitch].fadeOut((3*duration)/4);
-					});
-					
-				}else{
-					currentInstrument[pitch].play();
-				}
-				
-			},
-
-			//Set the global volume by looping through all sounds
-			setVolume: function(volume){
-				var self = this;
-
-				$.each(self.sounds, function(instrument, instrumentSounds){
-					$.each(instrumentSounds, function(pitch, sound){
-						sound.setVolume(volume);
-					});
-				});
-			},
-
-			//Set the players instrument
-			setInstrument: function(instrument){
-				var self = this;
-
-				self.instrument = instrument;
-
-				//If the players sound library doesn't already contain sounds for this instrument, call the setup to create them
-				if(!self.sounds[self.instrument]) self.setup();
-			},
-
-			toggleMute: function(staff){
-				var self = this;
-
-				self.score[staff].mute = !self.score[staff].mute;
-			},
-
-			//Get enharmonics for flat pitches to share soundfiles
-			getEnharmonic: function(pitch){
-				var self = this,
-				enharmonics = {
-					dflat: 'c',
-					eflat: 'd',
-					gflat: 'f',
-					aflat: 'g',
-					bflat: 'a'
-				},
-				thispitch = pitch.substr(0,1),
-				thisnumber = pitch.substr(1,1),
-				enharmonic = false;
-
-				enharmonic = enharmonics[thispitch+'flat']+thisnumber+'sharp';
-
-				return enharmonic;
-
-			}
-
 		};
-		
+
 		//return the soundmanager object with public methods	
 		return {
 			
 			//Initialize the sound manager
-			init: function(options){
+			init: function(){
 				player.setup();
 			},
 
@@ -215,7 +217,7 @@ var FUX = (function (fux) {
 				player.score[name] = { score: score, mute: false };
 
 				//Set player score length to length of longest score
-				if(score.length > player.scoreLength) player.scoreLength = score.length;
+				if(score.length > player.scoreLength){ player.scoreLength = score.length; }
 			},
 			
 			//trigger playback of a single pitch
@@ -241,7 +243,7 @@ var FUX = (function (fux) {
 
 			//Set the measure that playback should begin from
 			playFromMeasure: function(measure){
-				if(measure < player.scoreLength && measure > 0) timer.startmeasure = measure-1;
+				if(measure < player.scoreLength && measure > 0){ timer.startmeasure = measure-1; } 
 			},
 
 			setInstrument: function(instrument){
@@ -256,8 +258,7 @@ var FUX = (function (fux) {
 			toggleMute: function(staff){
 				player.toggleMute(staff);
 			}
-		}
-		
+		};
 		
 	};
 

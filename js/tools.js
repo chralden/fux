@@ -1,5 +1,8 @@
 //Musical notation module
 var FUX = (function (fux) {
+
+	//Put this module in ECMAScript 5 strict mode
+	"use strict";
 	
 	var notation = fux.notation,
 	soundmanager = fux.soundmanager,
@@ -12,9 +15,8 @@ var FUX = (function (fux) {
 
 			toolsLink.on('click', function(){
 				toolsEl.animate({
-					width: 'toggle',
-					}, 800, function() {
-				});
+					width: 'toggle'
+					}, 800 );
 				contentEl.toggleClass('twoCol', 800);
 			});
 		},
@@ -61,7 +63,7 @@ var FUX = (function (fux) {
 			      min: 0,
 			      max: 100,
 			      value: 60,
-			      slide: function( event, ui ) {
+			      slide: function(event, ui) {
 			        soundmanager.setVolume(ui.value);
 			      }
 			    });
@@ -82,7 +84,7 @@ var FUX = (function (fux) {
 			routeClicks: function(){
 				var button = $(this);
 
-				if(button.hasClass('transport')) soundmanager.controlPlayback(button.attr('data-transport'));
+				if(button.hasClass('transport')){ soundmanager.controlPlayback(button.attr('data-transport')); }
 
 				if(button.hasClass('staff')){
 					button.toggleClass('active');
@@ -120,12 +122,12 @@ var FUX = (function (fux) {
 		//return the notation object with public methods	
 		return {
 
-			init: function(options){
+			init: function(){
 				setup();
 				notationTools.setup();
 				playbackTools.setup();
 			}
-		}
+		};
 		
 		
 	};

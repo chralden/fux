@@ -1,16 +1,16 @@
 //Musical notation module
 var FUX = (function (fux) {
 	
+	//Put this module in ECMAScript 5 strict mode
+	"use strict";
+
 	var soundmanager = fux.soundmanager,
 	assetmanager = fux.assetmanager,
 	assets = assetmanager.getImageFiles(),
 	notation = function(){
 
-		//objects for rendering staves and notes
-		var staff,
-
 		//The current note type for the tooltip
-		currentNoteValue = 'whole',
+		var currentNoteValue = 'whole',
 
 		//Default asset type for tooltip image
 		tooltipImage = 'whole',
@@ -154,7 +154,7 @@ var FUX = (function (fux) {
 				width: 28
 			}
 
-		}
+		},
 
 		//Get the direction for the note stem based on pitch and clef
 		getStemDirection = function(pitch, clef){
@@ -181,13 +181,13 @@ var FUX = (function (fux) {
 			//Duration text to numeric value mapping
 			values: { whole: 4, half: 2, quarter: 1, eighth: 0.5 },
 
-			create: function(options){
+			create: function(initoptions){
 				var self = this,
-				options = options || false;
+				options = initoptions || false;
 
 				//If passed as options reset object default properties
-				if(options && options.duration !== undefined) self.duration = options.duration;
-				if(options && options.beat !== undefined) self.beat = options.beat;
+				if(options && options.duration !== undefined){ self.duration = options.duration; } 
+				if(options && options.beat !== undefined){ self.beat = options.beat; } 
 				
 				self.value = self.values[self.duration];
 				self.width = rests[self.duration].width;
@@ -258,15 +258,15 @@ var FUX = (function (fux) {
 			height: 48,
 
 			//Initialize and render the note
-			create: function(options){
+			create: function(createoptions){
 
 				var self = this,
-				options = options || false;
+				options = createoptions || false;
 
 				//If passed as options reset object default properties
-				if(options && options.pitch !== undefined) self.pitch = options.pitch;
-				if(options && options.duration !== undefined) self.duration = options.duration;
-				if(options && options.beat !== undefined) self.beat = options.beat;
+				if(options && options.pitch !== undefined){ self.pitch = options.pitch; } 
+				if(options && options.duration !== undefined){ self.duration = options.duration; } 
+				if(options && options.beat !== undefined){ self.beat = options.beat; } 
 				self.value = self.values[self.duration];
 
 			},
@@ -283,7 +283,9 @@ var FUX = (function (fux) {
 				noteImage = self.noteImages[self.duration+stemDirection];
 
 				//If note requires a staff line, render it
-				if(self.hasStaffline(clef)) context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
+				if(self.hasStaffline(clef)){
+					context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
+				} 
 
 				//render note image
 				context.drawImage(assetmanager.getImage(noteImage.src), position, pitchMappings[clef][self.pitch]-noteImage.offset);
@@ -314,7 +316,7 @@ var FUX = (function (fux) {
 				
 			}
 
-		};
+		},
 
 		//an object to render a staff to the canvas
 		staff = {
@@ -400,7 +402,7 @@ var FUX = (function (fux) {
 							if(self.mouse.x >= this.start && self.mouse.x <= this.end){
 								beatPosition = beat;
 							}
-						})
+						});
 						return;
 					} 
 				});
@@ -413,10 +415,10 @@ var FUX = (function (fux) {
 			onMouseClick: function(self){
 				var thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
-				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[thisMeasure].currentBeat,
+				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[self.currentMeasure].currentBeat,
 				thisBeatValue, currentNote, nextNote;
 				
-				if(currentPosition.measure !== false) self.currentMeasure = currentPosition.measure;
+				if(currentPosition.measure !== false){ self.currentMeasure = currentPosition.measure; } 
 				currentNote = self.measures[self.currentMeasure].beats[thisBeat];
 				
 				//Check current tooltip type and respond to click accordingly
@@ -436,10 +438,10 @@ var FUX = (function (fux) {
 					if(currentNote){
 						
 						//Determine whether start of the next note would fall in same measure or next measure, then get note in that position
-						if(parseInt(currentNote.beat) + parseInt(currentNote.value) < self.measures[self.currentMeasure].value){
-							nextNote = self.measures[self.currentMeasure].beats[parseInt(currentNote.beat)+parseInt(currentNote.value)];
+						if(parseInt(currentNote.beat, 10) + parseInt(currentNote.value, 10) < self.measures[self.currentMeasure].value){
+							nextNote = self.measures[self.currentMeasure].beats[parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10)];
 						}else{
-							nextNote = self.measures[self.currentMeasure+1].beats[(parseInt(currentNote.beat)+parseInt(currentNote.value))-self.measures[self.currentMeasure].value];
+							nextNote = self.measures[self.currentMeasure+1].beats[(parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10))-self.measures[self.currentMeasure].value];
 						}	
 						
 						//If there is a next note, and two notes to be tied have the same pitch creat the tie and silence the second note
@@ -454,7 +456,7 @@ var FUX = (function (fux) {
 				}else if(currentNoteValue === 'sharp' || currentNoteValue === 'flat' || currentNoteValue === 'natural'){
 					
 					if((currentNoteValue === 'sharp' && currentNote.pitch.indexOf('e') === -1 && currentNote.pitch.indexOf('b')) || (currentNoteValue === 'flat' && currentNote.pitch.indexOf('c') === -1 && currentNote.pitch.indexOf('f')) || currentNoteValue === 'natural'){
-						if(currentNote) currentNote.accidental = currentNoteValue;
+						if(currentNote){ currentNote.accidental = currentNoteValue; } 
 
 						if(currentNoteValue !== 'natural'){
 							soundmanager.play(currentNote.pitch+currentNote.accidental);
@@ -548,25 +550,25 @@ var FUX = (function (fux) {
 			},
 
 			//Initialize a staff with given, x, y, width, and measure numbers, then render
-			create: function(options){
+			create: function(createoptions){
 
 				var self = this,
-				options = options || false,
+				options = createoptions || false,
 				measures = [],
 				score = [],
 				clefWidth, i, startOfMeasure, measureOffset;
 
 				//If passed as options reset default object properties
-				if(options && options.x) self.x = options.x;
-				if(options && options.y) self.y = options.y;
-				if(options && options.width) self.width = options.width;
-				if(options && options.height) self.width = options.height;
-				if(options && options.measureLength) self.measureLength = options.measureLength;
-				if(options && options.target) self.target = options.target;
-				if(options && options.name) self.name = options.name;
-				if(options && options.clef) self.clef = options.clef;
-				if(options && options.cantusfirmus) self.cantusfirmus = options.cantusfirmus;
-				if(options && options.disabled) self.disabled = options.disabled;
+				if(options && options.x){ self.x = options.x; } 
+				if(options && options.y){ self.y = options.y; } 
+				if(options && options.width){ self.width = options.width; } 
+				if(options && options.height){ self.width = options.height; } 
+				if(options && options.measureLength){ self.measureLength = options.measureLength; } 
+				if(options && options.target){ self.target = options.target; } 
+				if(options && options.name){ self.name = options.name; } 
+				if(options && options.clef){ self.clef = options.clef; } 
+				if(options && options.cantusfirmus){ self.cantusfirmus = options.cantusfirmus; } 
+				if(options && options.disabled){ self.disabled = options.disabled; } 
 
 				//Get the width for the clef symbol and initialize the first measure to render after the clef
 				clefWidth = clefs[self.clef].width;
@@ -579,7 +581,7 @@ var FUX = (function (fux) {
 					self.setup();
 
 					//Add all necessary event listeners to staff object as long as staff is not disabled
-					if(!self.disabled) self.bindEvents();
+					if(!self.disabled){ self.bindEvents(); } 
 
 					//Initialize all the measure objects
 					if(self.measureLength > 0){
@@ -649,9 +651,7 @@ var FUX = (function (fux) {
 				measureBarImage = assetmanager.getImage(self.measureBar),
 				clefImage = assetmanager.getImage(clefs[self.clef].img),
 				clefOffset = clefs[self.clef].offset,
-				thisMeasure, thisNote, thisRest,
-				notePosition, restPosition,
-				i;
+				thisMeasure, notePosition, i;
 
 				//Render clearing background
 				self.context.clearRect(0, 0, self.theCanvas.width, self.theCanvas.height);
@@ -721,7 +721,7 @@ var FUX = (function (fux) {
 				if(thisMeasure.currentBeat <= thisMeasure.value){
 					
 					thisMeasure.beats[thisNote.beat] = thisNote;
-					if(thisNote.beat === thisMeasure.currentBeat) thisMeasure.currentBeat += thisNote.value;
+					if(thisNote.beat === thisMeasure.currentBeat){ thisMeasure.currentBeat += thisNote.value; } 
 
 					//Fill out measure with rests if no notes are present
 					self.restFillOut(thisMeasure, thisNote.beat, thisNote.value);
@@ -736,11 +736,11 @@ var FUX = (function (fux) {
 
 				//For if beat corresponds to an object (note or rest), add it to the array to be sorted
 				$.each(measure.beats, function(beat, object){
-					if(object) sortedBeats.push(beat);
+					if(object){ sortedBeats.push(beat); } 
 				});
 
 				//Sort numerically ascending
-				sortedBeats.sort(function(a,b){return a-b});
+				sortedBeats.sort(function(a,b){ return a-b; });
 
 				return sortedBeats;
 			},
@@ -848,17 +848,17 @@ var FUX = (function (fux) {
 
 					//If space is large enough to hold half rest, add half rest
 					if(remainingSpace/2 >= 1){
-						if(!measure.beats[i-2]) self.addRest(measure, i-2, 2);
+						if(!measure.beats[i-2]){ self.addRest(measure, i-2, 2); } 
 						i -= 2;
 
 					//If space is large enough to hold quarter rest, add quarter rest
-					}else if(remainingSpace/1 >= 1){
-						if(!measure.beats[i-1]) self.addRest(measure, i-1, 1);
+					}else if(remainingSpace >= 1){
+						if(!measure.beats[i-1]){ self.addRest(measure, i-1, 1); } 
 						i -= 1;
 
 					//If space is large enough to hold eighth rest, add eighth rest
 					}else if(remainingSpace/0.5 >= 1){
-						if(!measure.beats[i-0.5]) self.addRest(measure, i-0.5, 0.5);
+						if(!measure.beats[i-0.5]){ self.addRest(measure, i-0.5, 0.5); } 
 						i -= 0.5;
 					}
 
@@ -870,8 +870,8 @@ var FUX = (function (fux) {
 		//return the notation object with public methods	
 		return {
 
-			init: function(options){
-				var options = options || false,
+			init: function(initoptions){
+				var options = initoptions || false,
 				target = (options && options.target) ? options.target : $('#fux-notation'),
 				thisfirmus = [
 					{ 0: { duration: 'whole', pitch: 'D4' } },
@@ -889,21 +889,20 @@ var FUX = (function (fux) {
 				staves = [
 					{ type: 'treble', length: 11 },
 					{ type: 'treble', cantusfirmus: thisfirmus, disabled: true, length: 11 }
-				], 
-				count = 0, 
+				],  
 				i, thisStaff, staffOptions;
 
-				if(options && options.currentNoteValue) currentNoteValue = options.currentNoteValue;
+				if(options && options.currentNoteValue){ currentNoteValue = options.currentNoteValue; } 
 
 				soundmanager.init();
 
 				//Create and render staves 
 				for(i = 0; i < staves.length; i++){
 					thisStaff = object(staff);
-					staffOptions = { clef: staves[i].type, name: staves[i].type+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length }
+					staffOptions = { clef: staves[i].type, name: staves[i].type+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length };
 					
-					if(staves[i].cantusfirmus) staffOptions.cantusfirmus = staves[i].cantusfirmus;
-					if(staves[i].disabled) staffOptions.disabled = staves[i].disabled;
+					if(staves[i].cantusfirmus){ staffOptions.cantusfirmus = staves[i].cantusfirmus; } 
+					if(staves[i].disabled){ staffOptions.disabled = staves[i].disabled; } 
 
 					thisStaff.create(staffOptions);
 
@@ -925,7 +924,7 @@ var FUX = (function (fux) {
 
 				setTooltipImage();
 			}
-		}
+		};
 		
 		
 	};
