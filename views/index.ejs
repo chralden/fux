@@ -81,16 +81,6 @@
 <script src="js/notation.js"></script>
 <script src="js/tools.js"></script>
 <script type="text/javascript">
-$(function(){
-	var assetOptions = {
-		images: ['treble','whole','half','quarter','eighth'],
-		sounds: ['harp','organ']
-	};
-
-	FUX.assetmanager.init(assetOptions, function(){
-		FUX.notation.init({ currentNoteValue: 'half' });
-		FUX.tools.init();
-	});
-});
+	$(function(){ FUX.init('<%- config %>'); });
 </script>
 </html>

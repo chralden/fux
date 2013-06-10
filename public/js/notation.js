@@ -556,7 +556,7 @@ var FUX = (function (fux) {
 				options = createoptions || false,
 				measures = [],
 				score = [],
-				clefWidth, i, startOfMeasure, measureOffset;
+				clefWidth, startOfMeasure, measureOffset, firmusMeasure, i, j;
 
 				//If passed as options reset default object properties
 				if(options && options.x){ self.x = options.x; } 
@@ -607,19 +607,19 @@ var FUX = (function (fux) {
 					self.measures = measures;
 
 					//If there is a cantus firmus, loop through it and enter notes and add to score, send score to sound manager
-					if(self.cantusfirmus){
+					if(self.cantusfirmus.length > 0){
 
 						for(i = 0; i < self.cantusfirmus.length; i++){
 							self.currentMeasure = i;
-							
-							//Add the notes
-							$.each(self.cantusfirmus[i], function(beat, note){
+							firmusMeasure = self.cantusfirmus[i].measure;
+
+							for(j = 0; j < firmusMeasure.length; j++){
 								self.addNote({
-									beat: beat,
-									pitch: note.pitch,
-									duration: note.duration
+									beat: firmusMeasure[j].beat,
+									pitch: firmusMeasure[j].note.pitch,
+									duration: firmusMeasure[j].note.duration
 								});
-							});
+							}
 
 							score[i] = self.measures[i].beats;
 						}
@@ -872,42 +872,29 @@ var FUX = (function (fux) {
 
 			init: function(initoptions){
 				var options = initoptions || false,
+				staves = options.staves || false, 
 				target = (options && options.target) ? options.target : $('#fux-notation'),
-				thisfirmus = [
-					{ 0: { duration: 'whole', pitch: 'D4' } },
-					{ 0: { duration: 'whole', pitch: 'F4' } },
-					{ 0: { duration: 'whole', pitch: 'E4' } },
-					{ 0: { duration: 'whole', pitch: 'D4' } },
-					{ 0: { duration: 'whole', pitch: 'G4' } },
-					{ 0: { duration: 'whole', pitch: 'F4' } },
-					{ 0: { duration: 'whole', pitch: 'A4' } },
-					{ 0: { duration: 'whole', pitch: 'G4' } },
-					{ 0: { duration: 'whole', pitch: 'F4' } },
-					{ 0: { duration: 'whole', pitch: 'E4' } },
-					{ 0: { duration: 'whole', pitch: 'D4' } }
-				],
-				staves = [
-					{ type: 'treble', length: 11 },
-					{ type: 'treble', cantusfirmus: thisfirmus, disabled: true, length: 11 }
-				],  
 				i, thisStaff, staffOptions;
 
 				if(options && options.currentNoteValue){ currentNoteValue = options.currentNoteValue; } 
 
 				soundmanager.init();
 
-				//Create and render staves 
-				for(i = 0; i < staves.length; i++){
-					thisStaff = object(staff);
-					staffOptions = { clef: staves[i].type, name: staves[i].type+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length };
-					
-					if(staves[i].cantusfirmus){ staffOptions.cantusfirmus = staves[i].cantusfirmus; } 
-					if(staves[i].disabled){ staffOptions.disabled = staves[i].disabled; } 
+				if(staves){
+					//Create and render staves 
+					for(i = 0; i < staves.length; i++){
+						thisStaff = object(staff);
+						staffOptions = { clef: staves[i].clef, name: staves[i].clef+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length };
+						
+						if(staves[i].score){ staffOptions.cantusfirmus = staves[i].score; } 
+						if(staves[i].disabled){ staffOptions.disabled = staves[i].disabled; } 
 
-					thisStaff.create(staffOptions);
+						thisStaff.create(staffOptions);
 
-					thisStaff.render();
+						thisStaff.render();
+					}
 				}
+				
 				
 				
 			},
