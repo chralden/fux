@@ -1,0 +1,35 @@
+{
+	"mode": "dorian",
+	"voices": "twovoices",
+	"species": "firstspecies",
+	"firmusVoice": 0,
+	"noteValues": ["whole"],
+	"instruments": ["harp","organ"],
+	"clefs": ["treble", "bass"],
+	"staves": [
+		{
+			"clef": "treble",
+			"name": "treble1",
+			"length": 11,
+			"disabled": true,
+			"score": [
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D4" } }] }
+			]
+		},
+		{
+			"clef": "bass",
+			"name": "bass1",
+			"length": 11
+		}
+	]
+}
