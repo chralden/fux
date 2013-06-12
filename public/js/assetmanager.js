@@ -11,39 +11,39 @@ var FUX = (function (fux) {
 			
 			images: {
 				//Staff and Measure assets
-				staff: 'images/staff.png',
-				measure: 'images/measure-delim.png',
-				staffLine: 'images/staff-line.png',
+				staff: '/images/staff.png',
+				measure: '/images/measure-delim.png',
+				staffLine: '/images/staff-line.png',
 
 				//Note assets
-				whole: 'images/whole-note.png',
-				halfUp: 'images/half-note-up.png',
-				halfDown: 'images/half-note-down.png',
-				quarterUp: 'images/quarter-note-up.png',
-				quarterDown: 'images/quarter-note-down.png',
-				eighthUp: 'images/eighth-note-up.png',
-				eighthDown: 'images/eighth-note-down.png',
+				whole: '/images/whole-note.png',
+				halfUp: '/images/half-note-up.png',
+				halfDown: '/images/half-note-down.png',
+				quarterUp: '/images/quarter-note-up.png',
+				quarterDown: '/images/quarter-note-down.png',
+				eighthUp: '/images/eighth-note-up.png',
+				eighthDown: '/images/eighth-note-down.png',
 
 				//Note extras - ties and accidentals
-				tieUp: 'images/tie-up.png',
-				tieDown: 'images/tie-down.png',
-				sharp: 'images/sharp.png',
-				flat: 'images/flat.png',
-				natural: 'images/natural.png',
+				tieUp: '/images/tie-up.png',
+				tieDown: '/images/tie-down.png',
+				sharp: '/images/sharp.png',
+				flat: '/images/flat.png',
+				natural: '/images/natural.png',
 
 				//Eraser Tooltip
-				eraser: 'images/eraser-x.png',
+				eraser: '/images/eraser-x.png',
 
 				//Clef assets
-				treble: 'images/trebleclef.png',
-				alto: 'images/altoclef.png',
-				tenor: 'images/tenorclef.png',
-				bass: 'images/bassclef.png',
+				treble: '/images/trebleclef.png',
+				alto: '/images/altoclef.png',
+				tenor: '/images/tenorclef.png',
+				bass: '/images/bassclef.png',
 
 				//Rest assets
-				wholeRest: 'images/whole-rest.png',
-				quarterRest: 'images/quarter-rest.png',
-				eighthRest: 'images/eighth-rest.png'
+				wholeRest: '/images/whole-rest.png',
+				quarterRest: '/images/quarter-rest.png',
+				eighthRest: '/images/eighth-rest.png'
 			},
 			sounds: {}
 
@@ -92,8 +92,8 @@ var FUX = (function (fux) {
 				for(i = lowpitch; i <= highpitch; i++){
 					for(j = 0; j < pitches.length; j++){
 						thisPitch = pitches[j];
-						files[thisPitch+i] = "audio/"+sound+"/"+sound+thisPitch+i;
-						if(thisPitch !== 'B' && thisPitch !== 'E'){ files[thisPitch+i+'sharp'] = "audio/"+sound+"/"+sound+thisPitch+i+'sharp'; } 
+						files[thisPitch+i] = "/audio/"+sound+"/"+sound+thisPitch+i;
+						if(thisPitch !== 'B' && thisPitch !== 'E'){ files[thisPitch+i+'sharp'] = "/audio/"+sound+"/"+sound+thisPitch+i+'sharp'; } 
 					}
 				}
 

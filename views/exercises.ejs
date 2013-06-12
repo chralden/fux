@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<%- include elements/head.ejs %>
+</head>
+<body>
+	<div class="clearfix">
+
+		<h1>Exercises:</h1>
+		
+		<ul>
+			<% if(topics.length){ %>
+			    <% topics.forEach(function(topic) { %>
+			    	<li>
+			    		<strong><%= topic.name %></strong>
+			    		<ul>
+			    			<% if(modes.length && topic.staves){ %>
+			    				<% modes.forEach(function(mode) { %>
+			    					<% for(var i = 0; i < topic.staves; i++){ %>
+			    						<li>
+			    							<a href="/exercise/<%= topic.voices %>-<%= topic.species %>/<%= mode %>-<%= i %>/">
+			    								<%=: mode | capitalize %> Voice <%=: i+1 %>
+			    							</a>
+			    						</li>
+			    					<% } %> 
+			    				<% }) %> 
+							<% } %>
+			    		</ul>
+			    	</li>
+				<% }) %> 
+			<% } %>
+		</ul>
+	</div>
+	
+</body> 
+
+<!-- Libraries and 3rd Party JS-->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+<script src="/libraries/validation/jquery.validate.min.js"></script>
+
+</html>

@@ -1,7 +1,6 @@
 var mongoose = require('mongoose'),
+	db = mongoose.createConnection('mongodb://localhost/fux'),
 	schema;
-
-mongoose.connect('mongodb://localhost/fux');
 
 var schema = new mongoose.Schema({
 	mode: String,
@@ -22,4 +21,4 @@ var schema = new mongoose.Schema({
 	}]
 });
 
-module.exports = mongoose.model('Exercise', schema);
+module.exports = db.model('Exercise', schema);

@@ -40,8 +40,9 @@
 		</select>
 
 		<div class="staff-select">
-			<a class="btn staff btn-danger" title="Mute Staff 1 - Treble" data-staff="treble0">Mute Staff 1 - Treble</a>
-			<a class="btn staff btn-danger" title="Mute Staff 2 - Treble" data-staff="treble1">Mute Staff 2 - Treble</a>
+			<% tools.staves.forEach(function(staff, i) { %>
+				<a class="btn staff btn-danger" title="Mute Staff  -  <%=: i+1 %>Treble" data-staff="<%=: staff.name %>">Mute Staff <%=: i+1 %> - <%=: staff.clef | capitalize %></a>
+			<% }) %> 
 		</div>
 
 	</div>

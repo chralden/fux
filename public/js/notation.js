@@ -881,10 +881,12 @@ var FUX = (function (fux) {
 				soundmanager.init();
 
 				if(staves){
+
 					//Create and render staves 
 					for(i = 0; i < staves.length; i++){
+
 						thisStaff = object(staff);
-						staffOptions = { clef: staves[i].clef, name: staves[i].clef+i, target: target, width: (219 * staves[i].length), measureLength: staves[i].length };
+						staffOptions = { clef: staves[i].clef, name: staves[i].name, target: target, width: (219 * staves[i].length), measureLength: staves[i].length };
 						
 						if(staves[i].score){ staffOptions.cantusfirmus = staves[i].score; } 
 						if(staves[i].disabled){ staffOptions.disabled = staves[i].disabled; } 
@@ -894,8 +896,6 @@ var FUX = (function (fux) {
 						thisStaff.render();
 					}
 				}
-				
-				
 				
 			},
 			setNoteValue: function(noteValue){
