@@ -1,86 +1,23 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<title><%= title %></title>
-	
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" media="all" />
-	<link rel="stylesheet" type="text/css" href="/libraries/bootstrap/css/bootstrap.min.css" media="all" />
-
-	<link href='http://fonts.googleapis.com/css?family=Bitter:400,700' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" type="text/css" href="/css/main.css" media="all" />
+	<%- include elements/head.ejs %>
 </head>
-<body>
-	<div class="clearfix">
-		<div class="center-column">
+<body class="home">
+	<%- include elements/header.ejs %>
+	<div class="home-content clearfix">
+		<h1>To Parnassus</h1>
+		<p>The Gradus Ad Parnassum (Step or Ascent to Mount Parnassus) is a theoretical and pedagogical work written in Latin, which Fux dedicated to Emperor Charles VI in 1725.</p>
+		<p>It is divided in two major parts. In the first part, Fux presents a summary of the theory on Musica Speculativa, or the analysis of intervals as proportions between numbers. This section is in a simple lecture style, and looks at music from a purely mathematical angle, in a theoretical tradition that goes back, through the works of Renaissance theoreticians, to the Ancient Greeks. The works of Mersenne, Cicero and Aristotle are among the references quoted by Fux in this section.</p>
 
-			<div class="exercise">
-				<p>Hello World! Here goes the music notation prototype:</p>
-				<a class="tool-link">Tools -></a>
-				<div id="fux-notation"></div>
-			</div>
-			
-		</div>
-
-		
-		<div class="tools">
-			<div class="notation-tools">
-				<p>Notation Tools:</p>
-				<div class="notes">
-					<a class="btn notation-note-select" data-notetype="whole">Whole Note</a>
-					<a class="btn notation-note-select" data-notetype="half">Half Note</a>
-					<a class="btn notation-note-select" data-notetype="quarter">Quarter Note</a>
-					<a class="btn notation-note-select" data-notetype="eighth">Eighth Note</a>
-
-					<a class="btn notation-note-select" data-notetype="eraser">Eraser</a>
-
-					<a class="btn notation-note-select" data-notetype="tie">Tie</a>
-					<a class="btn notation-note-select" data-notetype="sharp">Sharp</a>
-					<a class="btn notation-note-select" data-notetype="flat">Flat</a>
-					<a class="btn notation-note-select" data-notetype="natural">Natural</a>
-				</div>
-			</div>
-			<br/><br/>
-			<div class="playback-tools">
-				<a class="btn transport" data-transport="play">Play</a>
-				<a class="btn transport" data-transport="pause">Pause</a>
-				<a class="btn transport" data-transport="stop">Stop</a>
-				
-				<a class="btn volume">Volume</a>
-				<div id="volume-slider" style="height: 100px; float: right; margin-right: 15px;" data-volume="0"></div>
-
-				<form id="select-measure"><label for="measure">Start at measure:</label><input type="text" id="measure" name="measure" value="0" /></form>
-			
-				<select class="instrument-select">
-					<option value="harp">Harp</option>
-					<option value="organ">Organ</option>
-				</select>
-
-				<div class="staff-select">
-					<a class="btn staff btn-danger" title="Mute Staff 1 - Treble" data-staff="treble0">Mute Staff 1 - Treble</a>
-					<a class="btn staff btn-danger" title="Mute Staff 2 - Treble" data-staff="treble1">Mute Staff 2 - Treble</a>
-				</div>
-
-			</div>
+		<div class="home-links">
+			<a href="/exercises/">Practice</a>
+			<span class="large-rose"></span>
+			<a href="/review-topics/">Review</a>
 		</div>
 
 	</div>
-	
+	<%- include elements/footer.ejs %>
 </body> 
 
-<!-- Libraries and 3rd Party JS-->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
-<script src="/libraries/validation/jquery.validate.min.js"></script>
-<script src="/libraries/buzz/buzz.js"></script>
-
-<script src="/js/utilities.js"></script>
-<script src="/js/fux.js"></script>
-<script src="/js/assetmanager.js"></script>
-<script src="/js/soundmanager.js"></script>
-<script src="/js/notation.js"></script>
-<script src="/js/tools.js"></script>
-<script type="text/javascript">
-	$(function(){ FUX.init('<%- config %>'); });
-</script>
-</html>
+<%- include elements/scripts.ejs %>

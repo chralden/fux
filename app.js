@@ -23,6 +23,9 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+//Homepage
+app.get('/', routes.index);
+
 //Get all exercises
 app.get('/exercises/', exercise.listExercisesByTopic);
 
