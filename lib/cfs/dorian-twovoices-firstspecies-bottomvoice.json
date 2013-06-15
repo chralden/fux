@@ -4,7 +4,6 @@
 	"species": "firstspecies",
 	"firmusVoice": 1,
 	"noteValues": ["whole"],
-	"instruments": ["harp","organ"],
 	"clefs": ["treble"],
 	"staves": [
 		{

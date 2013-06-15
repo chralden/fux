@@ -1,6 +1,7 @@
 function renderExercise(exercise, res){
 	var exerciseFound = true,
 		staves = [],
+		instruments = ["harp", "organ"],
 		config,
 		tools;
 
@@ -10,7 +11,7 @@ function renderExercise(exercise, res){
 		config = {
 			noteValues: exercise.noteValues,
 			clefs: exercise.clefs,
-			instruments: exercise.instruments,
+			instruments: instruments,
 			staves: exercise.staves
 		};
 
@@ -21,7 +22,7 @@ function renderExercise(exercise, res){
 		tools = {
 			noteTypes: exercise.noteValues,
 			ties: (exercise.species === 'fourthspecies' || exercise.species === 'fifthspecies'),
-			instruments: exercise.instruments,
+			instruments: instruments,
 			staves: staves
 		};
 	
