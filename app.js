@@ -35,6 +35,9 @@ app.get('/exercise/:topic/:exercise', exercise.initExercise);
 //Get exercise saved by user
 app.get('/exercise/:topic/:exercise/:id', exercise.initUserExercise);
 
+//Post exercise created by user
+app.post('/exercise/save/:id', exercise.updateUserExercise);
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });

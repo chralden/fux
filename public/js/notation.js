@@ -15,6 +15,11 @@ var FUX = (function (fux) {
 		//Default asset type for tooltip image
 		tooltipImage = 'whole',
 
+		//Exercise ID
+		id = false,
+
+		userScore = [],
+
 		//Set the tooltip image for the mouse based on note type and mouse position
 		setTooltipImage = function(){
 			
@@ -363,6 +368,9 @@ var FUX = (function (fux) {
 			image: assets.staff,
 			measureBar: assets.measure,
 
+			//Which element of user score is this staff
+			scorePos: false,
+
 			//Get pitch user is selecting based on mouse position and clef
 			getPitchFromPosition: function(clef){
 				var self = this,
@@ -416,7 +424,7 @@ var FUX = (function (fux) {
 				var thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
 				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[self.currentMeasure].currentBeat,
-				thisBeatValue, currentNote, nextNote;
+				thisBeatValue, currentNote, nextNote, writeMeasure;
 				
 				if(currentPosition.measure !== false){ self.currentMeasure = currentPosition.measure; } 
 				currentNote = self.measures[self.currentMeasure].beats[thisBeat];
@@ -482,6 +490,16 @@ var FUX = (function (fux) {
 
 				self.score[self.currentMeasure][thisBeat] = currentNote;
 				soundmanager.addScore(self.name, self.score);
+
+				userScore[self.scorePos].score[self.currentMeasure].measure.forEach(function(measure, i){
+					
+					if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
+						measure.note.pitch = thisPitch;
+						measure.note.duration = currentNoteValue;
+					} 
+				});
+
+				$.post('/exercise/save/'+id, { staves: userScore }, "json");
 
 				//Re-render staff with new note
 				self.render();
@@ -569,6 +587,7 @@ var FUX = (function (fux) {
 				if(options && options.clef){ self.clef = options.clef; } 
 				if(options && options.cantusfirmus){ self.cantusfirmus = options.cantusfirmus; } 
 				if(options && options.disabled){ self.disabled = options.disabled; } 
+				if(options && options.scorePos !== false){ self.scorePos = options.scorePos; }
 
 				//Get the width for the clef symbol and initialize the first measure to render after the clef
 				clefWidth = clefs[self.clef].width;
@@ -880,13 +899,17 @@ var FUX = (function (fux) {
 
 				soundmanager.init();
 
+				id = options.id;
+
 				if(staves){
 
 					//Create and render staves 
 					for(i = 0; i < staves.length; i++){
 
+						userScore[i] = staves[i];
+
 						thisStaff = object(staff);
-						staffOptions = { clef: staves[i].clef, name: staves[i].name, target: target, width: (219 * staves[i].length), measureLength: staves[i].length };
+						staffOptions = { clef: staves[i].clef, name: staves[i].name, target: target, width: (219 * staves[i].length), measureLength: staves[i].length, scorePos: i };
 						
 						if(staves[i].score){ staffOptions.cantusfirmus = staves[i].score; } 
 						if(staves[i].disabled){ staffOptions.disabled = staves[i].disabled; } 

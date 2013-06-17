@@ -31,6 +31,7 @@ var FUX = {
 		notes = options.noteValues || false, 
 		clefs = options.clefs || false,
 		instruments = options.instruments || false,
+		id = options.id || false,
 
 		//Get the staves for notation from config
 		staves = options.staves || false,
@@ -45,7 +46,7 @@ var FUX = {
 			};
 
 			self.assetmanager.init(assetOptions, function(){
-				self.notation.init({ currentNoteValue: notes[0], staves: staves });
+				self.notation.init({ currentNoteValue: notes[0], staves: staves, id: id });
 				self.tools.init();
 			});	
 		}

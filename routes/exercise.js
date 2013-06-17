@@ -1,4 +1,5 @@
-function renderExercise(exercise, res){
+//Send exercise configuration settings to the exercise view
+function renderExercise(exercise, res, id){
 	var exerciseFound = true,
 		staves = [],
 		instruments = ["harp", "organ"],
@@ -12,7 +13,8 @@ function renderExercise(exercise, res){
 			noteValues: exercise.noteValues,
 			clefs: exercise.clefs,
 			instruments: instruments,
-			staves: exercise.staves
+			staves: exercise.staves,
+			id: id
 		};
 
 		exercise.staves.forEach(function(stave){
@@ -37,6 +39,7 @@ function renderExercise(exercise, res){
 }
 
 
+//Initialize a base exercise - get exercise config based on request
 exports.initExercise = function(req, res){
 	
 	//Get the topic and and exercise details from request
@@ -52,10 +55,11 @@ exports.initExercise = function(req, res){
 	Exercise.findOne({ mode: mode, voices: voices, species: species, firmusVoice: parseInt(firmusVoice, 10) }, function(err, exercise){
 		if(err){ next(err); }
 
-		renderExercise(exercise, res);
+		renderExercise(exercise, res, false);
 	});
 };
 
+//Initialize an exercise based on a user generated score - get score from id
 exports.initUserExercise = function(req, res){
 	
 	var Exercise = require('../models/Exercise'),
@@ -65,11 +69,12 @@ exports.initUserExercise = function(req, res){
 		
 		if(err){ next(err); }
 
-		renderExercise(exercise, res);
+		renderExercise(exercise, res, id);
 	});
 
 };
 
+//Get all exercises for a topic
 exports.listExercisesByTopic = function(req, res){
 	var Topic = require('../models/Topic');
 
@@ -88,5 +93,21 @@ exports.listExercisesByTopic = function(req, res){
 		res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, modes: modes });
 	});
 	
+	
+};
+
+//Save a users score for an exercise
+exports.updateUserExercise = function(req, res){
+
+	var Exercise = require('../models/Exercise'),
+		id = req.params.id,
+		userStaves = req.body.staves;
+
+	//Update the user exercise with user input
+	Exercise.update({ _id: id }, { $set: { staves: userStaves }}, function(err){
+		if(err) { res.end('error'); }
+		res.end('success');
+	});
+
 	
 };
