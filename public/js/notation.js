@@ -18,6 +18,9 @@ var FUX = (function (fux) {
 		//Exercise ID
 		id = false,
 
+		//Is Exercise a base cantus firmus
+		basefirmus = true,
+
 		userScore = [],
 
 		//Set the tooltip image for the mouse based on note type and mouse position
@@ -488,18 +491,38 @@ var FUX = (function (fux) {
 
 				}
 
+				if(userScore[self.scorePos].score[self.currentMeasure]){
+					userScore[self.scorePos].score[self.currentMeasure].measure.forEach(function(measure, i){
+					
+						if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
+							measure.note.pitch = thisPitch;
+							measure.note.duration = currentNoteValue;
+						} 
+					});
+				}else{
+					userScore[self.scorePos].score[self.currentMeasure] = { "measure": [{ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch } }] };
+					self.score[self.currentMeasure] = {};
+				}
+
 				self.score[self.currentMeasure][thisBeat] = currentNote;
 				soundmanager.addScore(self.name, self.score);
 
-				userScore[self.scorePos].score[self.currentMeasure].measure.forEach(function(measure, i){
-					
-					if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
-						measure.note.pitch = thisPitch;
-						measure.note.duration = currentNoteValue;
-					} 
-				});
+				//If the current exercise is one of the base exercises initialize a new user exercise
+				if(basefirmus){
+					$.post('/exercise/create/'+id, { staves: userScore }, function(response){
+						
+						id = JSON.parse(response).id;
+						basefirmus = false;
 
-				$.post('/exercise/save/'+id, { staves: userScore }, "json");
+						//Once the new user exercise is created navigate to that page
+						history.pushState(null, null, location.href+id);
+					});
+
+				//If on a user execise update the exercise score
+				}else{
+					$.post('/exercise/save/'+id, { staves: userScore });
+				}
+				
 
 				//Re-render staff with new note
 				self.render();
@@ -900,6 +923,7 @@ var FUX = (function (fux) {
 				soundmanager.init();
 
 				id = options.id;
+				basefirmus = options.basefirmus;
 
 				if(staves){
 

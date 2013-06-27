@@ -38,6 +38,9 @@ app.get('/exercise/:topic/:exercise/:id', exercise.initUserExercise);
 //Post exercise created by user
 app.post('/exercise/save/:id', exercise.updateUserExercise);
 
+//Post exercise created by user from base exercise
+app.post('/exercise/create/:id', exercise.createUserExercise);
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });

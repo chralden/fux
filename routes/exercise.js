@@ -1,5 +1,5 @@
 //Send exercise configuration settings to the exercise view
-function renderExercise(exercise, res, id){
+function renderExercise(exercise, res, id, basefirmus){
 	var exerciseFound = true,
 		staves = [],
 		instruments = ["harp", "organ"],
@@ -8,13 +8,14 @@ function renderExercise(exercise, res, id){
 
 	//If an exercise is found pass the configuration along to views
 	if(exercise !== null){
-		
+
 		config = {
 			noteValues: exercise.noteValues,
 			clefs: exercise.clefs,
 			instruments: instruments,
 			staves: exercise.staves,
-			id: id
+			id: id,
+			basefirmus: basefirmus
 		};
 
 		exercise.staves.forEach(function(stave){
@@ -38,7 +39,6 @@ function renderExercise(exercise, res, id){
 	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), tools: tools });
 }
 
-
 //Initialize a base exercise - get exercise config based on request
 exports.initExercise = function(req, res){
 	
@@ -55,7 +55,7 @@ exports.initExercise = function(req, res){
 	Exercise.findOne({ mode: mode, voices: voices, species: species, firmusVoice: parseInt(firmusVoice, 10) }, function(err, exercise){
 		if(err){ next(err); }
 
-		renderExercise(exercise, res, false);
+		renderExercise(exercise, res, exercise.id, true);
 	});
 };
 
@@ -69,7 +69,7 @@ exports.initUserExercise = function(req, res){
 		
 		if(err){ next(err); }
 
-		renderExercise(exercise, res, id);
+		renderExercise(exercise, res, id, false);
 	});
 
 };
@@ -107,7 +107,36 @@ exports.updateUserExercise = function(req, res){
 	Exercise.update({ _id: id }, { $set: { staves: userStaves }}, function(err){
 		if(err) { res.end('error'); }
 		res.end('success');
-	});
+	});	
+	
+};
 
+//Save a users score for an exercise
+exports.createUserExercise = function(req, res){
+
+	var Exercise = require('../models/Exercise'),
+		id = req.params.id,
+		userStaves = req.body.staves;
+
+	//Update the user exercise with user input
+	Exercise.findById(id, function(err, exercise){
+		var thisExercise;
+
+		if(err) { res.end('error') }; 
+
+		thisExercise = exercise.copyExerciseToJSON();
+
+		userStaves.forEach(function(staff){
+			delete staff._id;
+		});
+
+		thisExercise.staves = userStaves;
+
+		Exercise.create(thisExercise, function(err, thisExercise){
+			response = { id: thisExercise._id };
+			res.end(JSON.stringify(response));
+		});
+		
+	});	
 	
 };
