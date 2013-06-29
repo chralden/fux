@@ -275,6 +275,8 @@ var FUX = (function (fux) {
 				if(options && options.pitch !== undefined){ self.pitch = options.pitch; } 
 				if(options && options.duration !== undefined){ self.duration = options.duration; } 
 				if(options && options.beat !== undefined){ self.beat = options.beat; } 
+				if(options && options.accidental !== undefined){ self.accidental = options.accidental; }
+				if(options && options.tied !== undefined){ self.tied = options.tied; }
 				self.value = self.values[self.duration];
 
 			},
@@ -427,7 +429,10 @@ var FUX = (function (fux) {
 				var thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
 				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[self.currentMeasure].currentBeat,
-				thisBeatValue, currentNote, nextNote, writeMeasure;
+				thisBeatValue, currentNote, nextNote, writeExercise;
+
+				//Set the current user score to overwrite
+				writeExercise = userScore[self.scorePos];
 				
 				if(currentPosition.measure !== false){ self.currentMeasure = currentPosition.measure; } 
 				currentNote = self.measures[self.currentMeasure].beats[thisBeat];
@@ -442,6 +447,10 @@ var FUX = (function (fux) {
 					
 					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
 					thisPitch = false;
+
+					writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
+						if(parseFloat(measure.beat) === parseFloat(thisBeat)){	delete measure.note.pitch;} 
+					});
 				
 				//If a 'tie', add tie to current note 
 				}else if(currentNoteValue === 'tie'){
@@ -469,6 +478,15 @@ var FUX = (function (fux) {
 					if((currentNoteValue === 'sharp' && currentNote.pitch.indexOf('e') === -1 && currentNote.pitch.indexOf('b')) || (currentNoteValue === 'flat' && currentNote.pitch.indexOf('c') === -1 && currentNote.pitch.indexOf('f')) || currentNoteValue === 'natural'){
 						if(currentNote){ currentNote.accidental = currentNoteValue; } 
 
+						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
+							if(parseFloat(measure.beat) === parseFloat(thisBeat)){ 
+								measure.note.accidental = currentNoteValue; 
+								console.log(measure.note);
+							} 
+						});
+
+						//console.log(writeExercise);
+						
 						if(currentNoteValue !== 'natural'){
 							soundmanager.play(currentNote.pitch+currentNote.accidental);
 						}else{
@@ -489,19 +507,21 @@ var FUX = (function (fux) {
 				
 					soundmanager.play(thisPitch);
 
-				}
+					//Overwrite the current user exercise
+					if(writeExercise.score[self.currentMeasure]){
+						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){
+						
+							if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
+								measure.note.pitch = thisPitch;
+								measure.note.duration = currentNoteValue;
+							} 
+						});
+						
+					}else{
+						writeExercise.score[self.currentMeasure] = { "measure": [{ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch } }] };
+						self.score[self.currentMeasure] = {};
+					}
 
-				if(userScore[self.scorePos].score[self.currentMeasure]){
-					userScore[self.scorePos].score[self.currentMeasure].measure.forEach(function(measure, i){
-					
-						if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
-							measure.note.pitch = thisPitch;
-							measure.note.duration = currentNoteValue;
-						} 
-					});
-				}else{
-					userScore[self.scorePos].score[self.currentMeasure] = { "measure": [{ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch } }] };
-					self.score[self.currentMeasure] = {};
 				}
 
 				self.score[self.currentMeasure][thisBeat] = currentNote;
@@ -597,7 +617,7 @@ var FUX = (function (fux) {
 				options = createoptions || false,
 				measures = [],
 				score = [],
-				clefWidth, startOfMeasure, measureOffset, firmusMeasure, i, j;
+				clefWidth, startOfMeasure, measureOffset, firmusMeasure, firmusNoteOptions, i, j;
 
 				//If passed as options reset default object properties
 				if(options && options.x){ self.x = options.x; } 
@@ -656,11 +676,22 @@ var FUX = (function (fux) {
 							firmusMeasure = self.cantusfirmus[i].measure;
 
 							for(j = 0; j < firmusMeasure.length; j++){
-								self.addNote({
-									beat: firmusMeasure[j].beat,
-									pitch: firmusMeasure[j].note.pitch,
-									duration: firmusMeasure[j].note.duration
-								});
+								
+								if(firmusMeasure[j].note.pitch){
+									firmusNoteOptions = {
+										beat: firmusMeasure[j].beat,
+										pitch: firmusMeasure[j].note.pitch,
+										duration: firmusMeasure[j].note.duration
+									};
+
+									if(firmusMeasure[j].note.accidental) firmusNoteOptions.accidental = firmusMeasure[j].note.accidental;
+									if(firmusMeasure[j].note.tied) firmusNoteOptions.tied = firmusMeasure[j].note.tied;
+
+									self.addNote(firmusNoteOptions);
+								}else{
+									self.addRest(self.measures[self.currentMeasure], firmusMeasure[j].beat, self.measures[self.currentMeasure].beats[firmusMeasure[j].beat].value);
+								}
+								
 							}
 
 							score[i] = self.measures[i].beats;

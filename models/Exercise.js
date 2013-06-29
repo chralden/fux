@@ -16,7 +16,7 @@ var schema = new mongoose.Schema({
 		length: Number,
 		disabled: Boolean,
 		score: [
-			{ measure: [{ beat: Number, note: { duration: String, pitch: String } }] }
+			{ measure: [{ beat: Number, note: { duration: String, pitch: String, accidental: String, tied: Boolean } }] }
 		]
 	}]
 });
