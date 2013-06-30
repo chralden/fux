@@ -5,3 +5,46 @@
 	<span class="black-leaf"></span>
 	<a>terms</a>
 </div>
+
+<!-- Sign Up Modal -->
+<div id="signupModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="signupModalLabel">Save Your Progress To Parnassus</h3>
+  </div>
+  <div class="modal-body">
+    <p>To save progress on your exercises you'll need to create a user profile:</p>
+
+    <form id="signup" class="form-horizontal" action="post">
+	  <div class="control-group">
+            <label class="control-label">Email</label>
+            <div class="controls">
+                <div class="input-prepend">
+                <span class="add-on"><i class="icon-envelope"></i></span>
+                    <input type="text" class="input-xlarge" id="email" name="email" placeholder="Email">
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Password</label>
+            <div class="controls">
+                <div class="input-prepend">
+                <span class="add-on"><i class="icon-lock"></i></span>
+                    <input type="Password" id="passwd" class="input-xlarge" name="passwd" placeholder="Password">
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Confirm Password</label>
+            <div class="controls">
+                <div class="input-prepend">
+                <span class="add-on"><i class="icon-lock"></i></span>
+                    <input type="Password" id="conpasswd" class="input-xlarge" name="conpasswd" placeholder="Re-enter Password">
+                </div>
+            </div>
+        </div>
+
+	  	<button type="submit" class="btn btn-primary pull-right" data-loading-text="Loading...">Sign Up</button>
+	</form>
+  </div>
+</div>

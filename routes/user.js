@@ -1,8 +1,7 @@
+//Create a user
+exports.createUser = function(req, res){
 
-/*
- * GET users listing.
- */
+	console.log(req);
+	res.end('success');
 
-exports.list = function(req, res){
-  res.send("respond with a resource");
 };

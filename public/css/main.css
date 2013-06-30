@@ -9,9 +9,14 @@ a { cursor: pointer; }
 .header { background: #000; height: 80px; color: #FFF; }
 .header a.logo { display: block; width: 342px; height: 36px; background: transparent url('/images/site/global-sprite.png') 0 -36px no-repeat; text-indent: -9999px; float: left; margin: 22px 0 0 25px; }
 
-.header .userbar { font-family: 'Bitter', serif; float: right; margin: 16px 35px 0 0; }
-.header .userbar a { color: #FFF; font-size: 1.4em; }
-.header .userbar .white-rose { position: relative; top: 9px; }
+.header .userbar,
+.header .profile { font-family: 'Bitter', serif; float: right; margin: 16px 35px 0 0; }
+.header .userbar a,
+.header .profile a { color: #FFF; font-size: 1.4em; }
+.header .userbar .white-rose,
+.header .profile .white-rose { position: relative; top: 9px; }
+
+.header .profile { display: none;}
 
 /* Footer */
 .footer { width: 222px; margin: 20px auto 20px; }
@@ -49,3 +54,9 @@ a { cursor: pointer; }
 .notation-tools .notes { border-bottom: 1px solid #CCC; padding: 0 0 20px 0; margin: 0 20px 20px; }
 
 .tools .notation-tools p { text-align: center; font-family: 'Bitter', serif; font-size: 1.4em; margin-top: 20px; }
+
+.modal h3 { font-family: 'Bitter',serif; font-size: 1.68em; }
+.help-block { color: #CB2402;}
+
+.control-group.error .control-label,
+.control-group.success .control-label { color: #000;}

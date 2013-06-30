@@ -3,6 +3,7 @@
 var express = require('express'), 
 	routes = require('./routes'),
 	exercise = require('./routes/exercise'),
+	user = require('./routes/user'),
  	http = require('http'),
   	path = require('path'),
 	app = express();
@@ -40,6 +41,9 @@ app.post('/exercise/save/:id', exercise.updateUserExercise);
 
 //Post exercise created by user from base exercise
 app.post('/exercise/create/:id', exercise.createUserExercise);
+
+//Post user registration to create new user
+app.post('/user/create/', user.createUser);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
