@@ -4,8 +4,6 @@ var userManager = (function(){
 
 		var signUpModal = $('#signupModal'),
 			signupForm = $('form#signup'),
-			userBar = $('.userbar'),
-			profileBar = $('.profile'),
 			signupURL = '/user/create/';
 
 
@@ -43,23 +41,75 @@ var userManager = (function(){
 				$.post(signupURL, signupForm.serialize(), function(response){
 					if(response === 'success'){
 						signUpModal.modal('toggle');
-						userBar.hide();
-						profileBar.show();
-					}else{
+						location.reload();
+					}else if(response === 'in use'){
 
+					}else{
+						
 					}
 				});	
 			}
 			
 		});
+	},
+
+	login = function(){
+
+		var loginModal = $('#loginModal'),
+			loginForm = $('form#login'),
+			loginURL = '/user/login/';
+
+
+		loginForm.submit(function(event){
+
+			event.preventDefault();
+
+			loginForm.validate({
+				rules:{
+					logemail:{
+						required: true,
+						email: true
+					},
+					logpasswd:{
+						required: true,
+						minlength: 5
+					}
+				},
+				errorClass: "help-block",
+				highlight:function(element, errorClass, validClass){
+					$(element).parents('.control-group').addClass('error');
+				},
+
+				unhighlight: function(element, errorClass, validClass){
+					$(element).parents('.control-group').removeClass('error');
+					$(element).parents('.control-group').addClass('success');
+				}
+			});
+
+			if(loginForm.valid()){
+				$.post(loginURL, loginForm.serialize(), function(response){
+					console.log(response);
+					if(response === 'success'){
+						loginModal.modal('toggle');
+						location.reload();
+					}else{
+						
+					}
+				});	
+			}
+			
+		});
+
 	};
 
 	return {
-		signup: signup
+		signup: signup,
+		login: login
 	};
 
 }());
 
 $(function(){
 	userManager.signup();
+	userManager.login();
 });

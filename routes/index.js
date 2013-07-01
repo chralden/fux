@@ -3,5 +3,5 @@
  */
 
 exports.index = function(req, res){
-  res.render('index', { title: 'To Parnassus' });
+  	res.render('index', { title: 'To Parnassus', user: req.session.userid });
 };

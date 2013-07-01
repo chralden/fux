@@ -16,8 +16,6 @@ a { cursor: pointer; }
 .header .userbar .white-rose,
 .header .profile .white-rose { position: relative; top: 9px; }
 
-.header .profile { display: none;}
-
 /* Footer */
 .footer { width: 222px; margin: 20px auto 20px; }
 .footer a { color: #000; font-family: 'Bitter', serif; font-size: 1.1em; }

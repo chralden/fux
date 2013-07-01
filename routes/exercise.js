@@ -1,5 +1,5 @@
 //Send exercise configuration settings to the exercise view
-function renderExercise(exercise, res, id, basefirmus){
+function renderExercise(req, exercise, res, id, basefirmus){
 	var exerciseFound = true,
 		staves = [],
 		instruments = ["harp", "organ"],
@@ -36,7 +36,7 @@ function renderExercise(exercise, res, id, basefirmus){
 		tools = {};
 	}
 	
-	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), tools: tools });
+	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), tools: tools, user: req.session.userid });
 }
 
 //Initialize a base exercise - get exercise config based on request
@@ -55,7 +55,7 @@ exports.initExercise = function(req, res){
 	Exercise.findOne({ mode: mode, voices: voices, species: species, firmusVoice: parseInt(firmusVoice, 10) }, function(err, exercise){
 		if(err){ next(err); }
 
-		renderExercise(exercise, res, exercise.id, true);
+		renderExercise(req, exercise, res, exercise.id, true);
 	});
 };
 
@@ -69,7 +69,7 @@ exports.initUserExercise = function(req, res){
 		
 		if(err){ next(err); }
 
-		renderExercise(exercise, res, id, false);
+		renderExercise(req, exercise, res, id, false);
 	});
 
 };
@@ -90,7 +90,7 @@ exports.listExercisesByTopic = function(req, res){
 			});
 		}
 		
-		res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, modes: modes });
+		res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, modes: modes, user: req.session.userid });
 	});
 	
 	
