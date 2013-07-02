@@ -63,14 +63,30 @@ exports.initExercise = function(req, res){
 exports.initUserExercise = function(req, res){
 	
 	var Exercise = require('../models/Exercise'),
+		User = require('../models/User')
+		userid = req.session.userid;
 		id = req.params.id;
 
-	Exercise.findById(id, function(err, exercise){
-		
-		if(err){ next(err); }
+	if(userid){
 
-		renderExercise(req, exercise, res, id, false);
-	});
+		User.find({ _id: userid, 'exercises': { $in: [id] } }, function(err, user){
+
+			if(err){ renderExercise(req, null, res, id, false); }
+
+			Exercise.findById(id, function(err, exercise){
+	
+				if(err){ renderExercise(req, null, res, id, false); }
+
+				renderExercise(req, exercise, res, id, false);
+			});
+
+		});
+
+	}else{
+
+		renderExercise(req, null, res, id, false);
+		
+	}
 
 };
 
@@ -115,8 +131,10 @@ exports.updateUserExercise = function(req, res){
 exports.createUserExercise = function(req, res){
 
 	var Exercise = require('../models/Exercise'),
+		User = require('../models/User'),
 		id = req.params.id,
-		userStaves = req.body.staves;
+		userStaves = req.body.staves,
+		userid = req.session.userid;
 
 	//Update the user exercise with user input
 	Exercise.findById(id, function(err, exercise){
@@ -133,8 +151,21 @@ exports.createUserExercise = function(req, res){
 		thisExercise.staves = userStaves;
 
 		Exercise.create(thisExercise, function(err, thisExercise){
+			
+			if(err) { res.end('error') }; 
+
 			response = { id: thisExercise._id };
-			res.end(JSON.stringify(response));
+			
+			if(userID){
+				User.update({ _id: userid }, { $push: { exercises: thisExercise._id }}, function(err){
+					if(err) { res.end('unable to save to user'); }
+
+					res.end(JSON.stringify(response));
+				});	
+			}else{
+				res.end(JSON.stringify(response));
+			}
+
 		});
 		
 	});	
