@@ -7,6 +7,8 @@ var schema = new mongoose.Schema({
 	voices: String,
 	species: String,
 	firmusVoice: Number,
+	topic: mongoose.Schema.Types.ObjectId,
+	name: String,
 	noteValues: [String],
 	instruments: [String],
 	clefs: [String],

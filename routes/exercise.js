@@ -92,22 +92,98 @@ exports.initUserExercise = function(req, res){
 
 //Get all exercises for a topic
 exports.listExercisesByTopic = function(req, res){
-	var Topic = require('../models/Topic');
+	var Topic = require('../models/Topic'),
+		Exercise = require('../models/Exercise'), 
+		User = require('../models/User');
 
-	Topic.find({}, function(err, alltopics){
-		var topics = [],
-		modes = ["dorian"];
+	function getBaseExercise(topic, index, mode){
+		var baseExercise = {};
 
-		if(err) { next(err); }
+		baseExercise.name = mode + ' Cantus Firmus - Voice ' + (index+1);
+		baseExercise.link = '/exercise/'+topic.voices+'-'+topic.species+'/'+mode+'-'+index+'/';
 
-		if(alltopics !== null){
-			alltopics.forEach(function(topic){
-				topics.push(topic);
+		return baseExercise;
+
+	}
+
+	//If user is logged in, get user exercises and display under correct topics
+	if(req.session.userid){
+		User.findById(req.session.userid, function(err, user){
+			
+			if(err){ next(err); }
+
+			Exercise.find({ _id: { $in: user.exercises }}, function(err, userexcercises){
+
+				Topic.find({}, function(err, alltopics){
+					var topics = [],
+					modes = ["dorian"],
+					exercises, i;
+
+					if(err) { next(err); }
+
+					if(alltopics !== null){
+						alltopics.forEach(function(topic){
+							modes.forEach(function(mode){
+								var thisExercise;
+
+								exercises = [];
+								
+								for(i = 0; i < topic.staves; i++){
+									thisExercise = {};
+
+									thisExercise.base =  getBaseExercise(topic, i, mode);
+									thisExercise.user = [];
+
+									userexcercises.forEach(function(userexercise, index){
+										if(userexercise.topic.equals(topic._id) && userexercise.mode === mode && userexercise.firmusVoice === i){
+											thisExercise.user.push({ name: userexercise._id, id: userexercise._id });
+											userexcercises.splice(index, 1);
+										}
+									});
+
+									exercises.push(thisExercise);
+								}
+								
+								console.log(exercises);
+							});
+							topics.push({ name: topic.name, exercises: exercises });
+						});
+					}
+					
+					res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, user: req.session.userid });
+				});
+
 			});
-		}
-		
-		res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, modes: modes, user: req.session.userid });
-	});
+
+		});
+
+
+	}else{
+
+		Topic.find({}, function(err, alltopics){
+			var topics = [],
+			modes = ["dorian"],
+			exercises, i;
+
+			if(err) { next(err); }
+
+			if(alltopics !== null){
+				alltopics.forEach(function(topic){
+					modes.forEach(function(mode){
+						exercises = [];
+						for(i = 0; i < topic.staves; i++){
+							exercises.push({ base: getBaseExercise(topic, i, mode) });
+						}
+					});
+					topics.push({ name: topic.name, exercises: exercises });
+				});
+			}
+			
+			res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, user: req.session.userid });
+		});
+
+	}
+
 	
 	
 };
@@ -156,7 +232,7 @@ exports.createUserExercise = function(req, res){
 
 			response = { id: thisExercise._id };
 			
-			if(userID){
+			if(userid){
 				User.update({ _id: userid }, { $push: { exercises: thisExercise._id }}, function(err){
 					if(err) { res.end('unable to save to user'); }
 

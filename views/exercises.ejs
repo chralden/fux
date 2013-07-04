@@ -8,27 +8,35 @@
 	<div class="clearfix">
 
 		<h1>Exercises:</h1>
-		
+
 		<ul>
 			<% if(topics.length){ %>
-			    <% topics.forEach(function(topic) { %>
-			    	<li>
-			    		<strong><%= topic.name %></strong>
-			    		<ul>
-			    			<% if(modes.length && topic.staves){ %>
-			    				<% modes.forEach(function(mode) { %>
-			    					<% for(var i = 0; i < topic.staves; i++){ %>
-			    						<li>
-			    							<a href="/exercise/<%= topic.voices %>-<%= topic.species %>/<%= mode %>-<%= i %>/">
-			    								<%=: mode | capitalize %> Voice <%=: i+1 %>
-			    							</a>
-			    						</li>
-			    					<% } %> 
-			    				<% }) %> 
-							<% } %>
-			    		</ul>
-			    	</li>
-				<% }) %> 
+				 <% topics.forEach(function(topic) { %>
+				 	<li>
+				 		<strong><%= topic.name %></strong>
+				 		<% if(topic.exercises.length){ %>
+					 		<ul>
+					 			<% topic.exercises.forEach(function(exercise) { %>
+					 				<% if(exercise.base){ %>
+					 					<li>
+					 						<a class="base" href="<%= exercise.base.link %>"><%=: exercise.base.name | capitalize %></a>
+					 						<% if(exercise.user && exercise.user.length){ %>
+					 							<ul class="user">
+					 									<strong>Your Saved Exercises:</strong>
+					 								<% exercise.user.forEach(function(userexercise) { %>
+					 									<li>
+					 										<a href="<%= exercise.base.link %><%= userexercise.id %>"><%= userexercise.name %></a>
+					 									</li>
+					 								<% }) %> 
+					 							</ul>
+					 						<% } %>
+					 					</li>
+					 				<% } %>
+					 			<% }) %> 
+					 		</ul>
+				 		<% } %>
+				 	</li>
+				 <% }) %> 
 			<% } %>
 		</ul>
 	</div>
