@@ -88,11 +88,26 @@ var userManager = (function(){
 
 			if(loginForm.valid()){
 				$.post(loginURL, loginForm.serialize(), function(response){
-					console.log(response);
+					var emailinput = $('#logemail'),
+						passinput = $('#logpasswd'),
+						message = $('.messages');
+
 					if(response === 'success'){
 						loginModal.modal('toggle');
 						location.reload();
 					}else{
+
+						if(response === 'email not recognized'){
+							emailinput.parents('.control-group').removeClass('success');
+							emailinput.parents('.control-group').addClass('error');
+							message.html('Email address not recognized as a registered user.');
+						}else if(response === 'password not recognized'){
+							passinput.parents('.control-group').removeClass('success');
+							passinput.parents('.control-group').addClass('error');
+							message.html('Incorrect password.');
+						}else{
+
+						}
 						
 					}
 				});	

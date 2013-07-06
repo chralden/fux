@@ -1,6 +1,7 @@
 //Send exercise configuration settings to the exercise view
-function renderExercise(req, exercise, res, id, basefirmus){
+function renderExercise(req, exercise, res, id, basefirmus, disabled){
 	var exerciseFound = true,
+		isDisabled = disabled || false,
 		staves = [],
 		instruments = ["harp", "organ"],
 		config,
@@ -36,7 +37,7 @@ function renderExercise(req, exercise, res, id, basefirmus){
 		tools = {};
 	}
 	
-	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), tools: tools, user: req.session.userid });
+	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), tools: tools, user: req.session.userid, disabled: isDisabled });
 }
 
 //Initialize a base exercise - get exercise config based on request
@@ -67,24 +68,45 @@ exports.initUserExercise = function(req, res){
 		userid = req.session.userid;
 		id = req.params.id;
 
+	function renderDisabledExercise(){
+
+		Exercise.findById(id, function(err, exercise){
+	
+			if(err){ renderExercise(req, null, res, id, false); }
+
+			//Disable all staves
+			exercise.staves.forEach(function(staff){
+				staff.disabled = true;
+			});
+
+			renderExercise(req, exercise, res, id, false, true);
+		});
+
+	}
+
 	if(userid){
 
 		User.find({ _id: userid, 'exercises': { $in: [id] } }, function(err, user){
 
-			if(err){ renderExercise(req, null, res, id, false); }
+			if(err){ 
 
-			Exercise.findById(id, function(err, exercise){
+				renderDisabledExercise();
+
+			}else{
+
+				Exercise.findById(id, function(err, exercise){
 	
-				if(err){ renderExercise(req, null, res, id, false); }
+					if(err){ renderExercise(req, null, res, id, false); }
 
-				renderExercise(req, exercise, res, id, false);
-			});
+					renderExercise(req, exercise, res, id, false);
+				});
+			}
 
 		});
 
 	}else{
 
-		renderExercise(req, null, res, id, false);
+		renderDisabledExercise();
 		
 	}
 
@@ -135,6 +157,9 @@ exports.listExercisesByTopic = function(req, res){
 									thisExercise.user = [];
 
 									userexcercises.forEach(function(userexercise, index){
+										console.log(userexercise.topic);
+										console.log(topic._id);
+
 										if(userexercise.topic.equals(topic._id) && userexercise.mode === mode && userexercise.firmusVoice === i){
 											thisExercise.user.push({ name: userexercise._id, id: userexercise._id });
 											userexcercises.splice(index, 1);
@@ -144,7 +169,6 @@ exports.listExercisesByTopic = function(req, res){
 									exercises.push(thisExercise);
 								}
 								
-								console.log(exercises);
 							});
 							topics.push({ name: topic.name, exercises: exercises });
 						});

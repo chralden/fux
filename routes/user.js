@@ -36,18 +36,24 @@ exports.login = function(req, res){
         	res.end('email not recognized'); 
        	}else{
        		
-       		user.comparePassword(userinfo.password, function(err, isMatch) {
-	            if(err){ 
-	            	res.end('error');
-	            }else{
-	            	if(isMatch){
-	            		req.session.userid = user._id;
-	            		res.end('success');
-	            	}else{
-	            		res.end('password not recognized');
-	            	}
-	            }
-	        });
+       		if(user){
+       			user.comparePassword(userinfo.password, function(err, isMatch) {
+		            if(err){ 
+		            	res.end('error');
+		            }else{
+		            	if(isMatch){
+		            		req.session.userid = user._id;
+		            		res.end('success');
+		            	}else{
+		            		res.end('password not recognized');
+		            	}
+		            }
+		        });
+
+       		}else{
+       			res.end('email not recognized');
+       		}
+       		
        	}
 
     });
