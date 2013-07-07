@@ -12,7 +12,7 @@ a { cursor: pointer; }
 .header .userbar,
 .header .profile { font-family: 'Bitter', serif; float: right; margin: 16px 35px 0 0; }
 .header .userbar a,
-.header .profile a { color: #FFF; font-size: 1.4em; }
+.header .profile a { color: #FFF; font-size: 1.2em; }
 .header .userbar .white-rose,
 .header .profile .white-rose { position: relative; top: 9px; }
 

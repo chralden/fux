@@ -1,0 +1,35 @@
+{
+	"mode": "lydian",
+	"voices": "twovoices",
+	"species": "firstspecies",
+	"firmusVoice": 0,
+	"noteValues": ["whole"],
+	"clefs": ["bass"],
+	"staves": [
+		{
+			"clef": "bass",
+			"name": "bass1",
+			"length": 12,
+			"disabled": true,
+			"score": [
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] }
+			]
+		},
+		{
+			"clef": "bass",
+			"name": "bass2",
+			"length": 12
+		}
+	]
+}

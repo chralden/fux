@@ -9,32 +9,51 @@
 
 		<h1>Exercises:</h1>
 
-		<ul>
+		<ul class="accordion" id="exercise-accordion">
 			<% if(topics.length){ %>
-				 <% topics.forEach(function(topic) { %>
-				 	<li>
-				 		<strong><%= topic.name %></strong>
-				 		<% if(topic.exercises.length){ %>
-					 		<ul>
-					 			<% topic.exercises.forEach(function(exercise) { %>
-					 				<% if(exercise.base){ %>
-					 					<li>
-					 						<a class="base" href="<%= exercise.base.link %>"><%=: exercise.base.name | capitalize %></a>
-					 						<% if(exercise.user && exercise.user.length){ %>
-					 							<ul class="user">
-					 									<strong>Your Saved Exercises:</strong>
-					 								<% exercise.user.forEach(function(userexercise) { %>
-					 									<li>
-					 										<a href="<%= exercise.base.link %><%= userexercise.id %>"><%= userexercise.name %></a>
-					 									</li>
-					 								<% }) %> 
-					 							</ul>
-					 						<% } %>
-					 					</li>
-					 				<% } %>
-					 			<% }) %> 
-					 		</ul>
+				 <% topics.forEach(function(topic, index) { %>
+				 	<li class="accordion-group">
+				 		<strong class="accordion-heading">
+				 			<a class="accordion-toggle" data-toggle="collapse" data-parent="#exercise-accordion" href="#collapse<%= index %>">
+				 				<%= topic.name %>
+				 			</a>
+				 		</strong>
+				 		<% if(topic.modes){ %>
+
+				 		<ul id="collapse<%= index %>" class="accordion-body collapse in">
+				 			<% topic.modes.forEach(function(mode) { %>
+
+				 			<li class="accordion-inner">
+				 				<strong><%=: mode.mode | capitalize %></strong>
+				 				<% if(mode.exercises){ %>
+							 		<ul>
+							 			<% mode.exercises.forEach(function(exercise) { %>
+							 				<% if(exercise.base){ %>
+							 					<li>
+							 						<a class="base" href="<%= exercise.base.link %>"><%=: exercise.base.name | capitalize %></a>
+							 						<% if(exercise.user && exercise.user.length){ %>
+							 							<ul class="user">
+							 									<strong>Your Saved Exercises:</strong>
+							 								<% exercise.user.forEach(function(userexercise) { %>
+							 									<li>
+							 										<a href="<%= exercise.base.link %><%= userexercise.id %>"><%= userexercise.name %></a>
+							 									</li>
+							 								<% }) %> 
+							 							</ul>
+							 						<% } %>
+							 					</li>
+							 				<% } %>
+							 			<% }) %> 
+							 		</ul>
+						 		<% } %>
+				 			</li>
+
+				 			<% }) %> 
+				 		</ul>
+
 				 		<% } %>
+
+				 		
 				 	</li>
 				 <% }) %> 
 			<% } %>
@@ -44,5 +63,9 @@
 </body> 
 
 <%- include elements/scripts.ejs %>
-
+<script type="text/javascript">
+	$(function(){
+		$('.accordion-body').collapse("hide");
+	});
+</script>
 </html>
