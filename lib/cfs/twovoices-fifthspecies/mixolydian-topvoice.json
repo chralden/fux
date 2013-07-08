@@ -1,0 +1,37 @@
+{
+	"mode": "mixolydian",
+	"voices": "twovoices",
+	"species": "fifthspecies",
+	"firmusVoice": 0,
+	"noteValues": ["whole", "half", "quarter", "eighth"],
+	"clefs": ["treble","bass"],
+	"staves": [
+		{
+			"clef": "treble",
+			"name": "treble1",
+			"length": 14,
+			"disabled": true,
+			"score": [
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "B4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D5" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "B4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G4" } }] }
+			]
+		},
+		{
+			"clef": "bass",
+			"name": "bass2",
+			"length": 14
+		}
+	]
+}

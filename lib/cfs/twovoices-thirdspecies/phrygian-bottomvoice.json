@@ -1,0 +1,33 @@
+{
+	"mode": "phrygian",
+	"voices": "twovoices",
+	"species": "thirdspecies",
+	"firmusVoice": 1,
+	"noteValues": ["whole", "half", "quarter"],
+	"clefs": ["treble"],
+	"staves": [
+		{
+			"clef": "treble",
+			"name": "treble1",
+			"length": 10
+		},
+		{
+			"clef": "treble",
+			"name": "treble2",
+			"length": 10,
+			"disabled": true,
+			"score": [
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] }
+			]
+		}
+	]
+}

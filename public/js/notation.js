@@ -51,21 +51,48 @@ var FUX = (function (fux) {
 		//Mappings of Y positions for notes on staff based on clef
 		pitchMappings = {
 			treble: {
-				'C4': 120,
-				'D4': 110,
-				'E4': 100,
-				'F4': 90,
-				'G4': 80,
-				'A4': 70,
-				'B4': 60,
-				'C5': 50,
-				'D5': 40,
-				'E5': 30,
-				'F5': 20,
-				'G5': 10,
-				'A5': 0
+				'A3': 160,
+				'B3': 150,
+				'C4': 140,
+				'D4': 130,
+				'E4': 120,
+				'F4': 110,
+				'G4': 100,
+				'A4': 90,
+				'B4': 80,
+				'C5': 70,
+				'D5': 60,
+				'E5': 50,
+				'F5': 40,
+				'G5': 30,
+				'A5': 20,
+				'B5': 10,
+				'C6': 0
 			},
 			alto: {
+				'B2': 160,
+				'C3': 150,
+				'D3': 140,
+				'E3': 130,
+				'F3': 120,
+				'G3': 110,
+				'A3': 100,
+				'B3': 90,
+				'C4': 80,
+				'D4': 70,
+				'E4': 60,
+				'F4': 50,
+				'G4': 40,
+				'A4': 30,
+				'B4': 20,
+				'C5': 10,
+				'D5': 0
+			},
+			tenor: {
+				'G2': 160,
+				'A2': 150,
+				'B2': 140,
+				'C3': 130,
 				'D3': 120,
 				'E3': 110,
 				'F3': 100,
@@ -80,40 +107,29 @@ var FUX = (function (fux) {
 				'A4': 10,
 				'B4': 0
 			},
-			tenor: {
-				'B2': 120,
-				'C3': 110,
-				'D3': 100,
-				'E3': 90,
-				'F3': 80,
-				'G3': 70,
-				'A3': 60,
-				'B3': 50,
-				'C4': 40,
-				'D4': 30,
-				'E4': 20,
-				'F4': 10,
-				'G4': 0
-			},
 			bass: {
-				'E2': 120,
-				'F2': 110,
-				'G2': 100,
-				'A2': 90,
-				'B2': 80,
-				'C3': 70,
-				'D3': 60,
-				'E3': 50,
-				'F3': 40,
-				'G3': 30,
-				'A3': 20,
-				'B3': 10,
-				'C4': 0
+				'C2': 160,
+				'D2': 150,
+				'E2': 140,
+				'F2': 130,
+				'G2': 120,
+				'A2': 110,
+				'B2': 100,
+				'C3': 90,
+				'D3': 80,
+				'E3': 70,
+				'F3': 60,
+				'G3': 50,
+				'A3': 40,
+				'B3': 30,
+				'C4': 20,
+				'D4': 10,
+				'E4': 0
 			}
 		},
 
 		//Pixel position for middle of staff, for stem positioning
-		staffMiddle = 60,
+		staffMiddle = 80,
 
 		//Mapping of different clef type assets, as well as asset attributes - positioning offsets and width
 		clefs = {
@@ -143,22 +159,22 @@ var FUX = (function (fux) {
 		rests = {
 			whole: {
 				img: assets.wholeRest,
-				offset: { x: 0, y: 64 },
+				offset: { x: 0, y: 84 },
 				width: 33
 			},
 			half: {
 				img: assets.wholeRest,
-				offset: { x: 0, y: 74 },
+				offset: { x: 0, y: 94 },
 				width: 33
 			},
 			quarter: {
 				img: assets.quarterRest,
-				offset: { x: 0, y: 55 },
+				offset: { x: 0, y: 75 },
 				width: 20
 			},
 			eighth: {
 				img: assets.eighthRest,
-				offset: { x: 0, y: 67 },
+				offset: { x: 0, y: 87 },
 				width: 28
 			}
 
@@ -287,14 +303,28 @@ var FUX = (function (fux) {
 				
 				//If not a whole note, get stem direction based on position on staff
 				stemDirection = (self.duration !== 'whole') ? getStemDirection(self.pitch, clef) : '',
+				staffline = self.hasStaffline(clef),
 				noteImage, tieImage, accidentalImage;
 
 				//set note image
 				noteImage = self.noteImages[self.duration+stemDirection];
 
 				//If note requires a staff line, render it
-				if(self.hasStaffline(clef)){
-					context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
+				if(staffline){
+					if(staffline === 'one'){
+						context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
+					}else if(staffline === 'belowone'){
+						context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y-10);
+					}else if(staffline === 'aboveone'){
+						context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y+10);
+					}else if(staffline === 'belowtwo'){
+						context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
+						context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y-20);
+					}else if(staffline === 'abovetwo'){
+						context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y);
+						context.drawImage(assetmanager.getImage(self.staffLineImage.src), position-self.staffLineImage.x, pitchMappings[clef][self.pitch]+self.staffLineImage.y+20);
+					}
+					
 				} 
 
 				//render note image
@@ -317,8 +347,16 @@ var FUX = (function (fux) {
 			hasStaffline: function(clef){
 				var self = this;
 
-				if(pitchMappings[clef][self.pitch] === 120 || pitchMappings[clef][self.pitch] === 0){
-					return true;
+				if(pitchMappings[clef][self.pitch] === 140 || pitchMappings[clef][self.pitch] === 20){
+					return 'one';
+				}else if(pitchMappings[clef][self.pitch] === 150){
+					return 'belowone';
+				}else if(pitchMappings[clef][self.pitch] === 10){
+					return 'aboveone';
+				}else if(pitchMappings[clef][self.pitch] === 160){
+					return 'belowtwo';
+				}else if(pitchMappings[clef][self.pitch] === 0){
+					return 'abovetwo';
 				}else{
 					return false;
 				}
@@ -346,9 +384,9 @@ var FUX = (function (fux) {
 
 			//Default X position, Y position, width, and height for a musical staff canvas
 			x: 0,
-			y: 40,
+			y: 60,
 			width: 500,
-			height: 170,
+			height: 210,
 
 			//Clef type of the staff, defaults as treble
 			clef: 'treble',
@@ -481,7 +519,6 @@ var FUX = (function (fux) {
 						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
 							if(parseFloat(measure.beat) === parseFloat(thisBeat)){ 
 								measure.note.accidental = currentNoteValue; 
-								console.log(measure.note);
 							} 
 						});
 
@@ -764,7 +801,7 @@ var FUX = (function (fux) {
 
 				//Draw the clef symbol
 				self.context.drawImage(clefImage, self.x + clefOffset.x, self.y + clefOffset.y);
-	
+				
 			},
 
 			//Add a note to the current measure

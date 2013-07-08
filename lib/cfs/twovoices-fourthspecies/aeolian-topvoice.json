@@ -1,9 +1,9 @@
 {
 	"mode": "aeolian",
 	"voices": "twovoices",
-	"species": "firstspecies",
+	"species": "fourthspecies",
 	"firmusVoice": 0,
-	"noteValues": ["whole"],
+	"noteValues": ["whole", "half"],
 	"clefs": ["treble", "bass"],
 	"staves": [
 		{

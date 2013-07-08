@@ -1,14 +1,19 @@
 {
 	"mode": "aeolian",
 	"voices": "twovoices",
-	"species": "firstspecies",
-	"firmusVoice": 0,
-	"noteValues": ["whole"],
-	"clefs": ["treble", "bass"],
+	"species": "secondspecies",
+	"firmusVoice": 1,
+	"noteValues": ["whole", "half"],
+	"clefs": ["treble"],
 	"staves": [
 		{
 			"clef": "treble",
 			"name": "treble1",
+			"length": 12
+		},
+		{
+			"clef": "treble",
+			"name": "treble2",
 			"length": 12,
 			"disabled": true,
 			"score": [
@@ -25,11 +30,6 @@
 				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "B3" } }] },
 				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] }
 			]
-		},
-		{
-			"clef": "bass",
-			"name": "bass2",
-			"length": 12
 		}
 	]
 }
