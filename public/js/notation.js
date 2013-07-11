@@ -467,6 +467,7 @@ var FUX = (function (fux) {
 				var thisPitch = self.getPitchFromPosition(self.clef),
 				currentPosition = self.getMeasureAndBeatFromPosition(),
 				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[self.currentMeasure].currentBeat,
+				beatExists = false,
 				thisBeatValue, currentNote, nextNote, writeExercise;
 
 				//Set the current user score to overwrite
@@ -487,7 +488,10 @@ var FUX = (function (fux) {
 					thisPitch = false;
 
 					writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
-						if(parseFloat(measure.beat) === parseFloat(thisBeat)){	delete measure.note.pitch;} 
+						if(parseFloat(measure.beat) === parseFloat(thisBeat)){	
+							console.log('erased');
+							delete measure.note.pitch;
+						} 
 					});
 				
 				//If a 'tie', add tie to current note 
@@ -517,12 +521,12 @@ var FUX = (function (fux) {
 						if(currentNote){ currentNote.accidental = currentNoteValue; } 
 
 						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
+
 							if(parseFloat(measure.beat) === parseFloat(thisBeat)){ 
 								measure.note.accidental = currentNoteValue; 
 							} 
 						});
 
-						//console.log(writeExercise);
 						
 						if(currentNoteValue !== 'natural'){
 							soundmanager.play(currentNote.pitch+currentNote.accidental);
@@ -546,13 +550,19 @@ var FUX = (function (fux) {
 
 					//Overwrite the current user exercise
 					if(writeExercise.score[self.currentMeasure]){
+						//Go through existing beats in score and check if current beat is already scored
 						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){
-						
+							
+							//If beat is already scored, update pitch and duration
 							if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
 								measure.note.pitch = thisPitch;
 								measure.note.duration = currentNoteValue;
-							} 
+								beatExists = true;
+							}
 						});
+
+						//If beat does not already exist, add it
+						if(!beatExists){ writeExercise.score[self.currentMeasure].measure.push({ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch } }); }
 						
 					}else{
 						writeExercise.score[self.currentMeasure] = { "measure": [{ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch } }] };
@@ -577,6 +587,7 @@ var FUX = (function (fux) {
 
 				//If on a user execise update the exercise score
 				}else{
+					
 					$.post('/exercise/save/'+id, { staves: userScore });
 				}
 				
@@ -707,31 +718,43 @@ var FUX = (function (fux) {
 
 					//If there is a cantus firmus, loop through it and enter notes and add to score, send score to sound manager
 					if(self.cantusfirmus.length > 0){
-
-						for(i = 0; i < self.cantusfirmus.length; i++){
+						for(i = 0; i < self.measureLength; i++){
 							self.currentMeasure = i;
-							firmusMeasure = self.cantusfirmus[i].measure;
+							firmusMeasure = (self.cantusfirmus[i]) ? self.cantusfirmus[i].measure : false;
 
-							for(j = 0; j < firmusMeasure.length; j++){
+							//If firmus is present for current measure fill out with beats and rests
+							if(firmusMeasure){
 								
-								if(firmusMeasure[j].note.pitch){
-									firmusNoteOptions = {
-										beat: firmusMeasure[j].beat,
-										pitch: firmusMeasure[j].note.pitch,
-										duration: firmusMeasure[j].note.duration
-									};
+								//Loop through beats in current measure
+								for(j = 0; j < firmusMeasure.length; j++){
+								
+									//If pitch is present at current beat, object is a note
+									if(firmusMeasure[j].note.pitch){
+										firmusNoteOptions = {
+											beat: firmusMeasure[j].beat,
+											pitch: firmusMeasure[j].note.pitch,
+											duration: firmusMeasure[j].note.duration
+										};
 
-									if(firmusMeasure[j].note.accidental) firmusNoteOptions.accidental = firmusMeasure[j].note.accidental;
-									if(firmusMeasure[j].note.tied) firmusNoteOptions.tied = firmusMeasure[j].note.tied;
+										if(firmusMeasure[j].note.accidental) firmusNoteOptions.accidental = firmusMeasure[j].note.accidental;
+										if(firmusMeasure[j].note.tied) firmusNoteOptions.tied = firmusMeasure[j].note.tied;
 
-									self.addNote(firmusNoteOptions);
-								}else{
-									self.addRest(self.measures[self.currentMeasure], firmusMeasure[j].beat, self.measures[self.currentMeasure].beats[firmusMeasure[j].beat].value);
+										self.addNote(firmusNoteOptions);
+									
+									//If pitch is not present beat is a note
+									}else{
+										self.addRest(self.measures[self.currentMeasure], firmusMeasure[j].beat, rest.values[firmusMeasure[j].note.duration]);
+									}
+									
 								}
-								
-							}
 
-							score[i] = self.measures[i].beats;
+								score[i] = self.measures[i].beats;
+							
+							//If no firmus for current measure initialize an empty score 
+							}else{
+								score[i] = {};
+							}
+						
 						}
 	
 					//If no cantus firmus initialize an empty score
