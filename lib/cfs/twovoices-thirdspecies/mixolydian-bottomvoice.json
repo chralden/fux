@@ -3,7 +3,7 @@
 	"voices": "twovoices",
 	"species": "thirdspecies",
 	"firmusVoice": 1,
-	"noteValues": ["whole", "half", "quarter"],
+	"noteValues": ["whole", "quarter"],
 	"clefs": ["treble", "bass"],
 	"staves": [
 		{
