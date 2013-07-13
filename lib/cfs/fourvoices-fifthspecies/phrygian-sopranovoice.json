@@ -1,0 +1,43 @@
+{
+	"mode": "phrygian",
+	"voices": "fourvoices",
+	"species": "fifthspecies",
+	"firmusVoice": 0,
+	"noteValues": ["whole", "half", "quarter", "eighth"],
+	"clefs": ["treble", "alto", "tenor", "bass"],
+	"staves": [
+		{
+			"clef": "treble",
+			"name": "treble1",
+			"length": 10,
+			"disabled": true,
+			"score": [
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] }
+			]
+		},
+		{
+			"clef": "alto",
+			"name": "alto1",
+			"length": 10
+		},
+		{
+			"clef": "tenor",
+			"name": "tenor1",
+			"length": 10
+		},
+		{
+			"clef": "bass",
+			"name": "bass1",
+			"length": 10
+		}
+	]
+}

@@ -1,0 +1,45 @@
+{
+	"mode": "aeolian",
+	"voices": "fourvoices",
+	"species": "fifthspecies",
+	"firmusVoice": 2,
+	"noteValues": ["whole", "half", "quarter", "eighth"],
+	"clefs": ["treble", "alto", "tenor", "bass"],
+	"staves": [
+		{
+			"clef": "treble",
+			"name": "treble1",
+			"length": 12
+		},
+		{
+			"clef": "alto",
+			"name": "alto1",
+			"length": 12
+		},
+		{
+			"clef": "tenor",
+			"name": "tenor1",
+			"length": 12,
+			"disabled": true,
+			"score": [
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "B3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "B3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] }
+			]
+		},
+		{
+			"clef": "bass",
+			"name": "bass2",
+			"length": 12
+		}
+	]
+}

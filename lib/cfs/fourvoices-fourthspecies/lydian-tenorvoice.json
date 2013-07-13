@@ -1,0 +1,45 @@
+{
+	"mode": "lydian",
+	"voices": "fourvoices",
+	"species": "fourthspecies",
+	"firmusVoice": 2,
+	"noteValues": ["whole", "half"],
+	"clefs": ["treble", "alto", "tenor", "bass"],
+	"staves": [
+		{
+			"clef": "treble",
+			"name": "treble1",
+			"length": 12
+		},
+		{
+			"clef": "alto",
+			"name": "alto1",
+			"length": 12
+		},
+		{
+			"clef": "tenor",
+			"name": "tenor1",
+			"length": 12,
+			"disabled": true,
+			"score": [
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "D3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "E3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "C4" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "A3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "G3" } }] },
+				{ "measure": [{ "beat": 0, "note": { "duration": "whole", "pitch": "F3" } }] }
+			]
+		},
+		{
+			"clef": "bass",
+			"name": "bass1",
+			"length": 12
+		}
+	]
+}
