@@ -120,13 +120,45 @@ exports.listExercisesByTopic = function(req, res){
 		allmodes = ["ionian","dorian","phrygian","lydian","mixolydian","aeolian"];
 
 	function getBaseExercise(topic, index, mode){
-		var baseExercise = {};
+		var baseExercise = {},
+			voiceNames;
 
-		baseExercise.name = mode + ' Cantus Firmus - Voice ' + (index+1);
+		if(topic.voices === 'twovoices'){
+			voiceNames = ['Top', 'Bottom'];
+			baseExercise.name = ' Cantus Firmus in '+voiceNames[index]+' Voice ';
+		}else if(topic.voices === 'threevoices'){
+			voiceNames = ['Top', 'Middle', 'Bottom'];
+			baseExercise.name = ' Cantus Firmus in '+voiceNames[index]+' Voice ';
+		}else if(topic.voices === 'fourvoices'){
+			voiceNames = ['Soprano', 'Alto', 'Tenor', 'Bass'];
+			baseExercise.name = ' Cantus Firmus in '+voiceNames[index]+' Voice ';
+		}
+		
 		baseExercise.link = '/exercise/'+topic.voices+'-'+topic.species+'/'+mode+'-'+index+'/';
 
 		return baseExercise;
 
+	}
+
+	function renderExerciseList(topics){
+		var voiceOrder = ['Two', 'Three', 'Four'],
+			speciesOrder = ['First', 'Second', 'Third', 'Fourth', 'Fifth'], 
+			orderedTopics = { 'Two Voices': [], 'Three Voices': [], 'Four Voices': [] },
+			i, j;
+
+		for(i = 0; i < voiceOrder.length; i++){
+			for(j = 0; j < speciesOrder.length; j++){
+				topics.forEach(function(topic, index){
+					var thisTopic = voiceOrder[i]+' Voices, '+speciesOrder[j]+' Species';
+					if(topic.name === thisTopic){
+						orderedTopics[voiceOrder[i]+' Voices'].push(topic);
+						topics.splice(index, 1);
+					}
+				});
+			}
+		}
+
+		res.render('exercises', { title: 'To Parnassus: Exercises', topics: orderedTopics, user: req.session.userid });
 	}
 
 	//If user is logged in, get user exercises and display under correct topics
@@ -182,7 +214,8 @@ exports.listExercisesByTopic = function(req, res){
 						});
 					}
 					
-					res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, user: req.session.userid });
+					renderExerciseList(topics);
+					
 				});
 
 			});
@@ -205,7 +238,6 @@ exports.listExercisesByTopic = function(req, res){
 					allmodes.forEach(function(mode){
 
 						var thisMode = { mode: mode, exercises: [] };
-						console.log(thisMode);
 
 						for(i = 0; i < topic.staves; i++){
 							thisMode.exercises.push({ base: getBaseExercise(topic, i, mode) });
@@ -217,7 +249,8 @@ exports.listExercisesByTopic = function(req, res){
 					topics.push({ name: topic.name, modes: modes });
 				});
 			}
-			res.render('exercises', { title: 'To Parnassus: Exercises', topics: topics, user: req.session.userid });
+
+			renderExerciseList(topics);
 		});
 
 	}

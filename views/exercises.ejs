@@ -5,60 +5,73 @@
 </head>
 <body>
 	<%- include elements/header.ejs %>
-	<div class="clearfix">
 
-		<h1>Exercises:</h1>
+	<div class="container">
+		<div class="row">
+			<h1>Exercises:</h1>
+			<% if(topics){ %>
+				 
+				 <% ["Two Voices", "Three Voices", "Four Voices"].forEach(function(voice, voiceindex) { %>
 
-		<ul class="accordion" id="exercise-accordion">
-			<% if(topics.length){ %>
-				 <% topics.forEach(function(topic, index) { %>
-				 	<li class="accordion-group">
-				 		<strong class="accordion-heading">
-				 			<a class="accordion-toggle" data-toggle="collapse" data-parent="#exercise-accordion" href="#collapse<%= index %>">
-				 				<%= topic.name %>
-				 			</a>
-				 		</strong>
-				 		<% if(topic.modes){ %>
+				 <div class="span4">
+					<h2><%= voice %></h2>
+					 
+					 <% if(topics[voice]){ %>
+					 	<ul class="accordion" id="exercise-accordion<%= voiceindex %>">
+						 	
+						 	<% topics[voice].forEach(function(topic, index) { %>
+						 	<li class="accordion-group">
+						 		<strong class="accordion-heading">
+						 			<a class="accordion-toggle" data-toggle="collapse" data-parent="#exercise-accordion<%= voiceindex %>" href="#collapse<%= voiceindex %><%= index %>">
+						 				<%= topic.name %>
+						 			</a>
+						 		</strong>
+						 		<% if(topic.modes){ %>
 
-				 		<ul id="collapse<%= index %>" class="accordion-body collapse in">
-				 			<% topic.modes.forEach(function(mode) { %>
+						 		<ul id="collapse<%= voiceindex %><%= index %>" class="accordion-body collapse in">
+						 			<% topic.modes.forEach(function(mode) { %>
 
-				 			<li class="accordion-inner">
-				 				<strong><%=: mode.mode | capitalize %></strong>
-				 				<% if(mode.exercises){ %>
-							 		<ul>
-							 			<% mode.exercises.forEach(function(exercise) { %>
-							 				<% if(exercise.base){ %>
-							 					<li>
-							 						<a class="base" href="<%= exercise.base.link %>"><%=: exercise.base.name | capitalize %></a>
-							 						<% if(exercise.user && exercise.user.length){ %>
-							 							<ul class="user">
-							 									<strong>Your Saved Exercises:</strong>
-							 								<% exercise.user.forEach(function(userexercise) { %>
-							 									<li>
-							 										<a href="<%= exercise.base.link %><%= userexercise.id %>"><%= userexercise.name %></a>
-							 									</li>
-							 								<% }) %> 
-							 							</ul>
-							 						<% } %>
-							 					</li>
-							 				<% } %>
-							 			<% }) %> 
-							 		</ul>
+						 			<li class="accordion-inner">
+						 				<strong><%=: mode.mode | capitalize %></strong>
+						 				<% if(mode.exercises){ %>
+									 		<ul>
+									 			<% mode.exercises.forEach(function(exercise) { %>
+									 				<% if(exercise.base){ %>
+									 					<li>
+									 						<a class="base" href="<%= exercise.base.link %>"><%=: exercise.base.name | capitalize %></a>
+									 						<% if(exercise.user && exercise.user.length){ %>
+									 							<ul class="user">
+									 									<strong>Your Saved Exercises:</strong>
+									 								<% exercise.user.forEach(function(userexercise) { %>
+									 									<li>
+									 										<a href="<%= exercise.base.link %><%= userexercise.id %>"><%= userexercise.name %></a>
+									 									</li>
+									 								<% }) %> 
+									 							</ul>
+									 						<% } %>
+									 					</li>
+									 				<% } %>
+									 			<% }) %> 
+									 		</ul>
+								 		<% } %>
+						 			</li>
+
+						 			<% }) %> 
+						 		</ul>
+
 						 		<% } %>
-				 			</li>
 
-				 			<% }) %> 
-				 		</ul>
-
-				 		<% } %>
-
-				 		
-				 	</li>
+						 	</li>
+						 	<% }); %>
+					 	</ul>
+					 <% } %>
+					
+				 </div>
 				 <% }) %> 
 			<% } %>
-		</ul>
+		</div>
 	</div>
+
 	<%- include elements/footer.ejs %>
 </body> 
 
