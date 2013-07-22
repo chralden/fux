@@ -4,6 +4,7 @@ function renderExercise(req, exercise, res, id, basefirmus, disabled){
 		isDisabled = disabled || false,
 		staves = [],
 		instruments = ["harp", "organ"],
+		name = false,
 		config,
 		tools;
 
@@ -18,6 +19,8 @@ function renderExercise(req, exercise, res, id, basefirmus, disabled){
 			id: id,
 			basefirmus: basefirmus
 		};
+
+		name = exercise.name || false;
 
 		exercise.staves.forEach(function(stave){
 			staves.push({ clef: stave.clef, name: stave.name });
@@ -37,7 +40,7 @@ function renderExercise(req, exercise, res, id, basefirmus, disabled){
 		tools = {};
 	}
 	
-	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), tools: tools, user: req.session.userid, disabled: isDisabled });
+	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), name: name, tools: tools, user: req.session.userid, disabled: isDisabled });
 }
 
 //Initialize a base exercise - get exercise config based on request
@@ -274,14 +277,29 @@ exports.updateUserExercise = function(req, res){
 	
 };
 
+exports.renameUserExercise = function(req, res){
+	var Exercise = require('../models/Exercise'),
+		id = req.params.id,
+		exerciseName = req.body.title;
+
+		//Update the user exercise's name
+		Exercise.update({ _id: id }, { $set: { name: exerciseName }}, function(err){
+			if(err) { res.end('error'); }
+			res.end('success');
+		});
+
+};
+
 //Save a users score for an exercise
 exports.createUserExercise = function(req, res){
 
 	var Exercise = require('../models/Exercise'),
 		User = require('../models/User'),
+		moment = require('moment'),
 		id = req.params.id,
 		userStaves = req.body.staves,
-		userid = req.session.userid;
+		userid = req.session.userid,
+		now = moment().format("dddd, MMMM Do YYYY");
 
 	//Update the user exercise with user input
 	Exercise.findById(id, function(err, exercise){
@@ -296,6 +314,7 @@ exports.createUserExercise = function(req, res){
 		});
 
 		thisExercise.staves = userStaves;
+		thisExercise.name = 'My '+thisExercise.mode.charAt(0).toUpperCase()+thisExercise.mode.slice(1)+' - '+now;
 
 		Exercise.create(thisExercise, function(err, thisExercise){
 			

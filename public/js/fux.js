@@ -48,7 +48,7 @@ var FUX = {
 
 			self.assetmanager.init(assetOptions, function(){
 				self.notation.init({ currentNoteValue: notes[0], staves: staves, id: id, basefirmus: basefirmus });
-				self.tools.init();
+				self.tools.init({ id: id });
 			});	
 		}
 		

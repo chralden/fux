@@ -11,9 +11,14 @@
 			<div class="center-column">
 
 				<div class="exercise">
+					<% if(name){ %>
+						<h2 id="exercise-title"><input type="text" name="exname" id="exname" value="<%= name %>" /></h2>
+					<% } %>
+
 					<% if(disabled){ %>
 						<p>You are viewing a locked exercise, which means you do not have access to edit it.</p>
 					<% } %>
+
 					<a class="tool-link">Tools -></a>
 					<div id="fux-notation"></div>
 				</div>

@@ -44,6 +44,9 @@ app.post('/exercise/save/:id', exercise.updateUserExercise);
 //Post exercise created by user from base exercise
 app.post('/exercise/create/:id', exercise.createUserExercise);
 
+//Post new title for user exercise
+app.post('/exercise/name/:id', exercise.renameUserExercise);
+
 //Post user registration to create new user
 app.post('/user/create/', user.createUser);
 

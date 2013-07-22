@@ -6,6 +6,7 @@ var FUX = (function (fux) {
 	
 	var notation = fux.notation,
 	soundmanager = fux.soundmanager,
+	id = false,
 	tools = function(){
 
 		var setup = function(){
@@ -18,6 +19,24 @@ var FUX = (function (fux) {
 					width: 'toggle'
 					}, 800 );
 				contentEl.toggleClass('twoCol', 800);
+			});
+		},
+
+		titleEditor = function(){
+			var titleInput = $('#exname'),
+			updateNameURL = '/exercise/name/'+id;
+
+			titleInput.on('change', function(){
+				console.log(updateNameURL);
+				$.post(updateNameURL, { title: titleInput.val() }, function(response){
+					console.log(response);
+				});
+			});
+
+			titleInput.on('keydown', function(event){
+				if(event.keyCode === 13){
+					$(this).blur();
+				}
 			});
 		},
 
@@ -122,10 +141,15 @@ var FUX = (function (fux) {
 		//return the notation object with public methods	
 		return {
 
-			init: function(){
+			init: function(initoptions){
+				var options = initoptions || false;
+
+				id = initoptions.id;
+
 				setup();
 				notationTools.setup();
 				playbackTools.setup();
+				if(id) { titleEditor(); }
 			}
 		};
 		
