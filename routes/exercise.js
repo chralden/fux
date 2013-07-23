@@ -4,8 +4,12 @@ function renderExercise(req, exercise, res, id, basefirmus, disabled){
 		isDisabled = disabled || false,
 		staves = [],
 		instruments = ["harp", "organ"],
+		vanityVoices = { "twovoices": "Two Voices", "threevoices": "Three Voices", "fourvoices": "Four Voices" },
+		vanitySpecies = { "firstspecies": "First Species", "secondspecies": "Second Species", "thirdspecies": "Third Species", "fourthspecies": "Fourth Species", "fifthspecies": "Fifth Species" },
 		name = false,
+		topic = "",
 		config,
+		mode,
 		tools;
 
 	//If an exercise is found pass the configuration along to views
@@ -32,6 +36,10 @@ function renderExercise(req, exercise, res, id, basefirmus, disabled){
 			instruments: instruments,
 			staves: staves
 		};
+
+		mode = exercise.mode;
+
+		topic = vanityVoices[exercise.voices] + ", " + vanitySpecies[exercise.species] + " - " + mode.charAt(0).toUpperCase() + mode.slice(1) + " Mode";
 	
 	//If not found alert views
 	}else{
@@ -39,8 +47,10 @@ function renderExercise(req, exercise, res, id, basefirmus, disabled){
 		config = {};
 		tools = {};
 	}
+
+	console.log(exercise);
 	
-	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), name: name, tools: tools, user: req.session.userid, disabled: isDisabled });
+	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), name: name, topic: topic, tools: tools, user: req.session.userid, disabled: isDisabled });
 }
 
 //Initialize a base exercise - get exercise config based on request
@@ -314,7 +324,7 @@ exports.createUserExercise = function(req, res){
 		});
 
 		thisExercise.staves = userStaves;
-		thisExercise.name = 'My '+thisExercise.mode.charAt(0).toUpperCase()+thisExercise.mode.slice(1)+' - '+now;
+		thisExercise.name = 'My Exercise - '+now;
 
 		Exercise.create(thisExercise, function(err, thisExercise){
 			
