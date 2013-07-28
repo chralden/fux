@@ -34,15 +34,16 @@ a { cursor: pointer; }
 
 /*Exercise*/
 #exercise-title { margin: 0; }
-#exercise-title input { background: transparent; border: none; font-family: 'Bitter',serif; font-size: 1.1em; font-weight: bold; color: #000; width: 100%; height: auto; box-shadow: none; }
+#exercise-title input { background: transparent; border: none; font-family: 'Bitter',serif; font-size: 1.1em; font-weight: bold; color: #000; width: auto; height: auto; box-shadow: none; cursor: pointer; }
 
 .center-column { overflow-x: scroll; width: 100%; height: 100%; position: absolute; }
 .center-column p  { margin: 20px 0; font-family: 'Bitter', serif; font-size: 1.4em; }
-.tool-link { position: fixed; right: 10px; cursor: pointer; }
+.tool-link {  position: fixed; right: 0; top: 110px; cursor: pointer; z-index: 9999; background: #000; padding: 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; color: #FFF;}
+.tool-link:hover { text-decoration: none; color: #AAA; }
 
 .center-column.twoCol { width: 70%; }
 
-.center-column.twoCol .tool-link { right: 31%; }
+.center-column.twoCol .tool-link { right: 30%; }
 
 .exercise { padding: 20px; }
 .exercise-body .footer { position: fixed; bottom: 10px; left: 41%; }
@@ -51,16 +52,32 @@ a { cursor: pointer; }
 .tools a { margin: 5px; display: inline-block; }
 
 .notation-tools,
-.playback-tools { min-width: 306px; }
-.notation-tools .notes { border-bottom: 1px solid #CCC; padding: 0 0 20px 0; margin: 0 20px 20px; }
+.playback-tools { min-width: 320px; }
+.notation-tools .notes { margin: 0 20px 20px; }
+.notation-tools .notes .note-types { border-bottom: 1px solid #CCC; padding: 0 0 15px 0; margin-bottom: 15px; }
+.playback-tools { margin-top: 15px; }
 
-.tools .notation-tools p { text-align: center; font-family: 'Bitter', serif; font-size: 1.4em; margin-top: 20px; }
+#volume-slider { display: none; }
+.playback-tools a span.glyphicon { padding-right: 3px; position: relative; top: 1px; }
+
+.tools .notation-tools p,
+.tools .playback-tools p { text-align: center; font-family: 'Bitter', serif; font-size: 1.4em; margin-top: 20px; }
+#select-measure { width: 225px; margin: 10px auto; }
+#select-measure label { float: left; margin: 5px 10px 0 0;}
+#select-measure input { float: left; width: 30px; text-align: right; }
+
+.advanced:hover { text-decoration: none; }
+.playback-tools a.advanced .glyphicon-chevron-down { position: relative; top: 2px; left: 2px;}
+
+.fancy-break { width: 300px; height: 12px; background: transparent url('/images/site/global-sprite.png') 0 -164px no-repeat; margin: 10px auto; }
 
 .modal h3 { font-family: 'Bitter',serif; font-size: 1.68em; }
 .help-block { color: #CB2402;}
 
 .control-group.error .control-label,
 .control-group.success .control-label { color: #000; }
+
+#fux-notation { z-index: 999; position: relative; background: transparent url("/images/bgs/paper_fibers.png") repeat; }
 
 /* Login Modal */
 #login .messages { color: #B94A48; text-align: center; }

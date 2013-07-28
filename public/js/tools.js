@@ -17,7 +17,14 @@ var FUX = (function (fux) {
 			toolsLink.on('click', function(){
 				toolsEl.animate({
 					width: 'toggle'
-					}, 800 );
+					}, 800);
+
+				if(toolsLink.css('right') === '0px'){
+					toolsLink.animate({"right": "30%"}, 800);
+				}else{
+					toolsLink.animate({"right": "0px"}, 800);
+				}
+
 				contentEl.toggleClass('twoCol', 800);
 			});
 		},
@@ -26,10 +33,13 @@ var FUX = (function (fux) {
 			var titleInput = $('#exname'),
 			updateNameURL = '/exercise/name/'+id;
 
+			if(titleInput.length > 0) titleInput.attr('size', (titleInput.val().length-4));
+
 			titleInput.on('change', function(){
-				console.log(updateNameURL);
 				$.post(updateNameURL, { title: titleInput.val() }, function(response){
-					console.log(response);
+					if(response === 'success'){
+						titleInput.attr('size', (titleInput.val().length-4));
+					}
 				});
 			});
 

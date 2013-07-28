@@ -786,6 +786,9 @@ var FUX = (function (fux) {
 				clefOffset = clefs[self.clef].offset,
 				thisMeasure, notePosition, i;
 
+				self.context.save();
+				//self.context.scale(0.5, 0.5);
+
 				//Render clearing background
 				self.context.clearRect(0, 0, self.theCanvas.width, self.theCanvas.height);
 
@@ -824,6 +827,7 @@ var FUX = (function (fux) {
 
 				//Draw the clef symbol
 				self.context.drawImage(clefImage, self.x + clefOffset.x, self.y + clefOffset.y);
+				self.context.restore();
 				
 			},
 

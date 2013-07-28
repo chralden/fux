@@ -3,14 +3,14 @@
 		<p>Notation Tools:</p>
 		<div class="notes">
 
-			<% if(tools.noteTypes.length){ %>
-			    <% tools.noteTypes.forEach(function(noteType) { %>
-				     <a class="btn notation-note-select" data-notetype="<%= noteType %>"><%=: noteType | capitalize %> Note</a>
-				<% }) %> 
-			<% } %>
-			<a class="btn notation-note-select" data-notetype="eraser">Eraser</a>
-
-			<div class="clear"></div>
+			<div class="note-types">
+				<% if(tools.noteTypes.length){ %>
+				    <% tools.noteTypes.forEach(function(noteType) { %>
+					     <a class="btn notation-note-select" data-notetype="<%= noteType %>"><%=: noteType | capitalize %> Note</a>
+					<% }) %> 
+				<% } %>
+				<a class="btn notation-note-select" data-notetype="eraser">Eraser</a>
+			</div>
 			
 			<% if(tools.ties){ %>
 				<a class="btn notation-note-select" data-notetype="tie">Tie</a>
@@ -20,30 +20,45 @@
 			<a class="btn notation-note-select" data-notetype="natural">Natural</a>
 		</div>
 	</div>
-	<br/><br/>
+	<div class="fancy-break"></div>
 	<div class="playback-tools">
-		<a class="btn transport" data-transport="play">Play</a>
-		<a class="btn transport" data-transport="pause">Pause</a>
-		<a class="btn transport" data-transport="stop">Stop</a>
+		<p>Playback Tools:</p>
+		<a class="btn transport" data-transport="play"><span class="glyphicon glyphicon-play"></span>Play</a>
+		<a class="btn transport" data-transport="pause"><span class="glyphicon glyphicon-pause"></span>Pause</a>
+		<a class="btn transport" data-transport="stop"><span class="glyphicon glyphicon-stop"></span>Stop</a>
 		
-		<a class="btn volume">Volume</a>
+		<a class="btn volume"><span class="glyphicon glyphicon-volume-up"></a>
 		<div id="volume-slider" style="height: 100px; float: right; margin-right: 15px;" data-volume="0"></div>
 
-		<form id="select-measure"><label for="measure">Start at measure:</label><input type="text" id="measure" name="measure" value="0" /></form>
-	
-		<select class="instrument-select">
-			<% if(tools.instruments.length){ %>
-			    <% tools.instruments.forEach(function(instrument) { %>
-			    	<option value="<%= instrument %>"><%=: instrument | capitalize %></option>
-				<% }) %> 
-			<% } %>
-		</select>
+		<a class="advanced accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+			Advanced playback controls<span class="glyphicon glyphicon-chevron-down"></span>
+		</a>
 
-		<div class="staff-select">
-			<% tools.staves.forEach(function(staff, i) { %>
-				<a class="btn staff btn-danger" title="Mute Staff  -  <%=: i+1 %>Treble" data-staff="<%=: staff.name %>">Mute Staff <%=: i+1 %> - <%=: staff.clef | capitalize %></a>
-			<% }) %> 
+		<div id="collapseOne" class="accordion-body collapse">
+			<form class="clearfix" id="select-measure">
+				<label for="measure">Start playback at measure:</label>
+				<input type="text" id="measure" name="measure" value="1" />
+			</form>
+		
+			<div class="instrument">
+				<label>Select playback instrument: </label>
+				<select class="instrument-select">
+					<% if(tools.instruments.length){ %>
+					    <% tools.instruments.forEach(function(instrument) { %>
+					    	<option value="<%= instrument %>"><%=: instrument | capitalize %></option>
+						<% }) %> 
+					<% } %>
+				</select>
+			</div>
+			
+
+			<div class="staff-select">
+				<% tools.staves.forEach(function(staff, i) { %>
+					<a class="btn staff btn-danger" title="Mute Staff  -  <%=: i+1 %>Treble" data-staff="<%=: staff.name %>">Mute Staff <%=: i+1 %> - <%=: staff.clef | capitalize %></a>
+				<% }) %> 
+			</div>
 		</div>
+		
 
 	</div>
 </div>
