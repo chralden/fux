@@ -6,23 +6,26 @@
 <body>
 	<%- include elements/header.ejs %>
 
-	<div class="container">
-		<div class="row">
-			<h1>Exercises:</h1>
+	<div class="container-fluid exercise-list">
+		<div class="row-fluid">
+			
+			<div class="content-plate"></div>
+			<h1>Exercises</h1>
 			<% if(topics){ %>
 				 
 				 <% ["Two Voices", "Three Voices", "Four Voices"].forEach(function(voice, voiceindex) { %>
 
 				 <div class="span4">
-					<h2><%= voice %></h2>
+					<h2 class="voice"><span class="large-rose-alt"></span><span class="name"><%= voice %></span></h2>
 					 
 					 <% if(topics[voice]){ %>
-					 	<ul class="accordion" id="exercise-accordion<%= voiceindex %>">
+					 	<ul class="accordion species" id="exercise-accordion<%= voiceindex %>">
 						 	
 						 	<% topics[voice].forEach(function(topic, index) { %>
 						 	<li class="accordion-group">
 						 		<strong class="accordion-heading">
 						 			<a class="accordion-toggle" data-toggle="collapse" data-parent="#exercise-accordion<%= voiceindex %>" href="#collapse<%= voiceindex %><%= index %>">
+						 				<span class="fancy-bullet"></span>
 						 				<%= topic.name %>
 						 			</a>
 						 		</strong>
@@ -40,14 +43,16 @@
 									 					<li>
 									 						<a class="base" href="<%= exercise.base.link %>"><%=: exercise.base.name | capitalize %></a>
 									 						<% if(exercise.user && exercise.user.length){ %>
+									 							<div class="alert alert-info">
 									 							<ul class="user">
-									 									<strong>Your Saved Exercises:</strong>
+									 								<span>Your Saved Exercises:</span>
 									 								<% exercise.user.forEach(function(userexercise) { %>
 									 									<li>
 									 										<a href="<%= exercise.base.link %><%= userexercise.id %>"><%= userexercise.name %></a>
 									 									</li>
 									 								<% }) %> 
 									 							</ul>
+									 							</div>
 									 						<% } %>
 									 					</li>
 									 				<% } %>

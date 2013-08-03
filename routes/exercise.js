@@ -211,7 +211,7 @@ exports.listExercisesByTopic = function(req, res){
 									userexcercises.forEach(function(userexercise, index){
 
 										if(userexercise.topic.equals(topic._id) && userexercise.mode === mode && userexercise.firmusVoice === i){
-											thisExercise.user.push({ name: userexercise._id, id: userexercise._id });
+											thisExercise.user.push({ name: userexercise.name, id: userexercise._id });
 											userexcercises.splice(index, 1);
 										}
 									});
