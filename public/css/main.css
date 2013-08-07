@@ -51,7 +51,7 @@ a { cursor: pointer; }
 .center-column.twoCol .tool-link { right: 30%; }
 
 .exercise { padding: 20px; }
-.exercise-body .footer { position: fixed; bottom: 10px; left: 41%; }
+.exercise-body .footer { position: fixed; bottom: 10px; left: 41%; display: none; }
 
 .tools { text-align: center; background: transparent url("/images/bgs/squairy_light.png") repeat; width: 30%; position: fixed; right: 0; top: 0; height: 100%; border-left: 1px solid #EEE; display: none; overflow: scroll; }
 .tools a { margin: 5px; display: inline-block; }
@@ -83,6 +83,9 @@ a { cursor: pointer; }
 .control-group.success .control-label { color: #000; }
 
 #fux-notation { z-index: 999; position: relative; background: transparent url("/images/bgs/paper_fibers.png") repeat; }
+
+.canvas-wrapper { width: 2658px; height: 210px; position: relative; overflow: hidden; }
+.canvas-wrapper canvas { position: absolute; top: 0; left: 0; }
 
 /* Exercises List */
 .exercise-list h1 { font-family: 'Bitter', serif; font-size: 3.0em; text-align: center; }

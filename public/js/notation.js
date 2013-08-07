@@ -23,6 +23,11 @@ var FUX = (function (fux) {
 
 		userScore = [],
 
+		//Canvas rendering scale
+		scale = 1,
+
+		staves = [],
+
 		//Set the tooltip image for the mouse based on note type and mouse position
 		setTooltipImage = function(){
 			
@@ -424,7 +429,7 @@ var FUX = (function (fux) {
 				$.each(pitchMappings[clef], function(pitch, position){
 					
 					//If mouse position falls within pitches position +-5 pixels, set as current pitch
-					if(self.mouse.y >=  staffOffset + position - 5 && self.mouse.y <= staffOffset + position + 5){
+					if(self.mouse.y >=  staffOffset + (position*scale) - 5 && self.mouse.y <= staffOffset + (position*scale) + 5){
 						thisPitch = pitch;
 					}
 				});
@@ -443,14 +448,14 @@ var FUX = (function (fux) {
 				$.each(self.measures, function(measureNum){
 
 					//If the mouse position is between measure start and end, set this measure to current measure
-					if(self.mouse.x >= this.start && self.mouse.x <= this.end){
+					if(self.mouse.x >= (this.start*scale) && self.mouse.x <= (this.end*scale)){
 						measurePosition = measureNum;
 
 						//Loop through the current measures beats to find beat currently selected by user
 						$.each(this.beats, function(beat){
 							
 							//If the mouse position is between beat start and end, set this beat as current beat
-							if(self.mouse.x >= this.start && self.mouse.x <= this.end){
+							if(self.mouse.x >= (this.start*scale) && self.mouse.x <= (this.end*scale)){
 								beatPosition = beat;
 							}
 						});
@@ -489,7 +494,6 @@ var FUX = (function (fux) {
 
 					writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
 						if(parseFloat(measure.beat) === parseFloat(thisBeat)){	
-							console.log('erased');
 							delete measure.note.pitch;
 						} 
 					});
@@ -622,7 +626,7 @@ var FUX = (function (fux) {
 				var self = this;
 
 				//add the staff canvas element to the target element
-				self.target.append('<canvas id="'+self.name+'"></canvas>');
+				self.target.append('<div class="canvas-wrapper"><canvas id="'+self.name+'"></canvas></div>');
 
 				//Initialize the 
 				self.theCanvas = document.getElementById(self.name);
@@ -774,6 +778,8 @@ var FUX = (function (fux) {
 						tooltipImage = currentNoteValue;
 					}
 				}
+
+				staves.push(self);
 				
 			},
 
@@ -787,10 +793,11 @@ var FUX = (function (fux) {
 				thisMeasure, notePosition, i;
 
 				self.context.save();
-				//self.context.scale(0.5, 0.5);
 
 				//Render clearing background
 				self.context.clearRect(0, 0, self.theCanvas.width, self.theCanvas.height);
+
+				self.context.scale(scale, scale);
 
 				//Render staff background image
 				self.context.drawImage(staffImage, self.x, self.y, self.width, 90);
@@ -1052,6 +1059,17 @@ var FUX = (function (fux) {
 				}
 
 				setTooltipImage();
+			},
+
+			setScale: function(newScale){
+
+				scale = newScale;
+
+				$.each(staves, function(i, staff){
+					$(staff.theCanvas).parent().css({ 'height': staff.theCanvas.height*scale, 'width': staff.theCanvas.width*scale});
+					staff.render();
+				});
+				$('#fux-notation').css('cursor', 'url('+assets[tooltipImage]+') 0 '+cursorOffsets[tooltipImage]+', default');
 			}
 		};
 		
@@ -1062,3 +1080,10 @@ var FUX = (function (fux) {
 
 	return fux;
 }(FUX));
+
+$(function(){
+	$(document).on('click', function(){
+		FUX.notation.setScale(0.5);
+	});
+});
+
