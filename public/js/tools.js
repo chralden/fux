@@ -67,7 +67,11 @@ var FUX = (function (fux) {
 					button.toggleClass('active');
 					button.siblings().removeClass('active');
 					notation.setNoteValue(button.attr('data-notetype'));
-				} 
+				}
+
+				if(button.hasClass('zoom-select')){
+					notation.setScale(button.attr('data-zoomlevel'));
+				}
 			}
 
 

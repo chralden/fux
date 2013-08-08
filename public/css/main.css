@@ -104,3 +104,21 @@ a { cursor: pointer; }
 
 /* Login Modal */
 #login .messages { color: #B94A48; text-align: center; }
+
+/*Cursor Styles*/
+.whole-100 { cursor: url("/images/cursors/whole-100.png") 0 0, default; }
+.whole-85 { cursor: url("/images/cursors/whole-85.png") 0 0, default; }
+.whole-75 { cursor: url("/images/cursors/whole-75.png") 0 0, default; }
+.whole-60 { cursor: url("/images/cursors/whole-60.png") 0 0, default; }
+.whole-50 { cursor: url("/images/cursors/whole-50.png") 0 0, default; }
+
+.halfUp-100 { cursor: url("/images/cursors/halfUp-100.png") 0 60, default; }
+.halfUp-85 { cursor: url("/images/cursors/halfUp-85.png") 0 52, default; }
+.halfUp-75 { cursor: url("/images/cursors/halfUp-75.png") 0 45, default; }
+.halfUp-60 { cursor: url("/images/cursors/halfUp-60.png") 0 36, default; }
+.halfUp-50 { cursor: url("/images/cursors/halfUp-50.png") 0 30, default; }
+.halfDown-100 { cursor: url("/images/cursors/halfDown-100.png") 0 10, default; }
+.halfDown-85 { cursor: url("/images/cursors/halfDown-85.png") 0 0, default; }
+.halfDown-75 { cursor: url("/images/cursors/halfDown-75.png") 0 0, default; }
+.halfDown-60 { cursor: url("/images/cursors/halfDown-60.png") 0 0, default; }
+.halfDown-50 { cursor: url("/images/cursors/halfDown-50.png") 0 0, default; }

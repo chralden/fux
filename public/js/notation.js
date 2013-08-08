@@ -50,7 +50,7 @@ var FUX = (function (fux) {
 
 
 			//Set cursor background based on current tooltip
-			$('#fux-notation').css('cursor', 'url('+assets[tooltipImage]+') 0 '+cursorOffsets[tooltipImage]+', default');
+			$('#fux-notation').attr("class","").addClass(tooltipImage+'-'+(scale*100));
 		},
 
 		//Mappings of Y positions for notes on staff based on clef
@@ -1063,13 +1063,13 @@ var FUX = (function (fux) {
 
 			setScale: function(newScale){
 
-				scale = newScale;
+				scale = parseFloat(newScale);
 
 				$.each(staves, function(i, staff){
 					$(staff.theCanvas).parent().css({ 'height': staff.theCanvas.height*scale, 'width': staff.theCanvas.width*scale});
 					staff.render();
+					setTooltipImage();
 				});
-				$('#fux-notation').css('cursor', 'url('+assets[tooltipImage]+') 0 '+cursorOffsets[tooltipImage]+', default');
 			}
 		};
 		
@@ -1080,10 +1080,3 @@ var FUX = (function (fux) {
 
 	return fux;
 }(FUX));
-
-$(function(){
-	$(document).on('click', function(){
-		FUX.notation.setScale(0.5);
-	});
-});
-
