@@ -122,3 +122,25 @@ a { cursor: pointer; }
 .halfDown-75 { cursor: url("/images/cursors/halfDown-75.png") 0 0, default; }
 .halfDown-60 { cursor: url("/images/cursors/halfDown-60.png") 0 0, default; }
 .halfDown-50 { cursor: url("/images/cursors/halfDown-50.png") 0 0, default; }
+
+.quarterUp-100 { cursor: url("/images/cursors/quarterUp-100.png") 0 60, default; }
+.quarterUp-85 { cursor: url("/images/cursors/quarterUp-85.png") 0 52, default; }
+.quarterUp-75 { cursor: url("/images/cursors/quarterUp-75.png") 0 45, default; }
+.quarterUp-60 { cursor: url("/images/cursors/quarterUp-60.png") 0 36, default; }
+.quarterUp-50 { cursor: url("/images/cursors/quarterUp-50.png") 0 30, default; }
+.quarterDown-100 { cursor: url("/images/cursors/quarterDown-100.png") 0 0, default; }
+.quarterDown-85 { cursor: url("/images/cursors/quarterDown-85.png") 0 0, default; }
+.quarterDown-75 { cursor: url("/images/cursors/quarterDown-75.png") 0 0, default; }
+.quarterDown-60 { cursor: url("/images/cursors/quarterDown-60.png") 0 0, default; }
+.quarterDown-50 { cursor: url("/images/cursors/quarterDown-50.png") 0 0, default; }
+
+.eighthUp-100 { cursor: url("/images/cursors/eighthUp-100.png") 0 60, default; }
+.eighthUp-85 { cursor: url("/images/cursors/eighthUp-85.png") 0 43, default; }
+.eighthUp-75 { cursor: url("/images/cursors/eighthUp-75.png") 0 0, default; }
+.eighthUp-60 { cursor: url("/images/cursors/eighthUp-60.png") 0 0, default; }
+.eighthUp-50 { cursor: url("/images/cursors/eighthUp-50.png") 0 0, default; }
+.eighthDown-100 { cursor: url("/images/cursors/eighthDown-100.png") 0 0, default; }
+.eighthDown-85 { cursor: url("/images/cursors/eighthDown-85.png") 0 0, default; }
+.eighthDown-75 { cursor: url("/images/cursors/eighthDown-75.png") 0 0, default; }
+.eighthDown-60 { cursor: url("/images/cursors/eighthDown-60.png") 0 0, default; }
+.eighthDown-50 { cursor: url("/images/cursors/eighthDown-50.png") 0 0, default; }

@@ -33,13 +33,6 @@ var FUX = (function (fux) {
 			
 			//Background image positioning offsets based on note image
 			var cursorOffsets = {
-				'whole': 0,
-				'halfUp': 60,
-				'halfDown': 10,
-				'quarterUp': 60,
-				'quarterDown': 0,
-				'eighthUp': 60,
-				'eighthDown': 1,
 				'eraser': 0,
 				'tieDown': 0,
 				'tieUp': 0,
@@ -610,10 +603,10 @@ var FUX = (function (fux) {
 
 		        //Update the stem position of the tooltip based on current mouse position
 		        if(currentNoteValue !== 'whole' && currentNoteValue !== 'eraser' && currentNoteValue !== 'sharp' && currentNoteValue !== 'flat' && currentNoteValue !== 'natural'){
-		        	if(self.mouse.y-26 >= staffMiddle && tooltipImage.search('Up') === -1){
+		        	if(self.mouse.y-26 >= Math.floor(staffMiddle*scale) && tooltipImage.search('Up') === -1){
 		        		tooltipImage = currentNoteValue+'Up';
 		        		setTooltipImage();
-		        	}else if(self.mouse.y-26 < staffMiddle && tooltipImage.search('Down') === -1){
+		        	}else if(self.mouse.y-26 < Math.floor(staffMiddle*scale) && tooltipImage.search('Down') === -1){
 		        		tooltipImage = currentNoteValue+'Down';
 		        		setTooltipImage();
 		        	}
