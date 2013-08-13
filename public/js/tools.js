@@ -54,9 +54,19 @@ var FUX = (function (fux) {
 
 			setup: function(){
 				var self = this,
-				toolButtons = $('.notation-tools a');
+					toolButtons = $('.notation-tools a'),
+					zoomSlider = $('.zoom-select');
 
 				toolButtons.on('click', self.routeClicks);
+				
+				//Set notation size level with the zoom slider
+				zoomSlider.on('change', function(){
+					var zoomlabel = $('.zoom-label'),
+						zoomValue = $(this).val();
+					
+					notation.setScale(zoomValue);
+					zoomlabel.html('('+(zoomValue*100)+'%)');
+				});
 			},
 
 			//Rout the click events to the appropriate notation changes
@@ -67,10 +77,6 @@ var FUX = (function (fux) {
 					button.toggleClass('active');
 					button.siblings().removeClass('active');
 					notation.setNoteValue(button.attr('data-notetype'));
-				}
-
-				if(button.hasClass('zoom-select')){
-					notation.setScale(button.attr('data-zoomlevel'));
 				}
 			}
 

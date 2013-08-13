@@ -37,21 +37,25 @@ var FUX = (function (fux) {
 			play: function(pitch, playduration){
 				var self = this,
 				duration = playduration || 500,
-				currentInstrument = self.sounds[self.instrument];
+				currentInstrument = self.sounds[self.instrument];				
 
 				if(pitch.indexOf('flat') !== -1){ pitch = self.getEnharmonic(pitch); } 
 
-				//Stop sound in case this pitch has not finished playing yet
-				currentInstrument[pitch].stop();
+				if(currentInstrument[pitch]){
 
-				//Play sound
-				if(self.instrument === 'organ'){
-					currentInstrument[pitch].fadeIn((duration/4), function(){
-						currentInstrument[pitch].fadeOut((3*duration)/4);
-					});
-					
-				}else{
-					currentInstrument[pitch].play();
+					//Stop sound in case this pitch has not finished playing yet
+					currentInstrument[pitch].stop();
+
+					//Play sound
+					if(self.instrument === 'organ'){
+						currentInstrument[pitch].fadeIn((duration/4), function(){
+							currentInstrument[pitch].fadeOut((3*duration)/4);
+						});
+						
+					}else{
+						currentInstrument[pitch].play();
+					}
+
 				}
 				
 			},
@@ -86,11 +90,11 @@ var FUX = (function (fux) {
 			//Get enharmonics for flat pitches to share soundfiles
 			getEnharmonic: function(pitch){
 				var enharmonics = {
-					dflat: 'c',
-					eflat: 'd',
-					gflat: 'f',
-					aflat: 'g',
-					bflat: 'a'
+					Dflat: 'C',
+					Eflat: 'D',
+					Gflat: 'F',
+					Aflat: 'G',
+					Bflat: 'A'
 				},
 				thispitch = pitch.substr(0,1),
 				thisnumber = pitch.substr(1,1),

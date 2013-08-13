@@ -107,40 +107,56 @@ a { cursor: pointer; }
 
 /*Cursor Styles*/
 .whole-100 { cursor: url("/images/cursors/whole-100.png") 0 0, default; }
-.whole-85 { cursor: url("/images/cursors/whole-85.png") 0 0, default; }
-.whole-75 { cursor: url("/images/cursors/whole-75.png") 0 0, default; }
-.whole-60 { cursor: url("/images/cursors/whole-60.png") 0 0, default; }
+.whole-90 { cursor: url("/images/cursors/whole-85.png") 0 0, default; }
+.whole-80 { cursor: url("/images/cursors/whole-75.png") 0 0, default; }
+.whole-70 { cursor: url("/images/cursors/whole-60.png") 0 0, default; }
+.whole-60 { cursor: url("/images/cursors/whole-50.png") 0 0, default; }
 .whole-50 { cursor: url("/images/cursors/whole-50.png") 0 0, default; }
 
 .halfUp-100 { cursor: url("/images/cursors/halfUp-100.png") 0 60, default; }
-.halfUp-85 { cursor: url("/images/cursors/halfUp-85.png") 0 52, default; }
-.halfUp-75 { cursor: url("/images/cursors/halfUp-75.png") 0 45, default; }
-.halfUp-60 { cursor: url("/images/cursors/halfUp-60.png") 0 36, default; }
+.halfUp-90 { cursor: url("/images/cursors/halfUp-85.png") 0 52, default; }
+.halfUp-80 { cursor: url("/images/cursors/halfUp-75.png") 0 45, default; }
+.halfUp-70 { cursor: url("/images/cursors/halfUp-60.png") 0 36, default; }
+.halfUp-60 { cursor: url("/images/cursors/halfUp-50.png") 0 30, default; }
 .halfUp-50 { cursor: url("/images/cursors/halfUp-50.png") 0 30, default; }
 .halfDown-100 { cursor: url("/images/cursors/halfDown-100.png") 0 10, default; }
-.halfDown-85 { cursor: url("/images/cursors/halfDown-85.png") 0 0, default; }
-.halfDown-75 { cursor: url("/images/cursors/halfDown-75.png") 0 0, default; }
-.halfDown-60 { cursor: url("/images/cursors/halfDown-60.png") 0 0, default; }
+.halfDown-90 { cursor: url("/images/cursors/halfDown-85.png") 0 0, default; }
+.halfDown-80 { cursor: url("/images/cursors/halfDown-75.png") 0 0, default; }
+.halfDown-70 { cursor: url("/images/cursors/halfDown-60.png") 0 0, default; }
+.halfDown-60 { cursor: url("/images/cursors/halfDown-50.png") 0 0, default; }
 .halfDown-50 { cursor: url("/images/cursors/halfDown-50.png") 0 0, default; }
 
 .quarterUp-100 { cursor: url("/images/cursors/quarterUp-100.png") 0 60, default; }
-.quarterUp-85 { cursor: url("/images/cursors/quarterUp-85.png") 0 52, default; }
-.quarterUp-75 { cursor: url("/images/cursors/quarterUp-75.png") 0 45, default; }
-.quarterUp-60 { cursor: url("/images/cursors/quarterUp-60.png") 0 36, default; }
+.quarterUp-90 { cursor: url("/images/cursors/quarterUp-85.png") 0 52, default; }
+.quarterUp-80 { cursor: url("/images/cursors/quarterUp-75.png") 0 45, default; }
+.quarterUp-70 { cursor: url("/images/cursors/quarterUp-60.png") 0 36, default; }
+.quarterUp-60 { cursor: url("/images/cursors/quarterUp-50.png") 0 30, default; }
 .quarterUp-50 { cursor: url("/images/cursors/quarterUp-50.png") 0 30, default; }
 .quarterDown-100 { cursor: url("/images/cursors/quarterDown-100.png") 0 0, default; }
-.quarterDown-85 { cursor: url("/images/cursors/quarterDown-85.png") 0 0, default; }
-.quarterDown-75 { cursor: url("/images/cursors/quarterDown-75.png") 0 0, default; }
-.quarterDown-60 { cursor: url("/images/cursors/quarterDown-60.png") 0 0, default; }
+.quarterDown-90 { cursor: url("/images/cursors/quarterDown-85.png") 0 0, default; }
+.quarterDown-80 { cursor: url("/images/cursors/quarterDown-75.png") 0 0, default; }
+.quarterDown-70 { cursor: url("/images/cursors/quarterDown-60.png") 0 0, default; }
+.quarterDown-60 { cursor: url("/images/cursors/quarterDown-50.png") 0 0, default; }
 .quarterDown-50 { cursor: url("/images/cursors/quarterDown-50.png") 0 0, default; }
 
 .eighthUp-100 { cursor: url("/images/cursors/eighthUp-100.png") 0 60, default; }
-.eighthUp-85 { cursor: url("/images/cursors/eighthUp-85.png") 0 43, default; }
-.eighthUp-75 { cursor: url("/images/cursors/eighthUp-75.png") 0 0, default; }
-.eighthUp-60 { cursor: url("/images/cursors/eighthUp-60.png") 0 0, default; }
-.eighthUp-50 { cursor: url("/images/cursors/eighthUp-50.png") 0 0, default; }
+.eighthUp-90 { cursor: url("/images/cursors/eighthUp-85.png") 0 52, default; }
+.eighthUp-80 { cursor: url("/images/cursors/eighthUp-75.png") 0 45, default; }
+.eighthUp-70 { cursor: url("/images/cursors/eighthUp-60.png") 0 36, default; }
+.eighthUp-60 { cursor: url("/images/cursors/eighthUp-50.png") 0 30, default; }
+.eighthUp-50 { cursor: url("/images/cursors/eighthUp-50.png") 0 30, default; }
 .eighthDown-100 { cursor: url("/images/cursors/eighthDown-100.png") 0 0, default; }
-.eighthDown-85 { cursor: url("/images/cursors/eighthDown-85.png") 0 0, default; }
-.eighthDown-75 { cursor: url("/images/cursors/eighthDown-75.png") 0 0, default; }
-.eighthDown-60 { cursor: url("/images/cursors/eighthDown-60.png") 0 0, default; }
+.eighthDown-90 { cursor: url("/images/cursors/eighthDown-85.png") 0 0, default; }
+.eighthDown-80 { cursor: url("/images/cursors/eighthDown-75.png") 0 0, default; }
+.eighthDown-70 { cursor: url("/images/cursors/eighthDown-60.png") 0 0, default; }
+.eighthDown-60 { cursor: url("/images/cursors/eighthDown-50.png") 0 0, default; }
 .eighthDown-50 { cursor: url("/images/cursors/eighthDown-50.png") 0 0, default; }
+
+.eraser-100, .eraser-90, .eraser-80, .eraser-70, .eraser-60, .eraser-50 { cursor: url("/images/cursors/eraser-x.png") 0 0, default; }
+.sharp-100, .sharp-90, .sharp-80, .sharp-70, .sharp-60, .sharp-50 { cursor: url("/images/cursors/sharp.png") 0 0, default; }
+.flat-100, .flat-90, .flat-80, .sharp-70, .flat-60, .flat-50 { cursor: url("/images/cursors/flat.png") 0 0, default; }
+.natural-100, .natural-90, .natural-80, .natural-70, .natural-60, .natural-50 { cursor: url("/images/cursors/natural.png") 0 0, default; }
+
+.tieUp-100, .tieUp-90, .tieUp-80, .tieUp-70, .tieUp-60, .tieUp-50 { cursor: url("/images/cursors/tie-up.png") 0 0, default; }
+.tieDown-100, .tieDown-90, .tieDown-80, .tieDown-70, .tieDown-60, .tieDown-50 { cursor: url("/images/cursors/tie-down.png") 0 0, default; }
+

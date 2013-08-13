@@ -514,7 +514,10 @@ var FUX = (function (fux) {
 				//If an accidental update the current note to have selected accidental
 				}else if(currentNoteValue === 'sharp' || currentNoteValue === 'flat' || currentNoteValue === 'natural'){
 					
-					if((currentNoteValue === 'sharp' && currentNote.pitch.indexOf('e') === -1 && currentNote.pitch.indexOf('b')) || (currentNoteValue === 'flat' && currentNote.pitch.indexOf('c') === -1 && currentNote.pitch.indexOf('f')) || currentNoteValue === 'natural'){
+					if((currentNoteValue === 'sharp' && currentNote.pitch.indexOf('E') === -1 && currentNote.pitch.indexOf('B')) || (currentNoteValue === 'flat' && currentNote.pitch.indexOf('C') === -1 && currentNote.pitch.indexOf('F')) || currentNoteValue === 'natural'){
+						
+
+
 						if(currentNote){ currentNote.accidental = currentNoteValue; } 
 
 						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
