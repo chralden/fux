@@ -47,10 +47,18 @@ var FUX = {
 				sounds: instruments
 			};
 
-			self.assetmanager.init(assetOptions, function(){
+			//Initialize image assets first to avoid User Interface Lag
+			self.assetmanager.initImgs(clefs.concat(notes), function(){
 				self.notation.init({ currentNoteValue: thisNoteValue, staves: staves, id: id, basefirmus: basefirmus });
 				self.tools.init({ id: id });
-			});	
+				
+				//Once images have loaded, load audio files, and initialize the sound manager once audio files have loaded
+				self.assetmanager.initAudio(instruments, function(){
+					self.soundmanager.init();
+				});
+			});
+
+
 		}
 		
 	}

@@ -213,6 +213,11 @@ var FUX = (function (fux) {
 			
 			//Initialize the sound manager
 			init: function(){
+				var soundReadyEl = $('.audio-ready'),
+					soundLoading = $('.audio-loading');
+
+				soundReadyEl.show();
+				soundLoading.hide();
 				player.setup();
 			},
 

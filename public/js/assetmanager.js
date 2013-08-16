@@ -63,7 +63,9 @@ var FUX = (function (fux) {
 
 			//Return whether all assets have been downloaded
 			isDone: function(){
-				return (this.downloadQueue.length === this.downloadCount + this.errorCount);
+				
+				if(this.downloadQueue.length === 0){ return true; }
+				
 			},
 
 			//Return an IMG object from downloaded assets
@@ -74,6 +76,10 @@ var FUX = (function (fux) {
 			//Add path to downloadQueue
 			queueDownload: function(path){
 				this.downloadQueue.push(path);
+			},
+
+			removeFromQueue: function(path){
+				this.downloadQueue.splice(this.downloadQueue.indexOf(path), 1);
 			},
 
 			//Add path to the background queue
@@ -118,6 +124,7 @@ var FUX = (function (fux) {
 						//Add event listeners for load and error
 						img.addEventListener("load", function(){
 							self.downloadCount++;
+							self.removeFromQueue(path);
 							if(self.isDone()){
 								downloadCallback();
 							}
@@ -143,6 +150,7 @@ var FUX = (function (fux) {
 
 						sound.bind('canplaythrough', function(){
 							self.downloadCount++;
+							self.removeFromQueue(path);
 							if(self.isDone()){
 								downloadCallback();
 							}
@@ -187,7 +195,47 @@ var FUX = (function (fux) {
 		//return the assetmanager object with public methods	
 		return {
 			
-			//Initialize the asset manager and execute the callback whenever all assets are downloaded
+			initImgs: function(imgassets, callback){
+				var images = imgassets,
+					thisImage, i;
+
+				//Add all base images to download queue
+				for(i = 0; i < requiredImages.length; i++){
+					manager.queueDownload(assets.images[requiredImages[i]]);
+				}
+
+				//Add any images required for this specific excercise to the download queue
+				for(i = 0; i < images.length; i++){
+					thisImage = images[i];
+					if(thisImage === 'half' || thisImage === 'quarter' || thisImage === 'eighth'){
+						manager.queueDownload(assets.images[thisImage+'Up']);
+						manager.queueDownload(assets.images[thisImage+'Down']);
+					}else{
+						manager.queueDownload(assets.images[thisImage]);
+					}
+				}
+
+				manager.downloadAll(callback);
+			},
+
+			initAudio: function(audioassets, callback){
+				var sounds = audioassets,
+					theseSounds, i;
+
+				//Add all required sounds to the download queue
+				for(i = 0; i < sounds.length; i++){
+					assets.sounds[sounds[i]] = manager.createSoundFiles(sounds[i]);
+
+					$.each(assets.sounds[sounds[i]], function(pitch, path){
+						manager.queueDownload(path);
+					});
+				}	
+
+				manager.downloadAll(callback);
+
+			},
+
+			//Initialize the asset manager and execute the callback whenever all assets are downloaded 
 			init: function(initoptions, callback){
 				var options = initoptions || false,
 				images = options.images || [],
@@ -214,13 +262,13 @@ var FUX = (function (fux) {
 				for(i = 0; i < sounds.length; i++){
 					assets.sounds[sounds[i]] = manager.createSoundFiles(sounds[i]);
 
-					if(i === 0){
+					if(i === 100){
 						requiredSounds = assets.sounds[sounds[i]];
 					}else{
 						backgroundSounds = assets.sounds[sounds[i]];
 					}
 				}
-
+				
 				//Add all required sounds to the download queue
 				$.each(requiredSounds, function(pitch, path){
 					manager.queueDownload(path);

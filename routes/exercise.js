@@ -47,8 +47,6 @@ function renderExercise(req, exercise, res, id, basefirmus, disabled){
 		config = {};
 		tools = {};
 	}
-
-	console.log(exercise);
 	
 	res.render('exercise', { title: 'To Parnassus: Exercise', exerciseFound: exerciseFound, config: JSON.stringify(config), name: name, topic: topic, tools: tools, user: req.session.userid, disabled: isDisabled });
 }

@@ -1018,10 +1018,11 @@ var FUX = (function (fux) {
 
 				if(options && options.currentNoteValue){ currentNoteValue = options.currentNoteValue; } 
 
-				soundmanager.init();
-
 				id = options.id;
 				basefirmus = options.basefirmus;
+
+				//remove placeholder html from target
+				target.html('');
 
 				if(staves){
 
