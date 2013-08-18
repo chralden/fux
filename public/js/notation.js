@@ -291,6 +291,7 @@ var FUX = (function (fux) {
 				if(options && options.beat !== undefined){ self.beat = options.beat; } 
 				if(options && options.accidental !== undefined){ self.accidental = options.accidental; }
 				if(options && options.tied !== undefined){ self.tied = options.tied; }
+				if(options && options.silent !== undefined){ self.silent = options.silent; }
 				self.value = self.values[self.duration];
 
 			},
@@ -466,7 +467,7 @@ var FUX = (function (fux) {
 				currentPosition = self.getMeasureAndBeatFromPosition(),
 				thisBeat = (currentPosition.beat !== false) ? currentPosition.beat : self.measures[self.currentMeasure].currentBeat,
 				beatExists = false,
-				thisBeatValue, currentNote, nextNote, writeExercise;
+				thisBeatValue, currentNote, nextNote, nextMeasure, writeExercise;
 
 				//Set the current user score to overwrite
 				writeExercise = userScore[self.scorePos];
@@ -494,29 +495,53 @@ var FUX = (function (fux) {
 				//If a 'tie', add tie to current note 
 				}else if(currentNoteValue === 'tie'){
 					
-					if(currentNote){
+					//At this point only allow ties for half notes
+					if(currentNote && parseInt(currentNote.value, 10) === 2){
 						
 						//Determine whether start of the next note would fall in same measure or next measure, then get note in that position
 						if(parseInt(currentNote.beat, 10) + parseInt(currentNote.value, 10) < self.measures[self.currentMeasure].value){
-							nextNote = self.measures[self.currentMeasure].beats[parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10)];
+							nextMeasure = self.currentMeasure;
+							nextNote = self.measures[nextMeasure].beats[parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10)];
 						}else{
-							nextNote = self.measures[self.currentMeasure+1].beats[(parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10))-self.measures[self.currentMeasure].value];
+							nextMeasure = self.currentMeasure+1;
+							nextNote = self.measures[nextMeasure].beats[(parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10))-self.measures[self.currentMeasure].value];
 						}	
 						
 						//If there is a next note, and two notes to be tied have the same pitch creat the tie and silence the second note
 						if(nextNote && currentNote.pitch === nextNote.pitch){
 							currentNote.tied = !currentNote.tied;
-							nextNote.silent = !nextNote.silent;
+							nextNote.silent = currentNote.tied;
+
+							if(nextMeasure === self.currentMeasure){
+								//Add tie state to score
+								writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
+									if(parseFloat(measure.beat) === parseFloat(thisBeat)){	
+										measure.note.tied = currentNote.tied;
+									}else if(parseFloat(measure.beat) === parseFloat(thisBeat)+parseInt(currentNote.value, 10)){
+										measure.note.silent = nextNote.silent;
+									}
+								});
+							}else{
+								writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
+									if(parseFloat(measure.beat) === parseFloat(thisBeat)){	
+										measure.note.tied = currentNote.tied;
+									}
+								});
+								writeExercise.score[nextMeasure].measure.forEach(function(measure, i){			
+									if(parseFloat(measure.beat) === (parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10))-self.measures[self.currentMeasure].value){	
+										measure.note.silent = nextNote.silent;
+									}
+								});
+							}
+							
+
 						} 
 					}
 					
-
 				//If an accidental update the current note to have selected accidental
 				}else if(currentNoteValue === 'sharp' || currentNoteValue === 'flat' || currentNoteValue === 'natural'){
 					
 					if((currentNoteValue === 'sharp' && currentNote.pitch.indexOf('E') === -1 && currentNote.pitch.indexOf('B')) || (currentNoteValue === 'flat' && currentNote.pitch.indexOf('C') === -1 && currentNote.pitch.indexOf('F')) || currentNoteValue === 'natural'){
-						
-
 
 						if(currentNote){ currentNote.accidental = currentNoteValue; } 
 
@@ -545,7 +570,7 @@ var FUX = (function (fux) {
 
 					//Update current note to newly added note
 					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
-				
+					console.log(currentNote);
 					soundmanager.play(thisPitch);
 
 					//Overwrite the current user exercise
@@ -557,15 +582,17 @@ var FUX = (function (fux) {
 							if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
 								measure.note.pitch = thisPitch;
 								measure.note.duration = currentNoteValue;
+								measure.note.tied = false;
+								measure.note.silent = false;
 								beatExists = true;
 							}
 						});
 
 						//If beat does not already exist, add it
-						if(!beatExists){ writeExercise.score[self.currentMeasure].measure.push({ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch } }); }
+						if(!beatExists){ writeExercise.score[self.currentMeasure].measure.push({ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch, "tied": false, "silent": false } }); }
 						
 					}else{
-						writeExercise.score[self.currentMeasure] = { "measure": [{ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch } }] };
+						writeExercise.score[self.currentMeasure] = { "measure": [{ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch, "tied": false, "silent": false } }] };
 						self.score[self.currentMeasure] = {};
 					}
 
@@ -573,6 +600,7 @@ var FUX = (function (fux) {
 
 				self.score[self.currentMeasure][thisBeat] = currentNote;
 				soundmanager.addScore(self.name, self.score);
+
 
 				//If the current exercise is one of the base exercises initialize a new user exercise
 				if(basefirmus){
@@ -587,7 +615,7 @@ var FUX = (function (fux) {
 
 				//If on a user execise update the exercise score
 				}else{
-					
+					console.log(userScore);
 					$.post('/exercise/save/'+id, { staves: userScore });
 				}
 				
@@ -736,8 +764,9 @@ var FUX = (function (fux) {
 											duration: firmusMeasure[j].note.duration
 										};
 
-										if(firmusMeasure[j].note.accidental) firmusNoteOptions.accidental = firmusMeasure[j].note.accidental;
-										if(firmusMeasure[j].note.tied) firmusNoteOptions.tied = firmusMeasure[j].note.tied;
+										firmusNoteOptions.accidental = (firmusMeasure[j].note.accidental !== 'undefined') ? firmusMeasure[j].note.accidental : false;
+										firmusNoteOptions.tied = (firmusMeasure[j].note.tied !== 'undefined') ? firmusMeasure[j].note.tied : false;
+										firmusNoteOptions.silent = (firmusMeasure[j].note.silent !== 'undefined') ? firmusMeasure[j].note.silent : false;
 
 										self.addNote(firmusNoteOptions);
 									
