@@ -3,15 +3,16 @@
 		<p>Notation Tools:</p>
 		<div class="notes">
 
-			<div class="note-types">
-				<% if(tools.noteTypes.length){ %>
-				    <% tools.noteTypes.forEach(function(noteType) { %>
-					     <a class="btn notation-note-select" data-notetype="<%= noteType %>"><%=: noteType | capitalize %> Note</a>
-					<% }) %> 
-				<% } %>
-				<a class="btn notation-note-select" data-notetype="eraser">Eraser</a>
-			</div>
+
+			<% if(tools.noteTypes.length){ %>
+			    <% tools.noteTypes.forEach(function(noteType) { %>
+				     <a class="btn notation-note-select" data-notetype="<%= noteType %>"><%=: noteType | capitalize %> Note</a>
+				<% }) %> 
+			<% } %>
+			<a class="btn notation-note-select" data-notetype="eraser">Eraser</a>
 			
+			<div class="divide"></div>
+
 			<% if(tools.ties){ %>
 				<a class="btn notation-note-select" data-notetype="tie">Tie</a>
 			<% } %>
@@ -20,8 +21,13 @@
 			<a class="btn notation-note-select" data-notetype="natural">Natural</a>
 		</div>
 		<div class="zoom">
-			<label>Set notation zoom level <span class="zoom-label">(100%)</span>:</label>
-			<input class="zoom-select" type="range" name="points" min="0.5" max="1.0" value="1.0" step="0.1" />
+			<a class="accordion-toggle" data-toggle="collapse" href="#zoomContainer">
+				<label>Set notation zoom level <span class="glyphicon glyphicon-chevron-down"></span></label>
+			</a>
+			<div id="zoomContainer" class="accordion-body collapse">
+				<input class="zoom-select" type="range" name="points" min="0.5" max="1.0" value="1.0" step="0.1" />
+				<span class="zoom-label">(100%)</span>
+			</div>
 		</div>
 	</div>
 	<div class="fancy-break"></div>

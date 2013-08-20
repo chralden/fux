@@ -480,6 +480,27 @@ var FUX = (function (fux) {
 				//If an eraser, swap out current note for rest of same value
 				if(currentNoteValue === 'eraser'){
 					
+					//If note to be erased is second note in a tied pair, remove tie from previous note
+					if(currentNote.silent){
+						//Determine whether previous note would fall in same measure or previous measure
+						if(parseInt(currentNote.beat, 10) - parseInt(currentNote.value, 10) >= 0){
+							self.measures[self.currentMeasure].beats[parseInt(currentNote.beat, 10) - parseInt(currentNote.value, 10)].tied = false;
+
+							writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
+								if(parseFloat(measure.beat) === parseFloat(parseInt(currentNote.beat, 10) - parseInt(currentNote.value, 10))){	
+									measure.note.tied = false;
+								} 
+							});
+						}else{
+							self.measures[self.currentMeasure-1].beats[self.measures[self.currentMeasure-1].value - parseInt(currentNote.value, 10)].tied = false;
+							writeExercise.score[self.currentMeasure-1].measure.forEach(function(measure, i){			
+								if(parseFloat(measure.beat) === parseFloat(self.measures[self.currentMeasure-1].value - parseInt(currentNote.value, 10))){	
+									measure.note.tied = false;
+								} 
+							});
+						}
+					}
+
 					thisBeatValue = self.measures[self.currentMeasure].beats[thisBeat].value;	
 					self.addRest(self.measures[self.currentMeasure], thisBeat, thisBeatValue);
 					
@@ -570,7 +591,6 @@ var FUX = (function (fux) {
 
 					//Update current note to newly added note
 					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
-					console.log(currentNote);
 					soundmanager.play(thisPitch);
 
 					//Overwrite the current user exercise
@@ -615,7 +635,6 @@ var FUX = (function (fux) {
 
 				//If on a user execise update the exercise score
 				}else{
-					console.log(userScore);
 					$.post('/exercise/save/'+id, { staves: userScore });
 				}
 				
