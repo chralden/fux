@@ -335,7 +335,7 @@ var FUX = (function (fux) {
 					context.drawImage(assetmanager.getImage(tieImage.src), position+tieImage.x, pitchMappings[clef][self.pitch]+tieImage.y);
 				}
 
-				if(self.accidental){
+				if(self.accidental && self.accidental != 'false'){
 					accidentalImage = self.accidentalImages[self.accidental];
 					context.drawImage(assetmanager.getImage(accidentalImage.src), position+accidentalImage.x, pitchMappings[clef][self.pitch]+accidentalImage.y);
 				} 
@@ -485,19 +485,8 @@ var FUX = (function (fux) {
 						//Determine whether previous note would fall in same measure or previous measure
 						if(parseInt(currentNote.beat, 10) - parseInt(currentNote.value, 10) >= 0){
 							self.measures[self.currentMeasure].beats[parseInt(currentNote.beat, 10) - parseInt(currentNote.value, 10)].tied = false;
-
-							writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
-								if(parseFloat(measure.beat) === parseFloat(parseInt(currentNote.beat, 10) - parseInt(currentNote.value, 10))){	
-									measure.note.tied = false;
-								} 
-							});
 						}else{
 							self.measures[self.currentMeasure-1].beats[self.measures[self.currentMeasure-1].value - parseInt(currentNote.value, 10)].tied = false;
-							writeExercise.score[self.currentMeasure-1].measure.forEach(function(measure, i){			
-								if(parseFloat(measure.beat) === parseFloat(self.measures[self.currentMeasure-1].value - parseInt(currentNote.value, 10))){	
-									measure.note.tied = false;
-								} 
-							});
 						}
 					}
 
@@ -506,12 +495,6 @@ var FUX = (function (fux) {
 					
 					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
 					thisPitch = false;
-
-					writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
-						if(parseFloat(measure.beat) === parseFloat(thisBeat)){	
-							delete measure.note.pitch;
-						} 
-					});
 				
 				//If a 'tie', add tie to current note 
 				}else if(currentNoteValue === 'tie'){
@@ -531,30 +514,7 @@ var FUX = (function (fux) {
 						//If there is a next note, and two notes to be tied have the same pitch creat the tie and silence the second note
 						if(nextNote && currentNote.pitch === nextNote.pitch){
 							currentNote.tied = !currentNote.tied;
-							nextNote.silent = currentNote.tied;
-
-							if(nextMeasure === self.currentMeasure){
-								//Add tie state to score
-								writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
-									if(parseFloat(measure.beat) === parseFloat(thisBeat)){	
-										measure.note.tied = currentNote.tied;
-									}else if(parseFloat(measure.beat) === parseFloat(thisBeat)+parseInt(currentNote.value, 10)){
-										measure.note.silent = nextNote.silent;
-									}
-								});
-							}else{
-								writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
-									if(parseFloat(measure.beat) === parseFloat(thisBeat)){	
-										measure.note.tied = currentNote.tied;
-									}
-								});
-								writeExercise.score[nextMeasure].measure.forEach(function(measure, i){			
-									if(parseFloat(measure.beat) === (parseInt(currentNote.beat, 10)+parseInt(currentNote.value, 10))-self.measures[self.currentMeasure].value){	
-										measure.note.silent = nextNote.silent;
-									}
-								});
-							}
-							
+							nextNote.silent = currentNote.tied;						
 
 						} 
 					}
@@ -565,15 +525,7 @@ var FUX = (function (fux) {
 					if((currentNoteValue === 'sharp' && currentNote.pitch.indexOf('E') === -1 && currentNote.pitch.indexOf('B')) || (currentNoteValue === 'flat' && currentNote.pitch.indexOf('C') === -1 && currentNote.pitch.indexOf('F')) || currentNoteValue === 'natural'){
 
 						if(currentNote){ currentNote.accidental = currentNoteValue; } 
-
-						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){			
-
-							if(parseFloat(measure.beat) === parseFloat(thisBeat)){ 
-								measure.note.accidental = currentNoteValue; 
-							} 
-						});
-
-						
+			
 						if(currentNoteValue !== 'natural'){
 							soundmanager.play(currentNote.pitch+currentNote.accidental);
 						}else{
@@ -593,34 +545,46 @@ var FUX = (function (fux) {
 					currentNote = self.measures[self.currentMeasure].beats[thisBeat];
 					soundmanager.play(thisPitch);
 
-					//Overwrite the current user exercise
-					if(writeExercise.score[self.currentMeasure]){
-						//Go through existing beats in score and check if current beat is already scored
-						writeExercise.score[self.currentMeasure].measure.forEach(function(measure, i){
-							
-							//If beat is already scored, update pitch and duration
-							if(parseFloat(measure.beat) === parseFloat(thisBeat)){			
-								measure.note.pitch = thisPitch;
-								measure.note.duration = currentNoteValue;
-								measure.note.tied = false;
-								measure.note.silent = false;
-								beatExists = true;
-							}
-						});
-
-						//If beat does not already exist, add it
-						if(!beatExists){ writeExercise.score[self.currentMeasure].measure.push({ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch, "tied": false, "silent": false } }); }
-						
-					}else{
-						writeExercise.score[self.currentMeasure] = { "measure": [{ "beat": parseFloat(thisBeat), "note": { "duration": currentNoteValue, "pitch": thisPitch, "tied": false, "silent": false } }] };
-						self.score[self.currentMeasure] = {};
-					}
-
 				}
 
 				self.score[self.currentMeasure][thisBeat] = currentNote;
 				soundmanager.addScore(self.name, self.score);
 
+				//If current measure does not yet exist in user score, add empty measure
+				if(!writeExercise.score[self.currentMeasure]){ 
+					writeExercise.score[self.currentMeasure] = { "measure": [] };
+					self.score[self.currentMeasure] = {}; 
+				}
+
+				//Overwrite user exercise to send to backend to be saved
+				$.each(self.measures[self.currentMeasure].beats, function(beat, beatData){
+					beatData.tied = (beatData.tied) ? beatData.tied : false;
+					beatData.silent = (beatData.silent) ? beatData.silent : false;
+					beatData.accidental = (beatData.accidental) ? beatData.accidental : false;
+					beatExists = false;
+
+					writeExercise.score[self.currentMeasure].measure.forEach(function(writebeat, i){
+
+						//If beat is already scored, update pitch and duration
+						if(parseFloat(writebeat.beat) === parseFloat(beat)){			
+							beatExists = true;
+
+							if(beatData){
+								writebeat.note.pitch = beatData.pitch;
+								writebeat.note.duration = beatData.duration;
+								writebeat.note.tied = beatData.tied;
+								writebeat.note.silent = beatData.silent;
+								writebeat.note.accidental = beatData.accidental;	
+							}else{
+								writeExercise.score[self.currentMeasure].measure.splice(i,1);
+							}	
+						}
+
+					});
+
+					if(beatData && !beatExists){ writeExercise.score[self.currentMeasure].measure.push({ "beat": parseFloat(beat), "note": { "duration": beatData.duration, "pitch": beatData.pitch, "tied": beatData.tied, "silent": beatData.silent, "accidental": beatData.accidental } }); }
+		
+				});	
 
 				//If the current exercise is one of the base exercises initialize a new user exercise
 				if(basefirmus){
