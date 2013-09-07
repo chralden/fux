@@ -28,6 +28,14 @@ var FUX = (function (fux) {
 
 		staves = [],
 
+		//Given array of note objects sort by beat
+		sortByBeat = function(a, b){
+			var aBeat = parseFloat(a.beat),
+				bBeat = parseFloat(b.beat);
+
+			return ((aBeat < bBeat) ? -1 : ((aBeat > bBeat) ? 1 : 0));
+		},
+
 		//Set the tooltip image for the mouse based on note type and mouse position
 		setTooltipImage = function(){
 			
@@ -210,6 +218,7 @@ var FUX = (function (fux) {
 				//If passed as options reset object default properties
 				if(options && options.duration !== undefined){ self.duration = options.duration; } 
 				if(options && options.beat !== undefined){ self.beat = options.beat; } 
+
 				
 				self.value = self.values[self.duration];
 				self.width = rests[self.duration].width;
@@ -735,10 +744,13 @@ var FUX = (function (fux) {
 
 							//If firmus is present for current measure fill out with beats and rests
 							if(firmusMeasure){
-								
+
+								//sort current measure
+								firmusMeasure = firmusMeasure.sort(sortByBeat);
+
 								//Loop through beats in current measure
 								for(j = 0; j < firmusMeasure.length; j++){
-								
+
 									//If pitch is present at current beat, object is a note
 									if(firmusMeasure[j].note.pitch){
 										firmusNoteOptions = {
@@ -852,6 +864,7 @@ var FUX = (function (fux) {
 				thisNote = object(note),
 				thisMeasure = self.measures[self.currentMeasure],
 				paddedWidth = thisMeasure.width-20,
+				noFill = noFill || false,
 				measuresDivisor;
 
 				//Create the note object
@@ -876,7 +889,7 @@ var FUX = (function (fux) {
 					if(thisNote.beat === thisMeasure.currentBeat){ thisMeasure.currentBeat += thisNote.value; } 
 
 					//Fill out measure with rests if no notes are present
-					self.restFillOut(thisMeasure, thisNote.beat, thisNote.value);
+					self.restFillOut(thisMeasure, thisNote.beat, thisNote.value); 
 
 				}
 		
@@ -900,7 +913,7 @@ var FUX = (function (fux) {
 			//Function to add a rest object to a measure
 			addRest: function(measure, beat, value){
 				var self = this,
-				paddedWidth = measure.width -20,
+				paddedWidth = measure.width - 20,
 				newRest;
 
 				//Function to create a rest object given the measure position, beat position, and rest value
@@ -917,28 +930,30 @@ var FUX = (function (fux) {
 					//Calculate note start and end points based on note value and beat
 					thisRest.start = (measure.start + 10) + ( (paddedWidth/measuresDivisor) * (beat/value) );
 					thisRest.end = thisRest.start +  (paddedWidth/measuresDivisor);
-
 					return thisRest;
+
 				}
 
 				//Take the initial rest to be added, and check if it can be consolidated with any neighboring rests
 				function consolidateRests(rest){
+					
 					//Variable to hold the consolidated rest, first set to rest that was added
-					var consolidatedRest = rest;
+					var consolidatedRest = rest,
+						measureBeats = self.sortBeats(measure);
 
 					//Take in a rest and check if it's nearest neighbors are rests
 					function checkRests(checkRest){
-						var measureObjects = self.sortBeats(measure),
-						thisBeat = checkRest.beat,
-						thisValue = checkRest.value,
-						thisIndex = measureObjects.indexOf(thisBeat.toString()),
 						
-						//If not the first object in the measure, get the previous object
-						prevBeat = (thisIndex > 0) ? measure.beats[measureObjects[thisIndex-1]] : false,
-						
-						//If not the last object in the measure, get the next object
-						nextBeat = (thisIndex < measureObjects.length-1) ? measure.beats[measureObjects[thisIndex+1]] : false,
-						consolidatedValue;
+						var thisBeat = checkRest.beat,
+							thisValue = checkRest.value,
+							thisIndex = measureBeats.indexOf(thisBeat.toString()),
+
+							//If not the first object in the measure, get the previous object
+							prevBeat = (thisIndex > 0) ? measure.beats[measureBeats[thisIndex-1]] : false,
+							
+							//If not the last object in the measure, get the next object
+							nextBeat = (thisIndex < measureBeats.length-1) ? measure.beats[measureBeats[thisIndex+1]] : false,
+							consolidatedValue;	
 
 						//If next beat is a rest, add the rest values together
 						if(nextBeat && nextBeat.duration && !nextBeat.pitch){
@@ -953,11 +968,22 @@ var FUX = (function (fux) {
 								//Check if newly consolidated rest can also be consolidated with any neighbors
 								checkRests(consolidatedRest);
 								return;
-							}
 
-						//If the previous beat is a rest, add the rest values together
+
+							}else if(consolidatedValue === 3 && measure.beats[measureBeats[thisIndex+2]] && !measure.beats[measureBeats[thisIndex+2]].pitch){
+								consolidatedValue += measure.beats[measureBeats[thisIndex+2]].value;
+								consolidatedRest = createRest(measure, thisBeat, consolidatedValue);
+								measure.beats[nextBeat.beat] = false;
+								measure.beats[measureBeats[thisIndex+2]] = false;
+								
+								//Check if newly consolidated rest can also be consolidated with any neighbors
+								checkRests(consolidatedRest);
+								return;
+							}
+						
 						}
 
+						//If the previous beat is a rest, add the rest values together
 						if(prevBeat && prevBeat.duration && !prevBeat.pitch){
 							consolidatedValue = parseFloat(thisValue) + parseFloat(prevBeat.value);
 							
@@ -966,6 +992,16 @@ var FUX = (function (fux) {
 								//Create consolidated rest and delete rest it is replacing
 								consolidatedRest = createRest(measure, prevBeat.beat, consolidatedValue);
 								measure.beats[thisBeat] = false;
+								
+								//Check if newly consolidated rest can also be consolidated with any neighbors
+								checkRests(consolidatedRest);
+								return;
+
+							}else if(consolidatedValue === 3 && measure.beats[measureBeats[thisIndex-2]] && !measure.beats[measureBeats[thisIndex-2]].pitch){
+								consolidatedValue += measure.beats[measureBeats[thisIndex-2]].value;
+								consolidatedRest = createRest(measure, measureBeats[thisIndex-2], consolidatedValue);
+								measure.beats[thisBeat] = false;
+								measure.beats[prevBeat.beat] = false;
 								
 								//Check if newly consolidated rest can also be consolidated with any neighbors
 								checkRests(consolidatedRest);
@@ -996,6 +1032,7 @@ var FUX = (function (fux) {
 
 				//Start from the end of the measure and work backwards until you hit where notes have been added
 				while(i > noteFootprint){
+					
 					remainingSpace = i - noteFootprint;
 
 					//If space is large enough to hold half rest, add half rest
